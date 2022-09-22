@@ -1,3 +1,38 @@
+@charset "UTF-8";
+
+@import "abstracts/colours";
+@import "abstracts/fonts";
+@import "abstracts/mixins";
+@import "abstracts/variables";
+
+@import "base/animations";
+@import "base/normalize";
+@import "base/reset";
+@import "base/typography";
+
+@import "components/alerts";
+@import "components/buttons";
+@import "components/carousel";
+@import "components/cover";
+@import "components/dropdown";
+@import "components/icons";
+@import "components/links";
+
+@import "layout/footer";
+@import "layout/header";
+@import "layout/navbar";
+@import "layout/sidebar";
+@import "layout/grid";
+@import "layout/forms";
+
+@import "pages/index";
+
+@import "themes/dark-theme";
+@import "themes/light-theme";
+@import "themes/material-theme";
+
+@import "vendors/bootstrap";
+
 @import url("https://fonts.googleapis.com/css?family=Raleway");
 
 * {
@@ -116,7 +151,4 @@ main {
 
 main h1 {
   font-size: 3rem;
-}
-
-.flex-landing {
 }
