@@ -8,6 +8,7 @@
 body {
   margin: 0;
   padding: 0;
+  background-color: #242424;
 }
 
 .navbar {
@@ -103,4 +104,19 @@ body {
   .navbar-links.active {
     display: flex;
   }
+}
+
+// Main
+main {
+  max-width: 1440px;
+  margin: 0 auto;
+  color: white;
+  padding: 0 1em 0 1em;
+}
+
+main h1 {
+  font-size: 3rem;
+}
+
+.flex-landing {
 }

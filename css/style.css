@@ -5,7 +5,8 @@
 
 body {
   margin: 0;
-  padding: 0; }
+  padding: 0;
+  background-color: #242424; }
 
 .navbar {
   display: flex;
@@ -77,3 +78,12 @@ body {
     padding: 0.5rem 1rem; }
   .navbar-links.active {
     display: flex; } }
+
+main {
+  max-width: 1440px;
+  margin: 0 auto;
+  color: white;
+  padding: 0 1em 0 1em; }
+
+main h1 {
+  font-size: 3rem; }
