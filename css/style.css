@@ -18,14 +18,16 @@
   --fw-semi-bold: 600;
   --fw-bold: 700;
   --fs-500: 1rem;
-  --fs-600: 1.865rem;
-  --fs-700: 2.5rem; }
+  --fs-600: 1.875rem;
+  --fs-700: 2.5rem;
+  --fs-800: 3.5rem; }
 
 @media (min-width: 50em) {
   :root {
     --fs-500: 1rem;
-    --fs-600: 1.865rem;
-    --fs-700: 2.5rem; } }
+    --fs-600: 1.875rem;
+    --fs-700: 2.5rem;
+    --fs-800: 3.5rem; } }
 
 /* Box sizing rules */
 *,
@@ -94,18 +96,19 @@ main h1 {
   font-family: var(--ff-heading);
   font-weight: var(--fw-bold);
   color: var(--clr-primary-100);
-  font-size: var(--fs-700); }
+  font-size: var(--fs-800); }
 
 main h2 {
   font-family: var(--ff-heading);
   font-weight: var(--fw-semi-bold);
   color: var(--clr-primary-100);
-  font-size: var(--fs-600); }
+  font-size: var(--fs-700); }
 
 main h3 {
   font-family: var(--ff-heading);
   font-weight: var(--fw-regular);
-  color: var(--clr-primary-100); }
+  color: var(--clr-primary-100);
+  font-size: var(--fs-600); }
 
 * {
   box-sizing: border-box; }
