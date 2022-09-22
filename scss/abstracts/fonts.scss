@@ -9,4 +9,16 @@
   --fw-regular: 500;
   --fw-semi-bold: 600;
   --fw-bold: 700;
+
+  --fs-500: 1rem;
+  --fs-600: 1.865rem;
+  --fs-700: 2.5rem;
+}
+
+@media (min-width: 50em) {
+  :root {
+    --fs-500: 1rem;
+    --fs-600: 1.865rem;
+    --fs-700: 2.5rem;
+  }
 }

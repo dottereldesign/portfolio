@@ -16,7 +16,16 @@
   --fw-light: 400;
   --fw-regular: 500;
   --fw-semi-bold: 600;
-  --fw-bold: 700; }
+  --fw-bold: 700;
+  --fs-500: 1rem;
+  --fs-600: 1.865rem;
+  --fs-700: 2.5rem; }
+
+@media (min-width: 50em) {
+  :root {
+    --fs-500: 1rem;
+    --fs-600: 1.865rem;
+    --fs-700: 2.5rem; } }
 
 /* Box sizing rules */
 *,
@@ -84,6 +93,18 @@ select {
 main h1 {
   font-family: var(--ff-heading);
   font-weight: var(--fw-bold);
+  color: var(--clr-primary-100);
+  font-size: var(--fs-700); }
+
+main h2 {
+  font-family: var(--ff-heading);
+  font-weight: var(--fw-semi-bold);
+  color: var(--clr-primary-100);
+  font-size: var(--fs-600); }
+
+main h3 {
+  font-family: var(--ff-heading);
+  font-weight: var(--fw-regular);
   color: var(--clr-primary-100); }
 
 * {
@@ -170,6 +191,3 @@ main {
   margin: 0 auto;
   color: white;
   padding: 0 1em 0 1em; }
-
-main h1 {
-  font-size: 3rem; }
