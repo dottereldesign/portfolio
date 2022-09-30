@@ -1,20 +1,27 @@
-main h1 {
+h1 {
   font-family: var(--ff-heading);
   font-weight: var(--fw-bold);
   color: var(--clr-primary-100);
   font-size: var(--fs-800);
 }
 
-main h2 {
+h2 {
   font-family: var(--ff-heading);
   font-weight: var(--fw-semi-bold);
   color: var(--clr-primary-100);
-  font-size: var(--fs-700);
+  font-size: var(--fs-600);
 }
 
-main h3 {
+h3 {
   font-family: var(--ff-heading);
   font-weight: var(--fw-regular);
   color: var(--clr-primary-100);
   font-size: var(--fs-600);
+}
+
+p {
+  font-family: var(--ff-heading);
+  font-weight: var(--fw-light);
+  color: var(--clr-primary-100);
+  font-size: var(--fs-400);
 }
