@@ -1,12 +1,9 @@
 @charset "UTF-8";
 
-@import "abstracts/colours";
-@import "abstracts/fonts";
-@import "abstracts/mixins";
-@import "abstracts/variables";
+@import "abstracts/properties";
+@import "abstracts/utilities";
 
 @import "base/animations";
-@import "base/normalize";
 @import "base/reset";
 @import "base/typography";
 
@@ -29,8 +26,5 @@
 
 @import "themes/dark-theme";
 @import "themes/light-theme";
-@import "themes/material-theme";
-
-@import "vendors/bootstrap";
 
 @import url("https://fonts.googleapis.com/css?family=Raleway");
