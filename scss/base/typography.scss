@@ -1,27 +1,27 @@
 h1 {
-  font-family: var(--ff-heading);
+  font-family: var(--ff-primary-100);
   font-weight: var(--fw-bold);
+  color: var(--clr-primary-100);
+  font-size: var(--fs-1000);
+}
+
+h2 {
+  font-family: var(--ff-primary-100);
+  font-weight: var(--fw-semi-bold);
   color: var(--clr-primary-100);
   font-size: var(--fs-800);
 }
 
-h2 {
-  font-family: var(--ff-heading);
-  font-weight: var(--fw-semi-bold);
-  color: var(--clr-primary-100);
-  font-size: var(--fs-600);
-}
-
 h3 {
-  font-family: var(--ff-heading);
+  font-family: var(--ff-primary-100);
   font-weight: var(--fw-regular);
   color: var(--clr-primary-100);
   font-size: var(--fs-600);
 }
 
 p {
-  font-family: var(--ff-heading);
+  font-family: var(--ff-primary-100);
   font-weight: var(--fw-light);
   color: var(--clr-primary-100);
-  font-size: var(--fs-400);
+  font-size: var(--fs-500);
 }

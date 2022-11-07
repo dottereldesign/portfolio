@@ -1,6 +1,6 @@
 // Custom Properties
 :root {
-  --clr-primary-100: ;
+  --clr-primary-100: black;
   --clr-primary-200: ;
   --clr-primary-300: ;
 
@@ -15,13 +15,12 @@
   --fw-semi-bold: 600;
   --fw-bold: 700;
 
-  --fs-sm: 0.875rem;
-  --fs-base: 1rem;
-  --fs-lg: 1.125rem;
-  --fs-xl: 1.25rem;
-  --fs-2xl: 1.5rem;
-  --fs-3xl: 1.875rem;
-  --fs-4xl: 2.25rem;
-  --fs-5xl: 3rem;
-  --fs-6xl: 3.75rem;
+  --fs-300: clamp(0.7rem, 0.66rem + 0.2vw, 0.8rem);
+  --fs-400: clamp(0.88rem, 0.83rem + 0.24vw, 1rem);
+  --fs-500: clamp(1.09rem, 1rem + 0.47vw, 1.33rem);
+  --fs-600: clamp(1.37rem, 1.21rem + 0.8vw, 1.78rem);
+  --fs-700: clamp(1.71rem, 1.45rem + 1.29vw, 2.37rem);
+  --fs-800: clamp(2.14rem, 1.74rem + 1.99vw, 3.16rem);
+  --fs-900: clamp(2.67rem, 2.07rem + 3vw, 4.21rem);
+  --fs-1000: clamp(3.34rem, 2.45rem + 4.43vw, 5.61rem);
 }

@@ -4,7 +4,7 @@
 
 body {
   margin: 0;
-  padding: 0;
+  padding: 0 1em 0 1em;
   background-color: var(--clr-primary-600);
 }
 
@@ -22,7 +22,7 @@ nav {
   position: relative;
   justify-content: space-between;
   align-items: center;
-  color: white;
+  color: var(--clr-primary-100);
   font-family: var(--ff-primary);
 }
 
@@ -118,29 +118,15 @@ main {
   max-width: 1440px;
   margin: 0 auto;
   color: white;
-  padding: 0 1em 0 1em;
   border-left: 1px solid white;
   border-right: 1px solid white;
   border-bottom: 1px solid white;
   padding-bottom: 3.5em;
 }
 
-main h1 {
-  padding-top: 32px;
-  font-size: 5rem;
-  line-height: 1em;
-}
-
-main h1,
-main h2,
-main h3 {
-  text-align: center;
-}
-
 .projects {
   max-width: 1440px;
   margin: 0 auto;
-  padding: 0 1em 0 1em;
   border-left: 1px solid white;
   border-right: 1px solid white;
   border-bottom: 1px solid white;
@@ -154,11 +140,9 @@ main h3 {
 .components {
   max-width: 1440px;
   margin: 0 auto;
-  padding: 0 1em 0 1em;
   border-left: 1px solid white;
   border-right: 1px solid white;
   border-bottom: 1px solid white;
-  padding-bottom: 3.5em;
 }
 
 .components__flex img {
@@ -175,7 +159,6 @@ main h3 {
 .clones {
   max-width: 1440px;
   margin: 0 auto;
-  padding: 0 1em 0 1em;
   border-left: 1px solid white;
   border-right: 1px solid white;
   border-bottom: 1px solid white;
