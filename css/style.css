@@ -1,12 +1,10 @@
 @import url("https://fonts.googleapis.com/css?family=Raleway");
 :root {
-  --clr-primary-100: black;
-  --clr-primary-200: ;
-  --clr-primary-300: ;
-  --clr-accent-100: ;
-  --clr-accent-200: ;
+  --clr-neutral-100: hsl(0, 0%, 5%);
+  --clr-neutral-200: hsl(40, 38%, 92%);
   --ff-primary-100: "Open Sans", sans-serif;
   --ff-primary-200: "Raleway", sans-serif;
+  --ff-primary-300: "Playfair Display", serif;
   --fw-light: 400;
   --fw-regular: 500;
   --fw-semi-bold: 600;
@@ -83,23 +81,26 @@ select {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important; } }
 
+h1,
+h2,
+h3 {
+  color: var(--clr-neutral-200); }
+
 h1 {
   font-family: var(--ff-primary-100);
   font-weight: var(--fw-bold);
-  color: var(--clr-primary-100);
-  font-size: var(--fs-1000); }
+  font-size: var(--fs-900); }
 
 h2 {
-  font-family: var(--ff-primary-100);
+  font-family: var(--ff-primary-300);
   font-weight: var(--fw-semi-bold);
-  color: var(--clr-primary-100);
-  font-size: var(--fs-800); }
+  font-size: var(--fs-800);
+  letter-spacing: 3px; }
 
 h3 {
   font-family: var(--ff-primary-100);
   font-weight: var(--fw-regular);
-  color: var(--clr-primary-100);
-  font-size: var(--fs-600); }
+  font-size: var(--fs-700); }
 
 p {
   font-family: var(--ff-primary-100);
@@ -107,19 +108,22 @@ p {
   color: var(--clr-primary-100);
   font-size: var(--fs-500); }
 
-* {
-  box-sizing: border-box; }
+header .navbar-links {
+  font-family: var(--ff-primary-100);
+  font-weight: var(--fw-light);
+  color: var(--clr-primary-100);
+  font-size: var(--fs-500); }
 
-body {
-  margin: 0;
-  padding: 0 1em 0 1em;
-  background-color: var(--clr-primary-600); }
-
-header {
-  border-bottom: 1px solid white; }
+header .brand-title {
+  font-size: 2rem;
+  margin: 0.5rem;
+  color: var(--clr-neutral-200);
+  text-decoration: none;
+  font-family: var(--ff-primary-100);
+  font-weight: 700; }
 
 nav {
-  width: 1440px;
+  max-width: 1440px;
   margin: 0 auto; }
 
 .navbar {
@@ -127,17 +131,7 @@ nav {
   position: relative;
   justify-content: space-between;
   align-items: center;
-  color: var(--clr-primary-100);
   font-family: var(--ff-primary); }
-
-.brand-title {
-  font-size: 2rem;
-  margin: 0.5rem; }
-
-.brand-title {
-  text-decoration: none;
-  color: white;
-  font-weight: 700; }
 
 .navbar-links {
   height: 100%; }
@@ -194,55 +188,9 @@ nav {
   .navbar-links.active {
     display: flex; } }
 
-main {
-  max-width: 1440px;
-  margin: 0 auto;
-  color: white;
-  border-left: 1px solid white;
-  border-right: 1px solid white;
-  border-bottom: 1px solid white;
-  padding-bottom: 3.5em; }
+* {
+  box-sizing: border-box; }
 
-.projects {
-  max-width: 1440px;
-  margin: 0 auto;
-  border-left: 1px solid white;
-  border-right: 1px solid white;
-  border-bottom: 1px solid white;
-  padding-bottom: 3.5em; }
-
-.components h2 {
-  padding-bottom: 1em; }
-
-.components {
-  max-width: 1440px;
-  margin: 0 auto;
-  border-left: 1px solid white;
-  border-right: 1px solid white;
-  border-bottom: 1px solid white; }
-
-.components__flex img {
-  height: auto; }
-
-.components__flex {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  flex-wrap: wrap;
-  gap: 1em; }
-
-.clones {
-  max-width: 1440px;
-  margin: 0 auto;
-  border-left: 1px solid white;
-  border-right: 1px solid white;
-  border-bottom: 1px solid white;
-  padding-bottom: 3.5em; }
-
-.quote {
-  max-width: 1440px;
-  margin: 0 auto;
-  padding: 0 1em 0 1em;
-  border-left: 1px solid white;
-  border-right: 1px solid white;
-  border-bottom: 1px solid white;
-  padding-bottom: 3.5em; }
+body {
+  margin: 0;
+  padding: 0 1em 0 1em; }

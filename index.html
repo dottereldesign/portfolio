@@ -11,6 +11,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&family=Raleway:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
@@ -24,40 +25,34 @@
             </a>
             <div class="navbar-links">
                 <ul>
-                    <li><a href="#">Home</a></li>
-                    <li><a href="#">Projects</a></li>
-                    <li><a href="#">Clones</a></li>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="projects.html">Projects</a></li>
+                    <li><a href="clones.html">Clones</a></li>
+                    <li><a href="clones.html">Components</a></li>
                 </ul>
             </div>
         </nav>
     </header>
 
-    <main>
-        <h1>Jamie Wilson</h1>
+    <main id="fanta">
+        <h2>Front-end Developer</h2>
     </main>
-    <section class="projects">
-        <h2>Projects</h2>
 
-    </section>
-    <section class="components">
-        <h2>Clones</h2>
-        <div class="components__flex">
-            <!-- <img src="images/sharesies.jfif" alt="">
-            <img src="images/mitreten.jfif" alt="">
-            <img src="images/anz.jfif" alt="">
-            <img src="images/kmart.jfif" alt="">
-            <img src="images/chchuni.jfif" alt="">
-            <img src="images/ebgames.jfif" alt="">
-            <img src="images/chchcouncil.jfif" alt="">
-            <img src="images/spark.jfif" alt="">
-            <img src="images/flightcentre.jfif" alt="">
-            <img src="images/johnnybigg.jfif" alt=""> -->
-        </div>
-    </section>
-    <section class="clones {
-        ">
-        <h2>Components</h2>
-    </section>
+    <script src="https://cdn.jsdelivr.net/npm/vanta@0.5.21/vendor/three.r119.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/tengbao/vanta@master/dist/vanta.net.min.js"></script>
+    <script>
+        VANTA.NET({
+            //Add the id of your tag with the # before
+            el: "body",
+            //All the controles for the user
+            mouseControls: true,
+            touchControls: true,
+            gyroControls: false,
+
+            scale: 1.00,
+            scaleMobile: 1.00
+        })
+    </script>
 </body>
 
 </html>
