@@ -89,7 +89,8 @@ h3 {
 h1 {
   font-family: var(--ff-primary-100);
   font-weight: var(--fw-bold);
-  font-size: var(--fs-900); }
+  font-size: var(--fs-900);
+  letter-spacing: 3px; }
 
 h2 {
   font-family: var(--ff-primary-300);
@@ -121,6 +122,9 @@ header .brand-title {
   text-decoration: none;
   font-family: var(--ff-primary-100);
   font-weight: 700; }
+
+header {
+  background-color: #003932; }
 
 nav {
   max-width: 1440px;
@@ -188,9 +192,26 @@ nav {
   .navbar-links.active {
     display: flex; } }
 
+main {
+  display: grid;
+  grid-template-columns: 45vw 45vw; }
+
+.main_col-1 {
+  grid-column-start: 1;
+  grid-column-end: 1; }
+
+.main_col-2 {
+  grid-column-start: 2;
+  grid-column-end: 2; }
+
 * {
   box-sizing: border-box; }
 
-body {
-  margin: 0;
-  padding: 0 1em 0 1em; }
+main {
+  background-color: #003932;
+  height: 70vh; }
+
+.section_1 {
+  width: 100%;
+  display: block;
+  background-color: white; }

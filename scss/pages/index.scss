@@ -2,7 +2,13 @@
   box-sizing: border-box;
 }
 
-body {
-  margin: 0;
-  padding: 0 1em 0 1em;
+main {
+  background-color: #003932;
+  height: 70vh;
+}
+
+.section_1 {
+  width: 100%;
+  display: block;
+  background-color: white;
 }

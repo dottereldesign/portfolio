@@ -34,23 +34,40 @@
         </nav>
     </header>
 
-    <main id="fanta">
-        <h2>Front-end Developer</h2>
+    <main>
+        <div class="main_col-1">
+            <h1>Front-end Developer</h1>
+        </div>
+        <div class="main_col-2">
+            <div id="main_animation"></div>
+        </div>
     </main>
+
+    <section class="section_1">
+        <svg width="100%" height="100%" id="svg" viewBox="0 0 1440 400" xmlns="http://www.w3.org/2000/svg" class="transition duration-300 ease-in-out delay-150">
+            <path d="M 0,400 C 0,400 0,200 0,200 C 153.33333333333331,173.33333333333334 306.66666666666663,146.66666666666669 445,150 C 583.3333333333334,153.33333333333331 706.6666666666667,186.66666666666666 870,200 C 1033.3333333333333,213.33333333333334 1236.6666666666665,206.66666666666669 1440,200 C 1440,200 1440,400 1440,400 Z" stroke="none" stroke-width="0" fill="#003932" fill-opacity="1" class="transition-all duration-300 ease-in-out delay-150 path-0" transform="rotate(-180 720 200)"></path>
+        </svg>
+    </section>
 
     <script src="https://cdn.jsdelivr.net/npm/vanta@0.5.21/vendor/three.r119.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/tengbao/vanta@master/dist/vanta.net.min.js"></script>
     <script>
         VANTA.NET({
             //Add the id of your tag with the # before
-            el: "body",
+            el: "#main_animation",
             //All the controles for the user
             mouseControls: true,
             touchControls: true,
             gyroControls: false,
+            minHeight: 800,
+            minWidth: 200.00,
 
             scale: 1.00,
-            scaleMobile: 1.00
+            scaleMobile: 1.00,
+            color: 0xffffff,
+            backgroundColor: 0x003932,
+            points: 4.00,
+            spacing: 10.00
         })
     </script>
 </body>
