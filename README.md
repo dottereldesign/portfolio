@@ -6,7 +6,7 @@ This repository contains my personal portfolio website and selected work.
 
 ## About
 
-I’m Jamie Wilson, a designer and developer building thoughtful digital experiences.
+I’m Jamie Wilson, a designer and developer.
 
 ## Featured Work
 
