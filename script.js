@@ -93,3 +93,36 @@ if (title) {
     scrambleText(title);
   }
 }
+
+const timeline = document.querySelector("[data-timeline]");
+
+if (timeline) {
+  const events = [...timeline.querySelectorAll(".timeline-event")];
+  const progress = timeline.querySelector(".timeline__progress");
+  let scrollFrame;
+
+  const updateTimeline = () => {
+    const bounds = timeline.getBoundingClientRect();
+    const travel = Math.max(1, bounds.height);
+    const viewportPoint = window.innerHeight * 0.55;
+    const progressAmount = Math.min(100, Math.max(0, ((viewportPoint - bounds.top) / travel) * 100));
+    progress.style.height = `${progressAmount}%`;
+    scrollFrame = undefined;
+  };
+
+  const revealEvents = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) entry.target.classList.add("is-visible");
+    });
+  }, { threshold: 0.25, rootMargin: "0px 0px -8% 0px" });
+
+  events.forEach((event) => revealEvents.observe(event));
+
+  const onScroll = () => {
+    if (!scrollFrame) scrollFrame = window.requestAnimationFrame(updateTimeline);
+  };
+
+  window.addEventListener("scroll", onScroll, { passive: true });
+  window.addEventListener("resize", updateTimeline);
+  updateTimeline();
+}
