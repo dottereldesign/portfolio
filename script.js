@@ -1,44 +1,54 @@
 const title = document.querySelector(".hero__title span");
 const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#$%&*";
+const randomBetween = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
 function scrambleText(element) {
   const text = element.textContent.trim();
+
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
   element.textContent = "";
 
   const letters = [...text].map((character) => {
     const letter = document.createElement("span");
     letter.className = "scramble-character";
     letter.setAttribute("aria-hidden", "true");
-    letter.textContent = character === " " ? "\u00a0" : character;
+    letter.textContent = character === " " ? "\u00a0" : characters[randomBetween(0, characters.length - 1)];
     element.appendChild(letter);
-    return { character, letter };
+    return {
+      character,
+      letter,
+      resolveAt: character === " " ? 0 : randomBetween(10, 42),
+    };
   });
 
-  const startTime = performance.now();
-  const resolveEvery = 78;
-  const scrambleFor = 560;
+  const frameDelay = 42;
+  let currentChange = 0;
+  let lastChange = 0;
 
   function animate(now) {
-    const elapsed = now - startTime;
-    let unresolved = false;
+    if (now - lastChange < frameDelay) {
+      window.requestAnimationFrame(animate);
+      return;
+    }
 
-    letters.forEach(({ character, letter }, index) => {
-      if (character === " ") {
-        letter.textContent = "\u00a0";
-        return;
-      }
+    lastChange = now;
+    currentChange += 1;
+    const unresolved = letters.filter(({ resolveAt }) => resolveAt > currentChange);
 
-      const characterElapsed = elapsed - index * resolveEvery;
-      if (characterElapsed < scrambleFor) {
-        unresolved = true;
-        letter.textContent = characters[Math.floor(Math.random() * characters.length)];
-      } else {
-        letter.textContent = character;
-        letter.classList.add("is-resolved");
+    if (!unresolved.length) return;
+
+    const active = unresolved[randomBetween(0, unresolved.length - 1)];
+    active.letter.textContent = characters[randomBetween(0, characters.length - 1)];
+
+    letters.forEach((letter) => {
+      if (letter.resolveAt <= currentChange) {
+        letter.letter.textContent = letter.character === " " ? "\u00a0" : letter.character;
+        letter.letter.classList.add("is-resolved");
       }
     });
 
-    if (unresolved) window.requestAnimationFrame(animate);
+    window.requestAnimationFrame(animate);
   }
 
   window.requestAnimationFrame(animate);
