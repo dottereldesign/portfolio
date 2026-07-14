@@ -13,8 +13,15 @@ function scrambleText(element) {
     const letter = document.createElement("span");
     letter.className = "scramble-character";
     letter.setAttribute("aria-hidden", "true");
-    letter.textContent = character === " " ? "\u00a0" : characters[randomBetween(0, characters.length - 1)];
+    const finalCharacter = character === " " ? "\u00a0" : character;
+    letter.textContent = finalCharacter;
     element.appendChild(letter);
+
+    // Keep every slot the width of its final character so random glyphs
+    // cannot make the heading jump wider and narrower during the reveal.
+    letter.style.width = `${letter.getBoundingClientRect().width}px`;
+    letter.textContent = character === " " ? "\u00a0" : characters[randomBetween(0, characters.length - 1)];
+
     return {
       character,
       letter,
@@ -34,12 +41,6 @@ function scrambleText(element) {
 
     lastChange = now;
     currentChange += 1;
-    const unresolved = letters.filter(({ resolveAt }) => resolveAt > currentChange);
-
-    if (!unresolved.length) return;
-
-    const active = unresolved[randomBetween(0, unresolved.length - 1)];
-    active.letter.textContent = characters[randomBetween(0, characters.length - 1)];
 
     letters.forEach((letter) => {
       if (letter.resolveAt <= currentChange) {
@@ -48,10 +49,23 @@ function scrambleText(element) {
       }
     });
 
+    const unresolved = letters.filter(({ resolveAt }) => resolveAt > currentChange);
+
+    if (!unresolved.length) return;
+
+    const active = unresolved[randomBetween(0, unresolved.length - 1)];
+    active.letter.textContent = characters[randomBetween(0, characters.length - 1)];
+
     window.requestAnimationFrame(animate);
   }
 
   window.requestAnimationFrame(animate);
 }
 
-if (title) scrambleText(title);
+if (title) {
+  if (document.fonts?.ready) {
+    document.fonts.ready.then(() => scrambleText(title));
+  } else {
+    scrambleText(title);
+  }
+}
