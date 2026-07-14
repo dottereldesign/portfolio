@@ -17,28 +17,44 @@ function scrambleText(element) {
     if (isSpace) letter.classList.add("scramble-space");
     const finalCharacter = isSpace ? "" : character;
     letter.classList.add("is-resolved");
-    letter.textContent = finalCharacter;
+    const glyph = document.createElement("span");
+    glyph.className = "scramble-glyph";
+    glyph.textContent = finalCharacter;
+    letter.appendChild(glyph);
     element.appendChild(letter);
 
     // Preserve the natural width of each final glyph, then add one shared
     // visual gap so the finished word reads like normal typesetting.
-    const finalWidth = isSpace ? parseFloat(getComputedStyle(element).fontSize) * 0.3 : letter.getBoundingClientRect().width;
+    const finalWidth = isSpace ? parseFloat(getComputedStyle(element).fontSize) * 0.3 : glyph.getBoundingClientRect().width;
     const gap = parseFloat(getComputedStyle(element).fontSize) * 0.06;
     letter.style.width = `${finalWidth + gap}px`;
     letter.style.textAlign = "left";
     letter.classList.remove("is-resolved");
-    letter.textContent = isSpace ? "" : characters[randomBetween(0, characters.length - 1)];
 
-    return {
+    const state = {
       character,
       letter,
-      resolveAt: character === " " ? 0 : randomBetween(10, 42),
+      glyph,
+      finalWidth,
+      resolveAt: isSpace ? 0 : randomBetween(10, 42),
     };
+
+    if (!isSpace) setRandomGlyph(state);
+
+    return state;
   });
 
   const frameDelay = 42;
   let currentChange = 0;
   let lastChange = 0;
+
+  function setRandomGlyph(letter) {
+    letter.glyph.textContent = characters[randomBetween(0, characters.length - 1)];
+    letter.glyph.style.transform = "none";
+    const randomWidth = letter.glyph.getBoundingClientRect().width;
+    const scale = Math.min(1, letter.finalWidth / randomWidth);
+    letter.glyph.style.transform = `scaleX(${scale})`;
+  }
 
   function animate(now) {
     if (now - lastChange < frameDelay) {
@@ -51,7 +67,8 @@ function scrambleText(element) {
 
     letters.forEach((letter) => {
       if (letter.resolveAt <= currentChange) {
-        letter.letter.textContent = letter.character === " " ? "" : letter.character;
+        letter.glyph.textContent = letter.character === " " ? "" : letter.character;
+        letter.glyph.style.transform = "none";
         letter.letter.classList.add("is-resolved");
       }
     });
@@ -61,7 +78,7 @@ function scrambleText(element) {
     if (!unresolved.length) return;
 
     const active = unresolved[randomBetween(0, unresolved.length - 1)];
-    active.letter.textContent = characters[randomBetween(0, characters.length - 1)];
+    setRandomGlyph(active);
 
     window.requestAnimationFrame(animate);
   }
