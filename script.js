@@ -9,33 +9,25 @@ function scrambleText(element) {
 
   element.textContent = "";
 
-  // Use one shared cell width for the whole word. Different widths per
-  // letter make the gaps look uneven even when the layout itself is stable.
-  const measure = document.createElement("span");
-  measure.className = "scramble-character";
-  measure.style.position = "absolute";
-  measure.style.visibility = "hidden";
-  measure.style.whiteSpace = "nowrap";
-  element.appendChild(measure);
-  const widestGlyph = [...characters, ...text.replaceAll(" ", "")].reduce((widest, character) => {
-    measure.textContent = character;
-    return Math.max(widest, measure.getBoundingClientRect().width);
-  }, 0);
-  measure.remove();
-
-  const cellWidth = widestGlyph + 4;
-
   const letters = [...text].map((character) => {
     const letter = document.createElement("span");
     letter.className = "scramble-character";
     letter.setAttribute("aria-hidden", "true");
-    const finalCharacter = character === " " ? "\u00a0" : character;
+    const isSpace = character === " ";
+    if (isSpace) letter.classList.add("scramble-space");
+    const finalCharacter = isSpace ? "" : character;
+    letter.classList.add("is-resolved");
     letter.textContent = finalCharacter;
     element.appendChild(letter);
 
-    letter.style.width = `${character === " " ? cellWidth * 0.45 : cellWidth}px`;
-    letter.style.textAlign = "center";
-    letter.textContent = character === " " ? "\u00a0" : characters[randomBetween(0, characters.length - 1)];
+    // Preserve the natural width of each final glyph, then add one shared
+    // visual gap so the finished word reads like normal typesetting.
+    const finalWidth = isSpace ? parseFloat(getComputedStyle(element).fontSize) * 0.3 : letter.getBoundingClientRect().width;
+    const gap = parseFloat(getComputedStyle(element).fontSize) * 0.06;
+    letter.style.width = `${finalWidth + gap}px`;
+    letter.style.textAlign = "left";
+    letter.classList.remove("is-resolved");
+    letter.textContent = isSpace ? "" : characters[randomBetween(0, characters.length - 1)];
 
     return {
       character,
@@ -59,7 +51,7 @@ function scrambleText(element) {
 
     letters.forEach((letter) => {
       if (letter.resolveAt <= currentChange) {
-        letter.letter.textContent = letter.character === " " ? "\u00a0" : letter.character;
+        letter.letter.textContent = letter.character === " " ? "" : letter.character;
         letter.letter.classList.add("is-resolved");
       }
     });

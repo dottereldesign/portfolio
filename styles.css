@@ -60,7 +60,9 @@ a { color: inherit; text-decoration: none; }
 .hero__title { max-width: none; margin: 0; color: var(--ink); font-size: clamp(4.2rem, 9.5vw, 9.5rem); font-weight: 600; letter-spacing: -0.09em; line-height: 0.86; white-space: nowrap; }
 .hero__title span { display: inline-block; }
 .hero__title .scramble-character { min-width: 0; overflow: visible; box-sizing: border-box; color: var(--accent); opacity: 0.85; transition: color 180ms ease, opacity 180ms ease; }
+.hero__title .scramble-character:not(.is-resolved) { font-family: "DM Mono", monospace; font-size: 0.72em; letter-spacing: 0; }
 .hero__title .scramble-character.is-resolved { color: var(--ink); opacity: 1; }
+.hero__title .scramble-space { color: transparent; }
 .hero__role { margin: 2rem 0 0; color: var(--ink); font-family: "DM Mono", monospace; font-size: clamp(1rem, 2vw, 1.35rem); letter-spacing: 0.08em; text-transform: uppercase; }
 .hero__intro { max-width: 28rem; margin: 1.2rem 0 2.4rem; color: var(--muted); font-size: 1rem; line-height: 1.6; }
 .cta { display: inline-flex; align-items: center; gap: 1.1rem; border-bottom: 1px solid var(--accent); padding-bottom: 0.55rem; color: var(--ink); font-family: "DM Mono", monospace; font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; transition: gap 180ms ease, color 180ms ease; }
@@ -89,6 +91,7 @@ a { color: inherit; text-decoration: none; }
   .hero { padding-top: 1.5rem; padding-bottom: 1.25rem; }
   .hero__content { padding: 5rem 0; }
   .hero__title { max-width: 8ch; font-size: clamp(4rem, 19vw, 7rem); white-space: normal; }
+  .hero__title .scramble-space { display: block; width: 100% !important; height: 0; }
   .social-rail { right: 1rem; }
   .hero__footer { align-items: flex-start; font-size: 0.6rem; line-height: 1.5; }
   .footer-line { width: 2rem; margin: 0 0.5rem; }
