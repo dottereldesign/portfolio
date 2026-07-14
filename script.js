@@ -1,5 +1,5 @@
 const title = document.querySelector(".hero__title span");
-const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#$%&*";
+const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 const randomBetween = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
 function scrambleText(element) {
@@ -9,6 +9,22 @@ function scrambleText(element) {
 
   element.textContent = "";
 
+  // Use one shared cell width for the whole word. Different widths per
+  // letter make the gaps look uneven even when the layout itself is stable.
+  const measure = document.createElement("span");
+  measure.className = "scramble-character";
+  measure.style.position = "absolute";
+  measure.style.visibility = "hidden";
+  measure.style.whiteSpace = "nowrap";
+  element.appendChild(measure);
+  const widestGlyph = [...characters, ...text.replaceAll(" ", "")].reduce((widest, character) => {
+    measure.textContent = character;
+    return Math.max(widest, measure.getBoundingClientRect().width);
+  }, 0);
+  measure.remove();
+
+  const cellWidth = widestGlyph + 4;
+
   const letters = [...text].map((character) => {
     const letter = document.createElement("span");
     letter.className = "scramble-character";
@@ -17,14 +33,7 @@ function scrambleText(element) {
     letter.textContent = finalCharacter;
     element.appendChild(letter);
 
-    // Reserve room for the widest possible random glyph. This keeps every
-    // slot stable without letting symbols get cropped during the reveal.
-    const finalWidth = letter.getBoundingClientRect().width;
-    const widestGlyph = character === " " ? finalWidth : [...characters].reduce((widest, randomCharacter) => {
-      letter.textContent = randomCharacter;
-      return Math.max(widest, letter.getBoundingClientRect().width);
-    }, finalWidth);
-    letter.style.width = `${widestGlyph + 4}px`;
+    letter.style.width = `${character === " " ? cellWidth * 0.45 : cellWidth}px`;
     letter.style.textAlign = "center";
     letter.textContent = character === " " ? "\u00a0" : characters[randomBetween(0, characters.length - 1)];
 
