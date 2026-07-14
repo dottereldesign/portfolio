@@ -79,7 +79,9 @@ a { color: inherit; text-decoration: none; }
 .work-placeholder h2 { max-width: 8ch; margin: 0; font-size: clamp(3rem, 8vw, 8rem); letter-spacing: -0.08em; line-height: 0.9; }
 .work-heading__note { max-width: 18rem; margin: 0 0 0.5rem; color: #66675f; font-size: 0.95rem; line-height: 1.5; }
 .project-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: clamp(4rem, 8vw, 8rem); }
-.project-card { border-top: 1px solid rgba(16, 17, 15, 0.25); padding-top: 1rem; }
+.project-card { display: block; border-top: 1px solid rgba(16, 17, 15, 0.25); padding-top: 1rem; color: inherit; text-decoration: none; transition: color 180ms ease; }
+.project-card:hover h3 { color: #59630f; }
+.project-card:focus-visible { outline: 2px solid #59630f; outline-offset: 0.5rem; }
 .project-card__visual { display: flex; min-height: 18rem; align-items: end; justify-content: space-between; margin-bottom: 1.3rem; padding: 1rem; font-family: "DM Mono", monospace; font-size: 0.75rem; }
 .project-card__visual--lime { background: var(--accent); color: #10110f; }
 .project-card__visual--image { position: relative; overflow: hidden; color: #fff; background: #10110f; }
