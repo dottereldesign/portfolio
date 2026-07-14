@@ -17,9 +17,15 @@ function scrambleText(element) {
     letter.textContent = finalCharacter;
     element.appendChild(letter);
 
-    // Keep every slot the width of its final character so random glyphs
-    // cannot make the heading jump wider and narrower during the reveal.
-    letter.style.width = `${letter.getBoundingClientRect().width}px`;
+    // Reserve room for the widest possible random glyph. This keeps every
+    // slot stable without letting symbols get cropped during the reveal.
+    const finalWidth = letter.getBoundingClientRect().width;
+    const widestGlyph = character === " " ? finalWidth : [...characters].reduce((widest, randomCharacter) => {
+      letter.textContent = randomCharacter;
+      return Math.max(widest, letter.getBoundingClientRect().width);
+    }, finalWidth);
+    letter.style.width = `${widestGlyph + 4}px`;
+    letter.style.textAlign = "center";
     letter.textContent = character === " " ? "\u00a0" : characters[randomBetween(0, characters.length - 1)];
 
     return {
