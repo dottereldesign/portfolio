@@ -82,6 +82,10 @@ a { color: inherit; text-decoration: none; }
 .project-card { border-top: 1px solid rgba(16, 17, 15, 0.25); padding-top: 1rem; }
 .project-card__visual { display: flex; min-height: 18rem; align-items: end; justify-content: space-between; margin-bottom: 1.3rem; padding: 1rem; font-family: "DM Mono", monospace; font-size: 0.75rem; }
 .project-card__visual--lime { background: var(--accent); color: #10110f; }
+.project-card__visual--image { position: relative; overflow: hidden; color: #fff; background: #10110f; }
+.project-card__visual--image img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.project-card__visual--image > span { position: relative; z-index: 1; }
+.project-card__visual--image::after { position: absolute; z-index: 1; inset: 0; background: linear-gradient(180deg, transparent 55%, rgba(0, 0, 0, 0.55)); content: ""; }
 .project-card__visual--line { border: 1px solid rgba(16, 17, 15, 0.35); color: #59630f; background: repeating-linear-gradient(135deg, transparent 0 2rem, rgba(16,17,15,.1) 2rem 2.05rem); }
 .project-card__visual--dark { background: #10110f; color: var(--accent); }
 .visual-mark { font-family: "Space Grotesk", sans-serif; font-size: 4rem; line-height: 0.7; }
