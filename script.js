@@ -500,6 +500,8 @@ if (heroModelCanvas) {
       return texture;
     };
 
+    const usesStackedHeroLayout = () => window.matchMedia("(max-width: 800px), (max-width: 1024px) and (max-aspect-ratio: 1/1)").matches;
+
     const resize = () => {
       const bounds = modelHost.getBoundingClientRect();
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -507,7 +509,7 @@ if (heroModelCanvas) {
       renderer.setSize(bounds.width, bounds.height, false);
       const aspect = bounds.width / bounds.height;
       const portraitCameraZ = 78 + Math.max(0, 1.1 - aspect) * 80;
-      const compactCameraZ = window.innerWidth <= 800 ? 88 : 78;
+      const compactCameraZ = usesStackedHeroLayout() ? 88 : 78;
       camera.aspect = aspect;
       camera.position.z = MathUtils.clamp(Math.max(compactCameraZ, portraitCameraZ), 78, 108);
       camera.updateProjectionMatrix();
@@ -517,7 +519,7 @@ if (heroModelCanvas) {
       const bounds = document.querySelector(".hero").getBoundingClientRect();
       const progress = MathUtils.clamp(-bounds.top / Math.max(1, bounds.height), 0, 1);
       targetRotation = -0.45 + progress * Math.PI * 0.95;
-      targetLift = progress * (window.innerWidth <= 800 ? 5 : -10);
+      targetLift = progress * (usesStackedHeroLayout() ? 5 : -10);
     };
 
     new GLTFLoader().load("assets/macbook.glb", ({ scene: loadedScene }) => {
