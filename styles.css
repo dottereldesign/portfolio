@@ -71,6 +71,41 @@ a { color: inherit; text-decoration: none; }
 .cta:hover { gap: 1.5rem; color: var(--accent); }
 .hero__footer { color: var(--muted); }
 .footer-line { width: 5rem; height: 1px; margin: 0 1rem; background: var(--line); }
+.capabilities { position: relative; overflow: hidden; padding: clamp(5rem, 10vw, 9rem) clamp(1.5rem, 5vw, 5rem); background: #0B0C0C; color: var(--ink); }
+.capabilities::before { position: absolute; top: -12rem; left: 50%; width: 42rem; height: 42rem; border: 1px solid rgba(216, 255, 62, 0.08); border-radius: 50%; content: ""; transform: translateX(-50%); }
+.capabilities__intro { position: relative; z-index: 1; max-width: 56rem; margin: 0 auto clamp(4rem, 8vw, 7rem); text-align: center; }
+.capabilities__intro .eyebrow { justify-content: center; }
+.capabilities h2 { margin: 0; font-size: clamp(3.2rem, 7.5vw, 7.5rem); font-weight: 500; letter-spacing: -0.09em; line-height: 0.88; }
+.capabilities h2 em { color: var(--accent); font-family: "Cormorant Garamond", Georgia, serif; font-size: 1.12em; font-style: italic; font-weight: 500; letter-spacing: -0.05em; }
+.capabilities__lede { max-width: 31rem; margin: 2rem auto 0; color: var(--muted); font-size: 1rem; line-height: 1.6; }
+.capabilities__flow { position: relative; z-index: 1; display: grid; max-width: 78rem; grid-template-columns: minmax(0, 1fr) 5rem minmax(0, 1fr) 5rem minmax(0, 1fr); gap: clamp(1rem, 2.5vw, 2.5rem); margin: 0 auto; }
+.capability-card { min-width: 0; }
+.capability-card__visual { position: relative; display: grid; min-height: clamp(13rem, 19vw, 17rem); place-items: center; overflow: hidden; margin-bottom: 1.5rem; border: 1px solid rgba(232, 231, 225, 0.18); background: #111412; }
+.capability-card__visual::before, .capability-card__visual::after, .capability-glyph::before, .capability-glyph::after { position: absolute; content: ""; }
+.capability-card__visual-index { position: absolute; z-index: 1; top: 1rem; left: 1rem; color: var(--muted); font-family: "DM Mono", monospace; font-size: 0.62rem; letter-spacing: 0.1em; }
+.capability-card__visual--design { background: radial-gradient(circle at 50% 50%, rgba(216, 255, 62, 0.2), transparent 22%), linear-gradient(135deg, #202719, #101311 62%); }
+.capability-card__visual--design::before { width: 7rem; height: 7rem; border: 1px solid rgba(216, 255, 62, 0.7); border-radius: 50%; box-shadow: 0 0 0 1.5rem rgba(216, 255, 62, 0.08), 0 0 0 3rem rgba(216, 255, 62, 0.04); animation: capability-orbit 8s linear infinite; }
+.capability-card__visual--design::after { width: 12rem; height: 1px; background: rgba(232, 231, 225, 0.35); box-shadow: 0 -3.5rem 0 rgba(232, 231, 225, 0.12), 0 3.5rem 0 rgba(232, 231, 225, 0.12); transform: rotate(-38deg); }
+.capability-card__visual--design .capability-glyph { width: 0.55rem; height: 0.55rem; border-radius: 50%; background: var(--accent); box-shadow: 0 0 1.5rem 0.5rem rgba(216, 255, 62, 0.5); }
+.capability-card__visual--develop { background-image: linear-gradient(rgba(232, 231, 225, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(232, 231, 225, 0.1) 1px, transparent 1px); background-size: 2rem 2rem; }
+.capability-card__visual--develop::before { width: 62%; height: 58%; border: 1px solid rgba(232, 231, 225, 0.45); border-radius: 0.45rem; background: linear-gradient(135deg, rgba(216, 255, 62, 0.2), transparent 45%); box-shadow: 0 0 0 0.5rem rgba(232, 231, 225, 0.035); transform: rotate(-7deg); }
+.capability-card__visual--develop::after { width: 34%; height: 1px; background: var(--accent); box-shadow: 0 -1.2rem 0 rgba(216, 255, 62, 0.45), 0 1.2rem 0 rgba(216, 255, 62, 0.28); transform: translate(0.6rem, 1rem) rotate(-7deg); }
+.capability-card__visual--automate { background: radial-gradient(circle at 50% 50%, rgba(216, 255, 62, 0.16), transparent 25%), #111412; }
+.capability-card__visual--automate::before { width: 9rem; height: 9rem; border: 1px dashed rgba(232, 231, 225, 0.35); border-radius: 50%; animation: capability-orbit 12s linear infinite reverse; }
+.capability-card__visual--automate::after { width: 62%; height: 1px; background: rgba(232, 231, 225, 0.42); box-shadow: 0 -2rem 0 rgba(232, 231, 225, 0.14), 0 2rem 0 rgba(232, 231, 225, 0.14); }
+.capability-card__visual--automate .capability-glyph { width: 3.5rem; height: 3.5rem; border: 1px solid var(--accent); border-radius: 50%; box-shadow: 0 0 0 0.7rem rgba(216, 255, 62, 0.08), 0 0 2rem rgba(216, 255, 62, 0.25); }
+.capability-card__visual--automate .capability-glyph::before, .capability-card__visual--automate .capability-glyph::after { top: 50%; width: 0.5rem; height: 0.5rem; border: 1px solid var(--accent); border-radius: 50%; background: #111412; transform: translateY(-50%); }
+.capability-card__visual--automate .capability-glyph::before { left: -2.5rem; box-shadow: 5rem 0 0 -1px #111412, 5rem 0 0 0 var(--accent); }
+.capability-card__visual--automate .capability-glyph::after { top: calc(50% - 1.25rem); left: 50%; box-shadow: 0 2.5rem 0 -1px #111412, 0 2.5rem 0 0 var(--accent); }
+.capability-card__index { margin: 0 0 0.55rem; color: var(--accent); font-family: "DM Mono", monospace; font-size: 0.64rem; letter-spacing: 0.1em; text-transform: uppercase; }
+.capability-card h3 { margin: 0; font-size: clamp(2rem, 3vw, 3.2rem); letter-spacing: -0.08em; line-height: 0.95; }
+.capability-card__description { max-width: 19rem; min-height: 4.5rem; margin: 0.9rem 0 1.6rem; color: var(--muted); font-size: 0.9rem; line-height: 1.55; }
+.capability-card__tag, .capability-connector span { display: block; border: 1px solid rgba(232, 231, 225, 0.14); background: rgba(232, 231, 225, 0.045); color: var(--muted); font-family: "DM Mono", monospace; font-size: 0.62rem; letter-spacing: 0.12em; text-align: center; text-transform: uppercase; }
+.capability-card__tag { padding: 0.85rem 0.6rem; }
+.capability-connector { align-self: center; margin-top: 7rem; color: var(--muted); font-family: "DM Mono", monospace; font-size: 0.62rem; text-align: center; }
+.capability-connector span { padding: 0.65rem 0.3rem; white-space: nowrap; }
+.capability-connector b { display: block; margin-top: 0.75rem; color: var(--accent); font-size: 1.25rem; font-weight: 400; }
+@keyframes capability-orbit { to { transform: rotate(360deg); } }
 .statement { position: relative; display: flex; min-height: clamp(30rem, 65vw, 52rem); align-items: center; overflow: hidden; isolation: isolate; padding: clamp(3rem, 8vw, 8rem) clamp(1.5rem, 5vw, 5rem); background: #0B0C0C; color: var(--ink); }
 .statement::after { position: absolute; z-index: -1; inset: 0; background: linear-gradient(90deg, rgba(11, 12, 12, 1) 0%, rgba(11, 12, 12, 0.98) 28%, rgba(11, 12, 12, 0.78) 42%, rgba(11, 12, 12, 0.08) 67%, rgba(11, 12, 12, 0.1) 100%); content: ""; pointer-events: none; }
 .statement__backdrop { position: absolute; z-index: -2; inset: 0; background: #0B0C0C; }
@@ -151,6 +186,10 @@ a { color: inherit; text-decoration: none; }
 }
 
 @media (max-width: 800px) {
+  .capabilities__flow { grid-template-columns: 1fr; gap: 2.25rem; }
+  .capability-connector { display: flex; align-items: center; justify-content: center; gap: 0.8rem; margin: -0.4rem 0; }
+  .capability-connector b { margin-top: 0; transform: rotate(90deg); }
+  .capability-card__description { min-height: 0; }
   .work-heading { display: block; padding-top: 0; padding-right: 0; }
   .work-heading__note { margin-top: 2rem; }
   .project-grid { grid-template-columns: 1fr; }
