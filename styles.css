@@ -5,6 +5,7 @@
   --background: #10110f;
   --line: rgba(232, 231, 225, 0.18);
   --supporting-copy: #cfd0ca;
+  --grain-texture: url("assets/grain.png");
 }
 
 * { box-sizing: border-box; }
@@ -30,10 +31,14 @@ a { color: inherit; text-decoration: none; }
   isolation: isolate;
   padding: 2rem clamp(1.5rem, 5vw, 5rem) 1.75rem;
   background:
+    var(--grain-texture),
     radial-gradient(ellipse 56% 68% at 80% 46%, rgba(255, 82, 28, 0.24) 0%, rgba(158, 24, 11, 0.22) 34%, transparent 72%),
     radial-gradient(ellipse 46% 24% at 76% 76%, rgba(255, 91, 30, 0.18) 0%, rgba(119, 17, 8, 0.1) 48%, transparent 76%),
     radial-gradient(ellipse 32% 42% at 95% 18%, rgba(132, 18, 10, 0.16) 0%, transparent 72%),
     linear-gradient(112deg, #090a09 0%, #0b0a09 44%, #170a07 72%, #090909 100%);
+  background-blend-mode: soft-light, normal, normal, normal, normal;
+  background-repeat: repeat, no-repeat, no-repeat, no-repeat, no-repeat;
+  background-size: 144px 144px, auto, auto, auto, auto;
 }
 
 .hero::before, .hero::after { position: absolute; pointer-events: none; content: ""; }
@@ -189,6 +194,17 @@ a { color: inherit; text-decoration: none; }
 .site-credits { padding: 1.25rem clamp(1.5rem, 5vw, 5rem) 1.75rem; background: #0A0A0A; color: var(--muted); font-family: "DM Mono", monospace; font-size: 0.62rem; letter-spacing: 0.08em; text-align: right; text-transform: uppercase; }
 .site-credits a { transition: color 180ms ease; }
 .site-credits a:hover { color: var(--ink); }
+
+body,
+.capabilities,
+.work-placeholder,
+.journey,
+.site-credits {
+  background-image: var(--grain-texture);
+  background-blend-mode: soft-light;
+  background-repeat: repeat;
+  background-size: 144px 144px;
+}
 
 @keyframes pulse { 50% { opacity: 0.35; transform: scale(0.7); } }
 
