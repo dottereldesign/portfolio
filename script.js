@@ -298,7 +298,7 @@ if (heroModelCanvas) {
         const dockWidth = 1040;
         const dockHeight = 62;
         const dockX = (width - dockWidth) / 2;
-        const dockY = height - 84;
+        const dockY = height - 170;
         addRoundedRect(context, dockX, dockY, dockWidth, dockHeight, 22);
         context.fillStyle = "rgba(20, 24, 20, 0.84)";
         context.fill();
