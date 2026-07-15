@@ -143,15 +143,8 @@ if (statementCanvas) {
   let circuitVisible = false;
 
   const routes = [
-    { alpha: 0.25, width: 0.75, path: [[380, 92], [380, 668]] },
-    { alpha: 0.25, width: 0.75, path: [[92, 380], [668, 380]] },
-  ];
-
-  const nodes = [
-    { x: 380, y: 112, radius: 52, type: "top" },
-    { x: 108, y: 380, radius: 52, type: "left" },
-    { x: 652, y: 380, radius: 52, type: "right" },
-    { x: 380, y: 648, radius: 52, type: "bottom" },
+    { alpha: 0.25, width: 0.75, path: [[380, 216], [380, 544]] },
+    { alpha: 0.25, width: 0.75, path: [[216, 380], [544, 380]] },
   ];
 
   function resizeStatementCanvas() {
@@ -212,156 +205,6 @@ if (statementCanvas) {
     context.restore();
   }
 
-  function drawOrbitFrame(node, time) {
-    const { x, y, radius } = node;
-    const phase = reducedMotion ? 0 : time * 0.00018;
-    const pulse = reducedMotion ? 0 : Math.sin(time * 0.0012 + x) * 2;
-    context.save();
-    context.setLineDash([1.2, 4.5]);
-    context.lineDashOffset = -phase * 18;
-    context.lineWidth = 0.65;
-    context.strokeStyle = `rgba(226, 232, 228, ${0.28 + Math.max(0, pulse) * 0.015})`;
-    context.beginPath();
-    context.arc(x, y, radius + pulse, 0, Math.PI * 2);
-    context.stroke();
-    context.setLineDash([]);
-    context.lineWidth = 0.55;
-    context.strokeStyle = "rgba(226, 232, 228, 0.18)";
-    context.beginPath();
-    context.arc(x, y, radius * 0.68, 0, Math.PI * 2);
-    context.stroke();
-    context.restore();
-
-    [0, Math.PI / 2, Math.PI, Math.PI * 1.5].forEach((angle, index) => {
-      const orbitAngle = angle + phase * (index % 2 ? -1 : 1);
-      drawPoint(x + Math.cos(orbitAngle) * (radius + pulse), y + Math.sin(orbitAngle) * (radius + pulse), 1.5, 0.7, 2);
-    });
-  }
-
-  function drawTopNode(node, time) {
-    const { x, y } = node;
-    const rotation = reducedMotion ? 0 : time * 0.00022;
-    const pulse = reducedMotion ? 0 : Math.sin(time * 0.0014) * 2;
-    context.save();
-    context.translate(x, y);
-    context.rotate(rotation);
-    context.strokeStyle = "rgba(239, 243, 240, 0.68)";
-    context.lineWidth = 0.7;
-    context.beginPath();
-    context.moveTo(0, -34 - pulse);
-    context.lineTo(34 + pulse, 0);
-    context.lineTo(0, 34 + pulse);
-    context.lineTo(-34 - pulse, 0);
-    context.closePath();
-    context.moveTo(0, -22);
-    context.lineTo(22, 0);
-    context.lineTo(0, 22);
-    context.lineTo(-22, 0);
-    context.closePath();
-    context.stroke();
-    context.beginPath();
-    context.moveTo(-46, 0);
-    context.lineTo(46, 0);
-    context.moveTo(0, -46);
-    context.lineTo(0, 46);
-    context.strokeStyle = "rgba(239, 243, 240, 0.35)";
-    context.stroke();
-    context.restore();
-    drawPoint(x, y, 5, 0.95, 9);
-    drawPoint(x, y - 44, 1.5, 0.8, 3);
-  }
-
-  function drawLeftNode(node, time) {
-    const { x, y } = node;
-    const size = 27;
-    const scan = reducedMotion ? 0 : Math.sin(time * 0.0011) * 16;
-    context.save();
-    context.translate(x, y);
-    context.rotate(reducedMotion ? 0 : Math.sin(time * 0.00035) * 0.035);
-    context.strokeStyle = "rgba(239, 243, 240, 0.68)";
-    context.lineWidth = 0.8;
-    [[-size, -size, 1, 1], [size, -size, -1, 1], [-size, size, 1, -1], [size, size, -1, -1]].forEach(([cornerX, cornerY, directionX, directionY]) => {
-      context.beginPath();
-      context.moveTo(cornerX, cornerY + directionY * 13);
-      context.lineTo(cornerX, cornerY);
-      context.lineTo(cornerX + directionX * 13, cornerY);
-      context.stroke();
-    });
-    context.beginPath();
-    context.moveTo(-10, -9);
-    context.lineTo(-21, 0);
-    context.lineTo(-10, 9);
-    context.moveTo(10, -9);
-    context.lineTo(21, 0);
-    context.lineTo(10, 9);
-    context.stroke();
-    context.strokeStyle = "rgba(239, 243, 240, 0.32)";
-    context.beginPath();
-    context.moveTo(-size + 4, scan);
-    context.lineTo(size - 4, scan);
-    context.stroke();
-    context.restore();
-    drawPoint(x, y, 1.7, 0.84, 3);
-  }
-
-  function drawRightNode(node, time) {
-    const { x, y } = node;
-    const phase = reducedMotion ? 0.5 : (time * 0.00035) % 1;
-    context.save();
-    context.strokeStyle = "rgba(239, 243, 240, 0.68)";
-    context.lineWidth = 0.7;
-    context.beginPath();
-    context.moveTo(x - 22, y - 13);
-    context.lineTo(x + 13, y - 13);
-    context.quadraticCurveTo(x + 29, y - 13, x + 29, y);
-    context.quadraticCurveTo(x + 29, y + 13, x + 13, y + 13);
-    context.lineTo(x - 15, y + 13);
-    context.quadraticCurveTo(x - 29, y + 13, x - 29, y + 24);
-    context.quadraticCurveTo(x - 29, y + 34, x - 14, y + 34);
-    context.lineTo(x + 16, y + 34);
-    context.stroke();
-    context.restore();
-
-    const packetX = x - 23 + ((phase * 68) % 68);
-    const packetY = phase < 0.5 ? y - 13 : y + 34;
-    drawPoint(packetX, packetY, 4.5, 0.92, 6);
-    drawPoint(x - 23, y - 13, 2, 0.58, 2);
-    drawPoint(x + 18, y + 34, 2, 0.58, 2);
-    drawPoint(x, y, 1.5, 0.78, 2);
-  }
-
-  function drawBottomNode(node, time) {
-    const { x, y } = node;
-    const rotation = reducedMotion ? 0 : time * 0.0003;
-    context.save();
-    context.strokeStyle = "rgba(239, 243, 240, 0.5)";
-    context.lineWidth = 0.65;
-    [0, Math.PI / 3, Math.PI * 2 / 3].forEach((angle) => {
-      context.save();
-      context.translate(x, y);
-      context.rotate(angle + rotation);
-      context.beginPath();
-      context.ellipse(0, 0, 30, 12, 0, 0, Math.PI * 2);
-      context.stroke();
-      context.restore();
-    });
-    context.restore();
-    drawPoint(x, y, 4.2, 0.92, 6);
-    [0, Math.PI / 3, Math.PI * 2 / 3].forEach((angle, index) => {
-      const electronAngle = angle + rotation * (index % 2 ? -1 : 1);
-      drawPoint(x + Math.cos(electronAngle) * 30, y + Math.sin(electronAngle) * 12, 2.4, 0.86, 4);
-    });
-  }
-
-  function drawNodes(time) {
-    nodes.forEach((node) => {
-      drawOrbitFrame(node, time);
-      if (node.type === "top") drawTopNode(node, time);
-      if (node.type === "left") drawLeftNode(node, time);
-      if (node.type === "right") drawRightNode(node, time);
-      if (node.type === "bottom") drawBottomNode(node, time);
-    });
-  }
 
   function drawCentralOrbit(time) {
     const rotation = reducedMotion ? 0 : time * 0.00008;
@@ -527,7 +370,6 @@ if (statementCanvas) {
     drawCore(time);
     drawAxisDetails();
     drawMomentumTransfer(time);
-    drawNodes(time);
     context.restore();
 
     if (!reducedMotion && circuitVisible) animationFrame = window.requestAnimationFrame(renderStatementCircuit);
