@@ -186,7 +186,7 @@ if (heroModelCanvas) {
       const bounds = document.querySelector(".hero").getBoundingClientRect();
       const progress = MathUtils.clamp(-bounds.top / Math.max(1, bounds.height), 0, 1);
       targetRotation = -0.45 + progress * Math.PI * 0.95;
-      targetLift = progress * (window.innerWidth <= 800 ? 5 : -15);
+      targetLift = progress * (window.innerWidth <= 800 ? 5 : -10);
     };
 
     new GLTFLoader().load("assets/macbook.glb", ({ scene: loadedScene }) => {
