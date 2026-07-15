@@ -127,6 +127,23 @@ if (timeline) {
   updateTimeline();
 }
 
+const capabilities = document.querySelector("[data-capabilities-reveal]");
+
+if (capabilities) {
+  capabilities.classList.add("capabilities--reveal-ready");
+
+  const revealCapabilities = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add("is-visible");
+        revealCapabilities.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.2, rootMargin: "0px 0px -8% 0px" });
+
+  revealCapabilities.observe(capabilities);
+}
+
 const statementCanvas = document.querySelector(".statement__canvas");
 
 if (statementCanvas) {
