@@ -173,9 +173,11 @@ if (heroModelCanvas) {
       canvas: heroModelCanvas,
       powerPreference: "high-performance",
     });
+    renderer.setClearColor(0x000000, 0);
     const laptop = new Group();
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let modelReady = false;
+    let modelHasPainted = false;
     let heroIsVisible = true;
     let targetRotation = -0.45;
     let targetLift = 0;
@@ -754,6 +756,11 @@ if (heroModelCanvas) {
       laptop.position.y = reducedMotion ? targetLift : MathUtils.lerp(laptop.position.y, targetLift, motionEase);
       laptop.rotation.z = MathUtils.lerp(laptop.rotation.z, -0.05, motionEase);
       renderer.render(scene, camera);
+
+      if (!modelHasPainted) {
+        modelHasPainted = true;
+        modelHost.classList.add("hero__model--ready");
+      }
 
       if (!reducedMotion && (Math.abs(laptop.rotation.y - targetRotation) > 0.001 || Math.abs(laptop.position.y - targetLift) > 0.001)) {
         requestRender();
