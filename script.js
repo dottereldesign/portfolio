@@ -526,6 +526,9 @@ if (heroModelCanvas) {
       const baseMetal = new MeshStandardMaterial({ color: 0x9da1a5, metalness: 0.82, roughness: 0.3 });
       const darkPlastic = new MeshStandardMaterial({ color: 0x080909, metalness: 0.35, roughness: 0.72 });
       const logo = new MeshBasicMaterial({ color: 0xd8ff3e });
+      const webcam = loadedScene.getObjectByName("camera");
+
+      if (webcam) webcam.visible = false;
 
       loadedScene.children.forEach((part) => {
         part.children?.forEach((mesh) => {
