@@ -246,6 +246,8 @@ if (heroModelCanvas) {
       footballVideo.muted = true;
       footballVideo.playsInline = true;
       footballVideo.preload = "auto";
+      footballVideo.defaultPlaybackRate = 0.55;
+      footballVideo.playbackRate = 0.55;
       footballVideo.disablePictureInPicture = true;
       footballVideo.setAttribute("muted", "");
       footballVideo.setAttribute("playsinline", "");
@@ -331,10 +333,26 @@ if (heroModelCanvas) {
         context.arc(centerX, centerY, radius, 0, Math.PI * 2);
         context.clip();
         context.globalCompositeOperation = "screen";
-        context.globalAlpha = 0.82;
-        context.filter = "grayscale(1) brightness(0.82) contrast(1.08)";
+        context.globalAlpha = 0.72;
+        context.filter = "grayscale(1) brightness(0.82) contrast(0.92)";
         context.drawImage(footballVideo, centerX - frameSize / 2, centerY - frameSize / 2, frameSize, frameSize);
         context.restore();
+
+        const footballVignette = context.createRadialGradient(
+          centerX - radius * 0.18,
+          centerY - radius * 0.2,
+          radius * 0.12,
+          centerX,
+          centerY,
+          radius,
+        );
+        footballVignette.addColorStop(0, "rgba(7, 9, 7, 0)");
+        footballVignette.addColorStop(0.62, "rgba(7, 9, 7, 0.05)");
+        footballVignette.addColorStop(1, "rgba(7, 9, 7, 0.46)");
+        context.fillStyle = footballVignette;
+        context.beginPath();
+        context.arc(centerX, centerY, radius, 0, Math.PI * 2);
+        context.fill();
       };
 
       const drawFallbackIcon = (app, x, y, size, compact = false) => {
