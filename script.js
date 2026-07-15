@@ -131,33 +131,63 @@ const statementCanvas = document.querySelector(".statement__canvas");
 
 if (statementCanvas) {
   const context = statementCanvas.getContext("2d");
+  const referenceWidth = 532;
+  const referenceHeight = 629;
+  const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
   let canvasWidth = 0;
   let canvasHeight = 0;
-  let canvasScale = 1;
-  let canvasFrame;
-  let reduceCanvasMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let designScale = 1;
+  let designLeft = 0;
+  let designTop = 0;
+  let animationFrame;
+  let reducedMotion = motionPreference.matches;
+  let circuitVisible = false;
 
-  const circuitPaths = [
-    [[0.38, 0.55], [0.48, 0.55], [0.53, 0.49], [0.63, 0.49], [0.69, 0.43], [0.86, 0.43], [1.02, 0.43]],
-    [[0.4, 0.75], [0.5, 0.75], [0.56, 0.68], [0.67, 0.68], [0.71, 0.59], [0.92, 0.59], [1.02, 0.59]],
-    [[0.48, 0.24], [0.55, 0.24], [0.61, 0.31], [0.72, 0.31], [0.77, 0.37], [0.99, 0.37]],
-    [[0.6, 0.55], [0.6, 0.38], [0.6, 0.19], [0.6, 0.02]],
-    [[0.67, 0.55], [0.67, 0.79], [0.67, 0.94], [0.82, 0.94], [0.88, 0.87], [1.02, 0.87]],
-    [[0.53, 0.61], [0.47, 0.69], [0.47, 0.84], [0.39, 0.91], [0.24, 0.91], [0.16, 0.84], [0.04, 0.84]],
-    [[0.54, 0.45], [0.47, 0.36], [0.39, 0.36], [0.32, 0.29], [0.32, 0.16], [0.24, 0.09], [0.13, 0.09]],
-    [[0.72, 0.55], [0.78, 0.49], [0.9, 0.49], [0.97, 0.42], [1.03, 0.42]],
+  const routes = [
+    { alpha: 0.34, width: 0.75, path: [[-40, 486], [75, 486], [104, 477], [123, 447], [128, 405], [145, 379], [178, 370], [250, 370]] },
+    { alpha: 0.18, width: 0.55, path: [[-30, 485], [78, 485], [110, 469], [125, 430], [129, 392], [154, 365], [197, 360], [250, 360]] },
+    { alpha: 0.26, width: 0.65, path: [[124, 371], [207, 371], [242, 369], [278, 369], [365, 369], [407, 370], [690, 370]] },
+    { alpha: 0.18, width: 0.55, path: [[118, 380], [205, 380], [248, 375], [364, 375], [409, 379], [690, 379]] },
+    { alpha: 0.16, width: 0.5, path: [[128, 390], [212, 390], [248, 383], [368, 383], [416, 389], [690, 389]] },
+    { alpha: 0.2, width: 0.55, path: [[138, 350], [191, 350], [220, 356], [250, 360]] },
+    { alpha: 0.25, width: 0.65, path: [[203, 261], [203, 320], [208, 345], [224, 360], [250, 368]] },
+    { alpha: 0.12, width: 0.5, path: [[192, 281], [192, 326], [201, 352], [224, 370]] },
+    { alpha: 0.13, width: 0.5, path: [[204, 261], [218, 232], [246, 209], [273, 208]] },
+    { alpha: 0.16, width: 0.55, path: [[333, 208], [356, 208], [382, 224], [402, 242], [402, 348], [376, 370]] },
+    { alpha: 0.24, width: 0.65, path: [[402, 52], [402, 182], [402, 224], [402, 333], [397, 350], [375, 370]] },
+    { alpha: 0.17, width: 0.5, path: [[391, 224], [391, 326], [386, 347], [370, 363]] },
+    { alpha: 0.2, width: 0.55, path: [[402, 224], [560, 224], [590, 216], [620, 195], [690, 195]] },
+    { alpha: 0.17, width: 0.5, path: [[402, 258], [439, 258], [450, 257], [510, 257], [532, 249], [548, 224], [690, 224]] },
+    { alpha: 0.14, width: 0.5, path: [[402, 282], [436, 282], [452, 281], [690, 281]] },
+    { alpha: 0.18, width: 0.55, path: [[402, 346], [424, 345], [444, 324], [454, 312]] },
+    { alpha: 0.18, width: 0.55, path: [[496, 302], [536, 302], [572, 290], [690, 290]] },
+    { alpha: 0.2, width: 0.55, path: [[402, 395], [420, 407], [445, 409], [690, 409]] },
+    { alpha: 0.18, width: 0.55, path: [[402, 421], [429, 421], [448, 437], [454, 446]] },
+    { alpha: 0.17, width: 0.5, path: [[496, 446], [544, 446], [572, 456], [690, 456]] },
+    { alpha: 0.28, width: 0.7, path: [[402, 392], [402, 479], [404, 500], [418, 514], [440, 522], [449, 522], [470, 527], [486, 545], [489, 565], [489, 581], [690, 581]] },
+    { alpha: 0.13, width: 0.5, path: [[414, 392], [414, 470], [416, 493], [430, 504], [455, 504], [478, 513]] },
+    { alpha: 0.14, width: 0.5, path: [[319, 511], [326, 540], [346, 566], [375, 579], [455, 579], [476, 568], [489, 547]] },
+    { alpha: 0.12, width: 0.5, path: [[281, 445], [281, 492], [281, 552]] },
+    { alpha: 0.12, width: 0.5, path: [[202, 394], [202, 486]] },
   ];
 
-  const nodes = [
-    [0.6, 0.02, 1], [0.6, 0.19, 0.9], [0.48, 0.24, 0.5], [0.72, 0.31, 0.55],
-    [0.67, 0.79, 0.7], [0.82, 0.94, 0.9], [0.24, 0.91, 0.8], [0.04, 0.84, 0.8],
-    [0.32, 0.16, 0.5], [0.13, 0.09, 0.8], [0.86, 0.43, 0.7], [0.92, 0.59, 0.85],
-    [0.98, 0.37, 0.65], [0.97, 0.42, 0.8],
+  const satellites = [
+    { x: 402, y: 138, radius: 38, alpha: 0.33, inner: 9 },
+    { x: 303, y: 208, radius: 29, alpha: 0.09, inner: 0 },
+    { x: 475, y: 302, radius: 21, alpha: 0.12, inner: 7 },
+    { x: 475, y: 446, radius: 21, alpha: 0.15, inner: 7 },
+    { x: 202, y: 558, radius: 52, alpha: 0.1, inner: 11 },
   ];
 
-  const rings = [
-    [0.78, 0.25, 0.075], [0.89, 0.56, 0.05], [0.83, 0.77, 0.04],
-    [0.39, 0.88, 0.1], [0.58, 0.34, 0.06], [0.72, 0.16, 0.045],
+  const fixedNodes = [
+    [402, 52, 1.8, 0.45], [402, 176, 1.3, 0.95], [402, 239, 1.5, 0.88],
+    [402, 258, 1.4, 0.52], [402, 289, 2.1, 0.88], [402, 315, 1.45, 0.7],
+    [402, 346, 1.45, 0.7], [415, 370, 3.6, 0.9], [508, 370, 3.6, 0.9],
+    [202, 261, 1.5, 0.78], [202, 290, 1.7, 0.75], [202, 323, 1.25, 0.76],
+    [191, 487, 1.4, 0.74], [202, 487, 1.5, 0.9], [202, 508, 1.4, 0.67],
+    [489, 565, 1.25, 0.65], [489, 581, 1.5, 0.72], [75, 486, 1.2, 0.66],
+    [288, 179, 1.2, 0.48], [275, 209, 1.05, 0.78], [304, 237, 0.9, 0.28],
+    [350, 240, 0.8, 0.28], [434, 321, 1.05, 0.58], [508, 258, 1.1, 0.55],
   ];
 
   function resizeStatementCanvas() {
@@ -165,132 +195,231 @@ if (statementCanvas) {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     canvasWidth = bounds.width;
     canvasHeight = bounds.height;
-    canvasScale = Math.min(canvasWidth, canvasHeight) / 600;
-    statementCanvas.width = Math.floor(canvasWidth * dpr);
-    statementCanvas.height = Math.floor(canvasHeight * dpr);
+    statementCanvas.width = Math.round(canvasWidth * dpr);
+    statementCanvas.height = Math.round(canvasHeight * dpr);
     context.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const compact = canvasWidth < 800;
+    designScale = canvasHeight / referenceHeight * (compact ? 1 : 0.92);
+    const coreScreenX = canvasWidth * (compact ? 0.87 : 0.7);
+    const coreScreenY = canvasHeight * 0.56;
+    designLeft = coreScreenX - 304 * designScale;
+    designTop = coreScreenY - 370 * designScale;
   }
 
-  function point([x, y]) {
-    return [x * canvasWidth, y * canvasHeight];
+  function roundedRoute(points) {
+    const path = new Path2D();
+    path.moveTo(points[0][0], points[0][1]);
+
+    for (let index = 1; index < points.length - 1; index += 1) {
+      const [x, y] = points[index];
+      const [nextX, nextY] = points[index + 1];
+      path.quadraticCurveTo(x, y, (x + nextX) / 2, (y + nextY) / 2);
+    }
+
+    const last = points[points.length - 1];
+    path.lineTo(last[0], last[1]);
+    return path;
   }
 
-  function drawPath(path, color, width = 1, dash = []) {
-    context.beginPath();
-    context.setLineDash(dash);
-    context.lineWidth = width;
+  function strokeRoute(route, brightness = 1) {
+    context.save();
     context.lineCap = "round";
     context.lineJoin = "round";
-    context.strokeStyle = color;
-    const points = path.map(point);
-    context.moveTo(points[0][0], points[0][1]);
-    for (let index = 1; index < points.length; index += 1) {
-      const [x, y] = points[index];
-      const [nextX, nextY] = points[index + 1] || points[index];
-      const midpointX = (x + nextX) / 2;
-      const midpointY = (y + nextY) / 2;
-      context.lineTo(midpointX, midpointY);
-      context.quadraticCurveTo(x, y, midpointX, midpointY);
+    context.lineWidth = route.width;
+    context.strokeStyle = `rgba(226, 232, 228, ${route.alpha * brightness})`;
+    context.stroke(roundedRoute(route.path));
+    context.restore();
+  }
+
+  function drawPoint(x, y, radius, alpha, glow = 0) {
+    context.save();
+    context.fillStyle = `rgba(247, 249, 246, ${alpha})`;
+    if (glow) {
+      context.shadowColor = `rgba(247, 249, 246, ${alpha})`;
+      context.shadowBlur = glow;
     }
-    const lastPoint = points[points.length - 1];
-    context.lineTo(lastPoint[0], lastPoint[1]);
-    context.stroke();
-    context.setLineDash([]);
+    context.beginPath();
+    context.arc(x, y, radius, 0, Math.PI * 2);
+    context.fill();
+    context.restore();
   }
 
-  function drawNode(x, y, radius, alpha, time) {
-    const pulse = reduceCanvasMotion ? 1 : 0.85 + Math.sin(time * 0.0015 + x * 9) * 0.15;
-    context.beginPath();
-    context.arc(x, y, radius * 4 * canvasScale, 0, Math.PI * 2);
-    context.fillStyle = `rgba(232, 231, 225, ${alpha * 0.06 * pulse})`;
-    context.fill();
-    context.beginPath();
-    context.arc(x, y, radius * canvasScale, 0, Math.PI * 2);
-    context.fillStyle = `rgba(245, 248, 242, ${alpha * pulse})`;
-    context.fill();
+  function drawSatellites(time) {
+    satellites.forEach((satellite, index) => {
+      context.beginPath();
+      context.arc(satellite.x, satellite.y, satellite.radius, 0, Math.PI * 2);
+      context.lineWidth = index === 0 ? 0.8 : 0.55;
+      context.strokeStyle = `rgba(226, 232, 228, ${satellite.alpha})`;
+      context.stroke();
+
+      if (satellite.inner) {
+        context.beginPath();
+        context.arc(satellite.x, satellite.y, satellite.inner, 0, Math.PI * 2);
+        context.lineWidth = 0.55;
+        context.strokeStyle = `rgba(226, 232, 228, ${satellite.alpha * 0.7})`;
+        context.stroke();
+        drawPoint(satellite.x, satellite.y, 1.8, index === 0 ? 0.9 : 0.72, 4);
+      }
+
+      const orbit = time * (0.00008 + index * 0.00001) + index * 1.7;
+      drawPoint(
+        satellite.x + Math.cos(orbit) * satellite.radius,
+        satellite.y + Math.sin(orbit) * satellite.radius,
+        0.85,
+        0.6,
+        2,
+      );
+    });
   }
 
-  function drawRing(x, y, radius, time) {
-    const [centerX, centerY] = point([x, y]);
-    const actualRadius = radius * canvasWidth;
+  function drawMicroDetails() {
+    context.save();
+    context.fillStyle = "rgba(226, 232, 228, 0.15)";
+    for (let row = 0; row < 9; row += 1) {
+      for (let column = 0; column < 14; column += 1) {
+        if ((row + column * 2) % 5 !== 0) continue;
+        context.fillRect(347 + column * 8, 255 + row * 11, 0.7, 0.7);
+      }
+    }
+
+    context.setLineDash([1, 4]);
+    context.lineWidth = 0.5;
+    context.strokeStyle = "rgba(226, 232, 228, 0.16)";
     context.beginPath();
-    context.arc(centerX, centerY, actualRadius, 0, Math.PI * 2);
-    context.lineWidth = 1;
-    context.strokeStyle = "rgba(232, 231, 225, 0.18)";
+    context.moveTo(180, 370);
+    context.lineTo(660, 370);
+    context.moveTo(281, 395);
+    context.lineTo(281, 553);
     context.stroke();
-    context.beginPath();
-    context.arc(centerX, centerY, actualRadius * 0.11, 0, Math.PI * 2);
-    context.fillStyle = "rgba(232, 231, 225, 0.82)";
-    context.fill();
-    const orbit = (time * 0.00015 + x) % (Math.PI * 2);
-    drawNode(centerX + Math.cos(orbit) * actualRadius, centerY + Math.sin(orbit) * actualRadius, 1.2, 0.8, time);
+    context.restore();
+
+    [[181, 323], [190, 291], [218, 247], [353, 238], [365, 259], [418, 321], [433, 321], [414, 397], [415, 420], [292, 466], [324, 469], [346, 491]].forEach(([x, y], index) => {
+      if (index % 3 === 0) {
+        context.fillStyle = "rgba(235, 239, 236, 0.52)";
+        context.fillRect(x, y, 1.2, 4);
+      } else {
+        drawPoint(x, y, 0.7, 0.35);
+      }
+    });
   }
 
   function drawCore(time) {
-    const coreX = canvasWidth < 700 ? 0.76 : 0.61;
-    const [centerX, centerY] = point([coreX, 0.55]);
-    const pulse = reduceCanvasMotion ? 1 : 1 + Math.sin(time * 0.0012) * 0.035;
-    const radius = Math.min(canvasWidth, canvasHeight) * 0.09 * pulse;
-    const glow = context.createRadialGradient(centerX, centerY, radius * 0.2, centerX, centerY, radius * 2.8);
-    glow.addColorStop(0, "rgba(255, 255, 255, 0.18)");
-    glow.addColorStop(0.24, "rgba(225, 234, 226, 0.08)");
-    glow.addColorStop(1, "rgba(225, 234, 226, 0)");
-    context.fillStyle = glow;
+    const pulse = reducedMotion ? 1 : 1 + Math.sin(time * 0.0011) * 0.025;
+    const radius = 54 * pulse;
+
+    const outerGlow = context.createRadialGradient(304, 370, 30, 304, 370, 104);
+    outerGlow.addColorStop(0, "rgba(255, 255, 255, 0.11)");
+    outerGlow.addColorStop(0.42, "rgba(230, 237, 232, 0.055)");
+    outerGlow.addColorStop(1, "rgba(230, 237, 232, 0)");
+    context.fillStyle = outerGlow;
     context.beginPath();
-    context.arc(centerX, centerY, radius * 2.8, 0, Math.PI * 2);
+    context.arc(304, 370, 104, 0, Math.PI * 2);
     context.fill();
+
+    const coreFill = context.createRadialGradient(304, 370, 0, 304, 370, radius);
+    coreFill.addColorStop(0, "rgba(22, 27, 24, 0.96)");
+    coreFill.addColorStop(0.72, "rgba(13, 16, 14, 0.98)");
+    coreFill.addColorStop(1, "rgba(9, 11, 10, 1)");
+    context.fillStyle = coreFill;
     context.beginPath();
-    context.arc(centerX, centerY, radius, 0, Math.PI * 2);
-    context.lineWidth = 1.5;
-    context.strokeStyle = "rgba(248, 250, 245, 0.92)";
-    context.shadowColor = "rgba(248, 250, 245, 0.9)";
-    context.shadowBlur = 15 * canvasScale;
-    context.stroke();
-    context.shadowBlur = 0;
+    context.arc(304, 370, radius - 1.8, 0, Math.PI * 2);
+    context.fill();
+
+    context.save();
+    context.setLineDash([1, 2.6]);
+    context.lineWidth = 0.65;
+    context.strokeStyle = "rgba(235, 239, 236, 0.42)";
     context.beginPath();
-    context.arc(centerX, centerY, radius * 1.26, 0, Math.PI * 2);
-    context.setLineDash([1, 5]);
-    context.lineWidth = 1;
-    context.strokeStyle = "rgba(232, 231, 225, 0.32)";
+    context.arc(304, 370, 74, 0, Math.PI * 2);
     context.stroke();
-    context.setLineDash([]);
-    drawNode(centerX, centerY, 1.7, 1, time);
+    context.restore();
+
+    context.save();
+    context.shadowColor = "rgba(248, 250, 247, 0.92)";
+    context.shadowBlur = 11;
+    context.strokeStyle = "rgba(250, 251, 249, 0.95)";
+    context.lineWidth = 1.55;
+    context.beginPath();
+    context.arc(304, 370, radius, 0, Math.PI * 2);
+    context.stroke();
+    context.restore();
+
+    context.beginPath();
+    context.arc(304, 370, radius - 2.2, 0, Math.PI * 2);
+    context.lineWidth = 0.6;
+    context.strokeStyle = "rgba(217, 224, 219, 0.5)";
+    context.stroke();
+
+    context.save();
+    context.setLineDash([1, 4]);
+    context.lineWidth = 0.55;
+    context.strokeStyle = "rgba(241, 244, 241, 0.52)";
+    context.beginPath();
+    context.moveTo(229, 370);
+    context.lineTo(379, 370);
+    context.stroke();
+    context.restore();
+    drawPoint(304, 370, 1.45, 0.92, 4);
   }
 
-  function drawCircuitScene(time = 0) {
+  function drawMovingSignals(time) {
+    if (reducedMotion) return;
+    const horizontalProgress = (time * 0.000055) % 1;
+    const verticalProgress = (time * 0.000038 + 0.35) % 1;
+    drawPoint(376 + horizontalProgress * 160, 370, 1.7, 0.88, 6);
+    drawPoint(402, 52 + verticalProgress * 294, 1.15, 0.78, 4);
+  }
+
+  function renderStatementCircuit(time = 0) {
+    animationFrame = undefined;
     context.clearRect(0, 0, canvasWidth, canvasHeight);
-    const visualFade = context.createLinearGradient(canvasWidth * 0.35, 0, canvasWidth, 0);
-    visualFade.addColorStop(0, "rgba(11, 13, 12, 0)");
-    visualFade.addColorStop(0.2, "rgba(11, 13, 12, 0.3)");
-    visualFade.addColorStop(1, "rgba(11, 13, 12, 0)");
-    context.fillStyle = visualFade;
-    context.fillRect(canvasWidth * 0.35, 0, canvasWidth * 0.65, canvasHeight);
 
-    circuitPaths.forEach((path, index) => {
-      drawPath(path, index % 3 === 0 ? "rgba(232, 231, 225, 0.38)" : "rgba(232, 231, 225, 0.17)", index % 3 === 0 ? 1.1 : 0.7);
-      if (index % 2 === 0) drawPath(path, "rgba(232, 231, 225, 0.24)", 0.6, [1, 6]);
-    });
+    const coreX = designLeft + 304 * designScale;
+    const coreY = designTop + 370 * designScale;
+    const ambient = context.createRadialGradient(coreX, coreY, 0, coreX, coreY, 250 * designScale);
+    ambient.addColorStop(0, "rgba(202, 211, 204, 0.09)");
+    ambient.addColorStop(0.48, "rgba(102, 112, 105, 0.025)");
+    ambient.addColorStop(1, "rgba(11, 13, 12, 0)");
+    context.fillStyle = ambient;
+    context.fillRect(0, 0, canvasWidth, canvasHeight);
 
-    rings.forEach(([x, y, radius]) => drawRing(x, y, radius, time));
-    nodes.forEach(([x, y, alpha]) => {
-      const [nodeX, nodeY] = point([x, y]);
-      drawNode(nodeX, nodeY, 1.2, alpha, time);
-    });
-
-    const centralX = canvasWidth * (canvasWidth < 700 ? 0.76 : 0.61);
-    const centralY = canvasHeight * 0.55;
-    const movingDot = (time * 0.00005) % 1;
-    drawNode(centralX + canvasWidth * 0.32 * movingDot, centralY - canvasHeight * 0.12 * movingDot, 1.2, 0.85, time);
+    context.save();
+    context.translate(designLeft, designTop);
+    context.scale(designScale, designScale);
+    routes.forEach((route, index) => strokeRoute(route, index % 5 === 0 ? 1.2 : 1));
+    drawMicroDetails();
+    drawSatellites(time);
+    fixedNodes.forEach(([x, y, radius, alpha], index) => drawPoint(x, y, radius, alpha, index % 6 === 0 ? 4 : 1.5));
+    drawMovingSignals(time);
     drawCore(time);
+    context.restore();
 
-    if (!reduceCanvasMotion) canvasFrame = window.requestAnimationFrame(drawCircuitScene);
+    if (!reducedMotion && circuitVisible) animationFrame = window.requestAnimationFrame(renderStatementCircuit);
   }
 
-  resizeStatementCanvas();
-  drawCircuitScene();
-  window.addEventListener("resize", resizeStatementCanvas);
-  window.matchMedia("(prefers-reduced-motion: reduce)").addEventListener?.("change", (event) => {
-    reduceCanvasMotion = event.matches;
-    if (!canvasFrame) drawCircuitScene();
+  function refreshStatementCircuit() {
+    if (animationFrame) window.cancelAnimationFrame(animationFrame);
+    animationFrame = undefined;
+    resizeStatementCanvas();
+    renderStatementCircuit();
+  }
+
+  window.addEventListener("resize", refreshStatementCircuit);
+  motionPreference.addEventListener?.("change", (event) => {
+    reducedMotion = event.matches;
+    refreshStatementCircuit();
   });
+  const circuitObserver = new IntersectionObserver(([entry]) => {
+    circuitVisible = entry.isIntersecting;
+    if (circuitVisible && !animationFrame && !reducedMotion) {
+      animationFrame = window.requestAnimationFrame(renderStatementCircuit);
+    } else if (!circuitVisible && animationFrame) {
+      window.cancelAnimationFrame(animationFrame);
+      animationFrame = undefined;
+    }
+  }, { rootMargin: "160px 0px" });
+
+  circuitObserver.observe(statementCanvas);
+  refreshStatementCircuit();
 }

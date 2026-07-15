@@ -72,9 +72,9 @@ a { color: inherit; text-decoration: none; }
 .hero__footer { color: var(--muted); }
 .footer-line { width: 5rem; height: 1px; margin: 0 1rem; background: var(--line); }
 .statement { position: relative; display: flex; min-height: clamp(30rem, 65vw, 52rem); align-items: center; overflow: hidden; isolation: isolate; padding: clamp(3rem, 8vw, 8rem) clamp(1.5rem, 5vw, 5rem); background: #0b0d0c; color: var(--ink); }
-.statement::after { position: absolute; z-index: -1; inset: 0; background: linear-gradient(90deg, rgba(11, 13, 12, 0.98) 0%, rgba(11, 13, 12, 0.86) 35%, rgba(11, 13, 12, 0.2) 74%, rgba(11, 13, 12, 0.62) 100%); content: ""; }
-.statement__backdrop { position: absolute; z-index: -2; inset: 0; background: radial-gradient(ellipse at 78% 55%, rgba(178, 185, 180, 0.11), transparent 18%), linear-gradient(105deg, #0b0d0c 0 53%, #111514 67%, #090b0a 100%); }
-.statement__canvas { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0.95; }
+.statement::after { position: absolute; z-index: -1; inset: 0; background: linear-gradient(90deg, rgba(11, 13, 12, 1) 0%, rgba(11, 13, 12, 0.98) 28%, rgba(11, 13, 12, 0.78) 42%, rgba(11, 13, 12, 0.08) 67%, rgba(11, 13, 12, 0.1) 100%); content: ""; pointer-events: none; }
+.statement__backdrop { position: absolute; z-index: -2; inset: 0; background: #0b0d0c; }
+.statement__canvas { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 1; }
 .statement__copy { position: relative; z-index: 1; max-width: 32rem; }
 .statement__kicker { margin: 0 0 1.8rem; color: var(--accent); font-family: "DM Mono", monospace; font-size: 0.66rem; letter-spacing: 0.13em; text-transform: uppercase; }
 .statement h2 { margin: 0; font-size: clamp(3.2rem, 7.5vw, 8.2rem); font-weight: 500; letter-spacing: -0.09em; line-height: 0.86; }
@@ -156,7 +156,8 @@ a { color: inherit; text-decoration: none; }
   .project-grid { grid-template-columns: 1fr; }
   .project-card__visual { min-height: 12rem; }
   .statement { min-height: 38rem; align-items: end; }
-  .statement__canvas { opacity: 0.72; }
+  .statement::after { background: linear-gradient(90deg, rgba(11, 13, 12, 0.96) 0%, rgba(11, 13, 12, 0.82) 40%, rgba(11, 13, 12, 0.22) 74%, rgba(11, 13, 12, 0.12) 100%); }
+  .statement__canvas { opacity: 0.82; }
   .statement h2 { font-size: clamp(3.2rem, 15vw, 6rem); }
   .journey { padding-top: 6rem; }
   .journey::before { right: -10rem; width: 20rem; height: 20rem; }
