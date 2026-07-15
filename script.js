@@ -151,7 +151,8 @@ if (heroModelCanvas) {
     const { GLTFLoader } = await import("https://unpkg.com/three@0.181.2/examples/jsm/loaders/GLTFLoader.js");
     const modelHost = heroModelCanvas.parentElement;
     const scene = new Scene();
-    const camera = new PerspectiveCamera(28, 1, 0.1, 100);
+    // Keep the full laptop inside the depth range while it rotates on scroll.
+    const camera = new PerspectiveCamera(28, 1, 0.1, 250);
     const renderer = new WebGLRenderer({ alpha: true, antialias: true, canvas: heroModelCanvas });
     const laptop = new Group();
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
