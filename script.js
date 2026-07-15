@@ -147,7 +147,7 @@ if (capabilities) {
 const heroModelCanvas = document.querySelector(".hero__model-canvas");
 
 if (heroModelCanvas) {
-  import("three").then(async ({ Scene, PerspectiveCamera, WebGLRenderer, AmbientLight, DirectionalLight, Group, MathUtils, MeshStandardMaterial, MeshBasicMaterial, PlaneGeometry, Mesh, BackSide }) => {
+  import("three").then(async ({ Scene, PerspectiveCamera, WebGLRenderer, AmbientLight, DirectionalLight, Group, MathUtils, MeshStandardMaterial, MeshBasicMaterial, PlaneGeometry, Mesh, BackSide, CanvasTexture, SRGBColorSpace }) => {
     const { GLTFLoader } = await import("https://unpkg.com/three@0.181.2/examples/jsm/loaders/GLTFLoader.js");
     const modelHost = heroModelCanvas.parentElement;
     const scene = new Scene();
@@ -171,6 +171,237 @@ if (heroModelCanvas) {
     fillLight.position.set(-5, 2, 3);
     scene.add(fillLight);
     scene.add(laptop);
+
+    const screenApps = [
+      { label: "Git", short: "G", icon: "https://api.iconify.design/logos/git-icon.svg", color: "#f05032" },
+      { label: "Codex", short: "Cx", icon: "https://api.iconify.design/simple-icons/openai.svg?color=%23f3f3ee", color: "#f3f3ee", active: true },
+      { label: "HTML", short: "5", icon: "https://api.iconify.design/logos/html-5.svg", color: "#e44d26" },
+      { label: "CSS", short: "3", icon: "https://api.iconify.design/logos/css-3.svg", color: "#1572b6" },
+      { label: "JavaScript", short: "JS", icon: "https://api.iconify.design/logos/javascript.svg", color: "#f7df1e" },
+      { label: "PHP", short: "php", icon: "https://api.iconify.design/logos/php.svg", color: "#777bb4" },
+      { label: "Vite", short: "V", icon: "https://api.iconify.design/logos/vitejs.svg", color: "#bd34fe" },
+      { label: "WordPress", short: "W", icon: "https://api.iconify.design/logos/wordpress-icon.svg", color: "#21759b" },
+      { label: "Elementor", short: "E", icon: "https://api.iconify.design/simple-icons/elementor.svg?color=%23ff2a8b", color: "#ff2a8b" },
+      { label: "Divi", short: "D", color: "#9a4dff", custom: true },
+      { label: "Avada", short: "A", color: "#65bd7d", custom: true },
+      { label: "Figma", short: "F", icon: "https://api.iconify.design/logos/figma.svg", color: "#a259ff" },
+      { label: "Slack", short: "S", icon: "https://api.iconify.design/logos/slack-icon.svg", color: "#36c5f0" },
+      { label: "Postman", short: "P", icon: "https://api.iconify.design/logos/postman-icon.svg", color: "#ff6c37" },
+      { label: "Photoshop", short: "Ps", icon: "https://api.iconify.design/logos/adobe-photoshop.svg", color: "#31a8ff" },
+      { label: "LocalWP", short: "L", icon: "https://api.iconify.design/simple-icons/local.svg?color=%23ffffff", color: "#46d6ad" },
+      { label: "VS Code", short: "<>_", icon: "https://api.iconify.design/logos/visual-studio-code.svg", color: "#23a8f2" },
+      { label: "Terminal", short: ">_", icon: "https://api.iconify.design/lucide/terminal.svg?color=%23d8ff3e", color: "#d8ff3e" },
+      { label: "Chrome", short: "C", icon: "https://api.iconify.design/logos/chrome.svg", color: "#4285f4" },
+    ];
+
+    const addRoundedRect = (context, x, y, width, height, radius) => {
+      const corner = Math.min(radius, width / 2, height / 2);
+      context.beginPath();
+      context.moveTo(x + corner, y);
+      context.arcTo(x + width, y, x + width, y + height, corner);
+      context.arcTo(x + width, y + height, x, y + height, corner);
+      context.arcTo(x, y + height, x, y, corner);
+      context.arcTo(x, y, x + width, y, corner);
+      context.closePath();
+    };
+
+    const loadScreenIcon = async (url) => {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`Icon request failed with ${response.status}`);
+      const source = await response.text();
+      const objectUrl = URL.createObjectURL(new Blob([source], { type: "image/svg+xml" }));
+      const image = new Image();
+
+      try {
+        await new Promise((resolve, reject) => {
+          image.onload = resolve;
+          image.onerror = reject;
+          image.src = objectUrl;
+        });
+      } finally {
+        URL.revokeObjectURL(objectUrl);
+      }
+
+      return image;
+    };
+
+    const createLaptopScreenTexture = () => {
+      const screenCanvas = document.createElement("canvas");
+      const context = screenCanvas.getContext("2d");
+      const iconImages = new Map();
+      const width = 1470;
+      const height = 1000;
+      screenCanvas.width = width;
+      screenCanvas.height = height;
+
+      const texture = new CanvasTexture(screenCanvas);
+      texture.colorSpace = SRGBColorSpace;
+      texture.flipY = false;
+      texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+
+      const drawWallpaper = () => {
+        context.fillStyle = "#070907";
+        context.fillRect(0, 0, width, height);
+
+        const glow = context.createRadialGradient(1130, 300, 0, 1130, 300, 720);
+        glow.addColorStop(0, "rgba(172, 220, 69, 0.15)");
+        glow.addColorStop(0.42, "rgba(80, 118, 32, 0.06)");
+        glow.addColorStop(1, "rgba(7, 9, 7, 0)");
+        context.fillStyle = glow;
+        context.fillRect(0, 0, width, height);
+
+        context.strokeStyle = "rgba(216, 255, 62, 0.035)";
+        context.lineWidth = 1;
+        for (let x = 0; x <= width; x += 70) {
+          context.beginPath();
+          context.moveTo(x, 58);
+          context.lineTo(x, height);
+          context.stroke();
+        }
+        for (let y = 58; y <= height; y += 70) {
+          context.beginPath();
+          context.moveTo(0, y);
+          context.lineTo(width, y);
+          context.stroke();
+        }
+
+        context.fillStyle = "rgba(3, 4, 3, 0.76)";
+        context.fillRect(0, 0, width, 58);
+        context.strokeStyle = "rgba(255, 255, 255, 0.08)";
+        context.beginPath();
+        context.moveTo(0, 58.5);
+        context.lineTo(width, 58.5);
+        context.stroke();
+
+        context.textBaseline = "middle";
+        context.font = "600 20px ui-monospace, SFMono-Regular, Menlo, monospace";
+        context.fillStyle = "#f1f1ec";
+        context.fillText("JW", 35, 29);
+        context.fillStyle = "#d8ff3e";
+        context.fillRect(71, 22, 7, 7);
+        context.font = "500 14px ui-monospace, SFMono-Regular, Menlo, monospace";
+        context.fillStyle = "rgba(241, 241, 236, 0.56)";
+        context.fillText("/ CREATIVE WORKSPACE", 94, 29);
+
+        const date = new Intl.DateTimeFormat("en-NZ", { weekday: "short", hour: "2-digit", minute: "2-digit" }).format(new Date()).toUpperCase();
+        context.textAlign = "right";
+        context.fillStyle = "rgba(241, 241, 236, 0.72)";
+        context.fillText(`●  ${date}`, width - 34, 29);
+        context.textAlign = "left";
+      };
+
+      const drawFallbackIcon = (app, x, y, size, compact = false) => {
+        const fontSize = compact ? size * 0.38 : size * (app.short.length > 2 ? 0.28 : 0.43);
+        context.font = `700 ${fontSize}px Arial, sans-serif`;
+        context.textAlign = "center";
+        context.textBaseline = "middle";
+        context.fillStyle = app.color;
+        context.fillText(app.short, x + size / 2, y + size / 2 + 2);
+        context.textAlign = "left";
+      };
+
+      const drawIcon = (app, x, y, size, compact = false) => {
+        const image = iconImages.get(app.label);
+        if (!image) {
+          drawFallbackIcon(app, x, y, size, compact);
+          return;
+        }
+
+        const padding = compact ? size * 0.18 : size * 0.2;
+        const maxSize = size - padding * 2;
+        const ratio = Math.min(maxSize / image.naturalWidth, maxSize / image.naturalHeight);
+        const drawWidth = image.naturalWidth * ratio;
+        const drawHeight = image.naturalHeight * ratio;
+        context.drawImage(image, x + (size - drawWidth) / 2, y + (size - drawHeight) / 2, drawWidth, drawHeight);
+      };
+
+      const drawHomeScreen = () => {
+        context.clearRect(0, 0, width, height);
+        drawWallpaper();
+
+        const startX = 91;
+        const startY = 102;
+        const columnGap = 278;
+        const rowGap = 188;
+        const tileSize = 108;
+
+        screenApps.forEach((app, index) => {
+          const column = index % 5;
+          const row = Math.floor(index / 5);
+          const x = startX + column * columnGap;
+          const y = startY + row * rowGap;
+
+          context.save();
+          context.shadowColor = app.active ? "rgba(216, 255, 62, 0.2)" : "rgba(0, 0, 0, 0.42)";
+          context.shadowBlur = app.active ? 30 : 18;
+          context.shadowOffsetY = 10;
+          addRoundedRect(context, x, y, tileSize, tileSize, 27);
+          context.fillStyle = app.active ? "rgba(216, 255, 62, 0.095)" : "rgba(17, 20, 17, 0.86)";
+          context.fill();
+          context.shadowColor = "transparent";
+          context.strokeStyle = app.active ? "rgba(216, 255, 62, 0.46)" : "rgba(255, 255, 255, 0.12)";
+          context.lineWidth = app.active ? 2 : 1;
+          context.stroke();
+          context.restore();
+
+          drawIcon(app, x, y, tileSize);
+
+          context.textAlign = "center";
+          context.textBaseline = "top";
+          context.font = "500 22px Arial, sans-serif";
+          context.fillStyle = "rgba(245, 245, 239, 0.92)";
+          context.fillText(app.label, x + tileSize / 2, y + tileSize + 15);
+          context.textAlign = "left";
+
+          if (app.active) {
+            context.fillStyle = "#d8ff3e";
+            context.beginPath();
+            context.arc(x + tileSize - 5, y + 5, 7, 0, Math.PI * 2);
+            context.fill();
+          }
+        });
+
+        const dockApps = [screenApps[1], screenApps[0], screenApps[16], screenApps[17], screenApps[18]];
+        const dockWidth = 486;
+        const dockHeight = 88;
+        const dockX = (width - dockWidth) / 2;
+        const dockY = height - 111;
+        addRoundedRect(context, dockX, dockY, dockWidth, dockHeight, 30);
+        context.fillStyle = "rgba(20, 24, 20, 0.84)";
+        context.fill();
+        context.strokeStyle = "rgba(255, 255, 255, 0.15)";
+        context.lineWidth = 1.5;
+        context.stroke();
+
+        dockApps.forEach((app, index) => {
+          const size = 66;
+          const x = dockX + 43 + index * 90;
+          const y = dockY + 11;
+          addRoundedRect(context, x, y, size, size, 19);
+          context.fillStyle = app.active ? "rgba(216, 255, 62, 0.11)" : "rgba(255, 255, 255, 0.045)";
+          context.fill();
+          drawIcon(app, x, y, size, true);
+        });
+
+        context.fillStyle = "#d8ff3e";
+        context.beginPath();
+        context.arc(dockX + 43 + 33, dockY + dockHeight - 7, 3, 0, Math.PI * 2);
+        context.fill();
+      };
+
+      drawHomeScreen();
+
+      Promise.allSettled(screenApps.filter((app) => app.icon).map(async (app) => {
+        const image = await loadScreenIcon(app.icon);
+        iconImages.set(app.label, image);
+      })).then(() => {
+        drawHomeScreen();
+        texture.needsUpdate = true;
+        requestRender();
+      });
+
+      return texture;
+    };
 
     const resize = () => {
       const bounds = modelHost.getBoundingClientRect();
@@ -208,7 +439,8 @@ if (heroModelCanvas) {
       loadedScene.position.set(0, -3.4, 0);
       loadedScene.position.z = -10;
 
-      const screen = new Mesh(new PlaneGeometry(29.4, 20), new MeshBasicMaterial({ color: 0x080a09, side: BackSide }));
+      const screenTexture = createLaptopScreenTexture();
+      const screen = new Mesh(new PlaneGeometry(29.4, 20), new MeshBasicMaterial({ color: 0xffffff, map: screenTexture, side: BackSide, toneMapped: false }));
       screen.position.set(0, 10.5, -0.11);
       screen.rotation.set(Math.PI, 0, 0);
       loadedScene.add(screen);
