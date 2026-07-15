@@ -263,6 +263,7 @@ if (heroModelCanvas) {
       const portraitImage = new Image();
       const width = 1470;
       const height = 1000;
+      const sharpenForCompactDisplay = usesCompactRendering();
       portraitCanvas.width = width;
       portraitCanvas.height = height;
       portraitContext.imageSmoothingEnabled = true;
@@ -271,9 +272,60 @@ if (heroModelCanvas) {
       const texture = new CanvasTexture(portraitCanvas);
       texture.colorSpace = SRGBColorSpace;
       texture.flipY = false;
-      texture.generateMipmaps = true;
+      texture.generateMipmaps = !sharpenForCompactDisplay;
+      if (sharpenForCompactDisplay) texture.minFilter = LinearFilter;
       texture.magFilter = LinearFilter;
       texture.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+
+      const sharpenPortrait = (x, y, drawWidth, drawHeight) => {
+        if (!sharpenForCompactDisplay) return;
+
+        const left = Math.max(0, Math.floor(x));
+        const top = Math.max(0, Math.floor(y));
+        const right = Math.min(width, Math.ceil(x + drawWidth));
+        const bottom = Math.min(height, Math.ceil(y + drawHeight));
+        const regionWidth = right - left;
+        const regionHeight = bottom - top;
+
+        if (regionWidth < 3 || regionHeight < 3) return;
+
+        const imageData = portraitContext.getImageData(left, top, regionWidth, regionHeight);
+        const pixels = imageData.data;
+        const source = new Uint8ClampedArray(pixels);
+        const rowStride = regionWidth * 4;
+        const strength = 0.38;
+
+        for (let row = 1; row < regionHeight - 1; row += 1) {
+          for (let column = 1; column < regionWidth - 1; column += 1) {
+            const index = row * rowStride + column * 4;
+            const leftIndex = index - 4;
+            const rightIndex = index + 4;
+            const topIndex = index - rowStride;
+            const bottomIndex = index + rowStride;
+
+            if (
+              source[index + 3] < 160 ||
+              source[leftIndex + 3] < 96 ||
+              source[rightIndex + 3] < 96 ||
+              source[topIndex + 3] < 96 ||
+              source[bottomIndex + 3] < 96
+            ) continue;
+
+            for (let channel = 0; channel < 3; channel += 1) {
+              const center = source[index + channel];
+              const neighbourAverage = (
+                source[leftIndex + channel] +
+                source[rightIndex + channel] +
+                source[topIndex + channel] +
+                source[bottomIndex + channel]
+              ) / 4;
+              pixels[index + channel] = center + (center - neighbourAverage) * strength;
+            }
+          }
+        }
+
+        portraitContext.putImageData(imageData, left, top);
+      };
 
       const drawPortrait = () => {
         const maxWidth = 680;
@@ -295,6 +347,7 @@ if (heroModelCanvas) {
         portraitContext.filter = "brightness(1.12) contrast(0.92) saturate(0.78)";
         portraitContext.drawImage(portraitImage, drawX, drawY, drawWidth, drawHeight);
         portraitContext.restore();
+        sharpenPortrait(drawX, drawY, drawWidth, drawHeight);
 
         portraitContext.save();
         portraitContext.globalCompositeOperation = "destination-out";
