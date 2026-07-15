@@ -274,7 +274,7 @@ body,
 @media (max-width: 600px) {
   .hero { min-height: max(44rem, 100svh); padding: 1.25rem 1.2rem 1rem; }
   .hero__content { padding: clamp(17rem, 43svh, 25rem) 0 clamp(2.5rem, 5vh, 3.5rem); }
-  .hero__model { top: 4.75rem; right: -66vw; width: 190vw; height: clamp(26rem, 64svh, 38rem); opacity: 0.9; }
+  .hero__model { top: 4.75rem; right: -40vw; width: 190vw; height: clamp(26rem, 64svh, 38rem); opacity: 0.9; }
   .hero__title { font-size: clamp(3.75rem, 16vw, 5.4rem); }
   .hero__content .eyebrow { margin-bottom: 1rem; }
   .hero__role { margin-top: 1.2rem; font-size: clamp(0.82rem, 3.5vw, 1rem); }
