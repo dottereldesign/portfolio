@@ -242,13 +242,13 @@ if (heroModelCanvas) {
         context.fillRect(0, 0, width, height);
 
         if (wallpaperImage.complete && wallpaperImage.naturalWidth) {
-          const maxWidth = 560;
-          const maxHeight = 800;
+          const maxWidth = 680;
+          const maxHeight = 980;
           const scale = Math.min(maxWidth / wallpaperImage.naturalWidth, maxHeight / wallpaperImage.naturalHeight);
           const drawWidth = wallpaperImage.naturalWidth * scale;
           const drawHeight = wallpaperImage.naturalHeight * scale;
           const drawX = (width - drawWidth) / 2;
-          const drawY = 64 + (800 - drawHeight) / 2;
+          const drawY = 64;
 
           context.save();
           context.globalAlpha = 0.72;
