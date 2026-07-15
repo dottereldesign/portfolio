@@ -175,8 +175,8 @@ if (heroModelCanvas) {
     const screenApps = [
       { label: "Git", short: "G", icon: "https://api.iconify.design/logos/git-icon.svg", color: "#f05032" },
       { label: "Codex", short: "Cx", icon: "https://api.iconify.design/simple-icons/openai.svg?color=%23f3f3ee", color: "#f3f3ee", active: true },
-      { label: "HTML", short: "5", icon: "https://api.iconify.design/logos/html-5.svg", color: "#e44d26" },
-      { label: "CSS", short: "3", icon: "https://api.iconify.design/logos/css-3.svg", color: "#1572b6" },
+      { label: "HTML", short: "5", icon: "https://api.iconify.design/simple-icons/html5.svg?color=%23e44d26", color: "#e44d26" },
+      { label: "CSS", short: "3", icon: "https://api.iconify.design/simple-icons/css.svg?color=%231572b6", color: "#1572b6" },
       { label: "JavaScript", short: "JS", icon: "https://api.iconify.design/logos/javascript.svg", color: "#f7df1e" },
       { label: "PHP", short: "php", icon: "https://api.iconify.design/logos/php.svg", color: "#777bb4" },
       { label: "Vite", short: "V", icon: "https://api.iconify.design/logos/vitejs.svg", color: "#bd34fe" },
@@ -319,15 +319,15 @@ if (heroModelCanvas) {
         context.clearRect(0, 0, width, height);
         drawWallpaper();
 
-        const startX = 91;
-        const startY = 102;
-        const columnGap = 278;
-        const rowGap = 188;
-        const tileSize = 108;
+        const startX = 282;
+        const startY = 98;
+        const columnGap = 420;
+        const rowGap = 112;
+        const tileSize = 64;
 
         screenApps.forEach((app, index) => {
-          const column = index % 5;
-          const row = Math.floor(index / 5);
+          const column = index % 3;
+          const row = Math.floor(index / 3);
           const x = startX + column * columnGap;
           const y = startY + row * rowGap;
 
@@ -335,7 +335,7 @@ if (heroModelCanvas) {
           context.shadowColor = app.active ? "rgba(216, 255, 62, 0.2)" : "rgba(0, 0, 0, 0.42)";
           context.shadowBlur = app.active ? 30 : 18;
           context.shadowOffsetY = 10;
-          addRoundedRect(context, x, y, tileSize, tileSize, 27);
+          addRoundedRect(context, x, y, tileSize, tileSize, 17);
           context.fillStyle = app.active ? "rgba(216, 255, 62, 0.095)" : "rgba(17, 20, 17, 0.86)";
           context.fill();
           context.shadowColor = "transparent";
@@ -344,29 +344,22 @@ if (heroModelCanvas) {
           context.stroke();
           context.restore();
 
-          drawIcon(app, x, y, tileSize);
-
-          context.textAlign = "center";
-          context.textBaseline = "top";
-          context.font = "500 22px Arial, sans-serif";
-          context.fillStyle = "rgba(245, 245, 239, 0.92)";
-          context.fillText(app.label, x + tileSize / 2, y + tileSize + 15);
-          context.textAlign = "left";
+          drawIcon(app, x, y, tileSize, true);
 
           if (app.active) {
             context.fillStyle = "#d8ff3e";
             context.beginPath();
-            context.arc(x + tileSize - 5, y + 5, 7, 0, Math.PI * 2);
+            context.arc(x + tileSize - 3, y + 3, 4, 0, Math.PI * 2);
             context.fill();
           }
         });
 
         const dockApps = [screenApps[1], screenApps[0], screenApps[16], screenApps[17], screenApps[18]];
-        const dockWidth = 486;
-        const dockHeight = 88;
+        const dockWidth = 350;
+        const dockHeight = 62;
         const dockX = (width - dockWidth) / 2;
-        const dockY = height - 111;
-        addRoundedRect(context, dockX, dockY, dockWidth, dockHeight, 30);
+        const dockY = height - 84;
+        addRoundedRect(context, dockX, dockY, dockWidth, dockHeight, 22);
         context.fillStyle = "rgba(20, 24, 20, 0.84)";
         context.fill();
         context.strokeStyle = "rgba(255, 255, 255, 0.15)";
@@ -374,10 +367,10 @@ if (heroModelCanvas) {
         context.stroke();
 
         dockApps.forEach((app, index) => {
-          const size = 66;
-          const x = dockX + 43 + index * 90;
-          const y = dockY + 11;
-          addRoundedRect(context, x, y, size, size, 19);
+          const size = 42;
+          const x = dockX + 35 + index * 62;
+          const y = dockY + 10;
+          addRoundedRect(context, x, y, size, size, 12);
           context.fillStyle = app.active ? "rgba(216, 255, 62, 0.11)" : "rgba(255, 255, 255, 0.045)";
           context.fill();
           drawIcon(app, x, y, size, true);
@@ -385,7 +378,7 @@ if (heroModelCanvas) {
 
         context.fillStyle = "#d8ff3e";
         context.beginPath();
-        context.arc(dockX + 43 + 33, dockY + dockHeight - 7, 3, 0, Math.PI * 2);
+        context.arc(dockX + 35 + 21, dockY + dockHeight - 5, 2, 0, Math.PI * 2);
         context.fill();
       };
 
