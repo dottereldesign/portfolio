@@ -196,21 +196,35 @@ if (heroModelCanvas) {
     const screenApps = [
       { label: "Git", short: "G", icon: "https://api.iconify.design/logos/git-icon.svg", color: "#f05032" },
       { label: "Codex", short: "Cx", icon: "https://api.iconify.design/simple-icons/openai.svg?color=%23f3f3ee", color: "#f3f3ee" },
-      { label: "HTML", short: "5", icon: "https://api.iconify.design/simple-icons/html5.svg?color=%23e44d26", color: "#e44d26" },
-      { label: "CSS", short: "3", icon: "https://api.iconify.design/simple-icons/css.svg?color=%231572b6", color: "#1572b6" },
-      { label: "JavaScript", short: "JS", icon: "https://api.iconify.design/logos/javascript.svg", color: "#f7df1e" },
-      { label: "PHP", short: "php", icon: "https://api.iconify.design/logos/php.svg", color: "#777bb4" },
-      { label: "Vite", short: "V", icon: "https://api.iconify.design/logos/vitejs.svg", color: "#bd34fe" },
       { label: "WordPress", short: "W", icon: "https://api.iconify.design/simple-icons/wordpress.svg?color=%2321759b", color: "#21759b" },
       { label: "Figma", short: "F", icon: "https://api.iconify.design/logos/figma.svg", color: "#a259ff" },
       { label: "Slack", short: "S", icon: "https://api.iconify.design/logos/slack-icon.svg", color: "#36c5f0" },
       { label: "Postman", short: "P", icon: "https://api.iconify.design/logos/postman-icon.svg", color: "#ff6c37" },
       { label: "Photoshop", short: "Ps", icon: "https://api.iconify.design/logos/adobe-photoshop.svg", color: "#31a8ff" },
-      { label: "LocalWP", short: "L", icon: "https://api.iconify.design/simple-icons/local.svg?color=%23ffffff", color: "#46d6ad" },
+      { label: "LocalWP", short: "L", icon: "https://api.iconify.design/simple-icons/local.svg?color=%2353BB7D", color: "#53BB7D" },
       { label: "VS Code", short: "<>_", icon: "https://api.iconify.design/logos/visual-studio-code.svg", color: "#23a8f2" },
       { label: "Terminal", short: ">_", icon: "https://api.iconify.design/lucide/terminal.svg?color=%23ff5a24", color: "#ff5a24" },
       { label: "Chrome", short: "C", icon: "https://api.iconify.design/logos/chrome.svg", color: "#4285f4" },
     ];
+
+    const getDockLayout = (width, height) => {
+      const iconSize = 42;
+      const iconGap = 19;
+      const dockPadding = 42;
+      const dockHeight = 62;
+      const dockWidth =
+        dockPadding * 2 + screenApps.length * iconSize + Math.max(0, screenApps.length - 1) * iconGap;
+
+      return {
+        dockHeight,
+        dockWidth,
+        dockX: (width - dockWidth) / 2,
+        dockY: height - 170,
+        dockPadding,
+        iconGap,
+        iconSize,
+      };
+    };
 
     const addRoundedRect = (context, x, y, width, height, radius) => {
       const corner = Math.min(radius, width / 2, height / 2);
@@ -273,10 +287,7 @@ if (heroModelCanvas) {
         const centerY = drawY + drawHeight * 0.694;
         const frameSize = drawWidth * 0.38;
         const radius = frameSize * 0.48;
-        const dockWidth = 1040;
-        const dockHeight = 62;
-        const dockX = (width - dockWidth) / 2;
-        const dockY = height - 170;
+        const { dockHeight, dockWidth, dockX, dockY } = getDockLayout(width, height);
 
         portraitContext.clearRect(0, 0, width, height);
         portraitContext.save();
@@ -490,10 +501,7 @@ if (heroModelCanvas) {
         drawWallpaper();
 
         const dockApps = screenApps;
-        const dockWidth = 1040;
-        const dockHeight = 62;
-        const dockX = (width - dockWidth) / 2;
-        const dockY = height - 170;
+        const { dockHeight, dockWidth, dockX, dockY, dockPadding, iconGap, iconSize } = getDockLayout(width, height);
         addRoundedRect(context, dockX, dockY, dockWidth, dockHeight, 22);
         context.fillStyle = "rgba(20, 24, 20, 0.84)";
         context.fill();
@@ -502,8 +510,8 @@ if (heroModelCanvas) {
         context.stroke();
 
         dockApps.forEach((app, index) => {
-          const size = 42;
-          const x = dockX + 42 + index * 61;
+          const size = iconSize;
+          const x = dockX + dockPadding + index * (iconSize + iconGap);
           const y = dockY + 10;
           addRoundedRect(context, x, y, size, size, 12);
           context.fillStyle = "rgba(255, 255, 255, 0.045)";
