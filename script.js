@@ -184,7 +184,7 @@ if (heroModelCanvas) {
 
     scene.add(new AmbientLight(0xe8e7e1, 2.2));
 
-    const keyLight = new DirectionalLight(0xd8ff3e, 2.4);
+    const keyLight = new DirectionalLight(0xff5a24, 2.4);
     keyLight.position.set(4, 5, 6);
     scene.add(keyLight);
 
@@ -208,7 +208,7 @@ if (heroModelCanvas) {
       { label: "Photoshop", short: "Ps", icon: "https://api.iconify.design/logos/adobe-photoshop.svg", color: "#31a8ff" },
       { label: "LocalWP", short: "L", icon: "https://api.iconify.design/simple-icons/local.svg?color=%23ffffff", color: "#46d6ad" },
       { label: "VS Code", short: "<>_", icon: "https://api.iconify.design/logos/visual-studio-code.svg", color: "#23a8f2" },
-      { label: "Terminal", short: ">_", icon: "https://api.iconify.design/lucide/terminal.svg?color=%23d8ff3e", color: "#d8ff3e" },
+      { label: "Terminal", short: ">_", icon: "https://api.iconify.design/lucide/terminal.svg?color=%23ff5a24", color: "#ff5a24" },
       { label: "Chrome", short: "C", icon: "https://api.iconify.design/logos/chrome.svg", color: "#4285f4" },
     ];
 
@@ -570,7 +570,7 @@ if (heroModelCanvas) {
     new GLTFLoader().load("assets/macbook.glb", ({ scene: loadedScene }) => {
       const baseMetal = new MeshStandardMaterial({ color: 0x9da1a5, metalness: 0.82, roughness: 0.3 });
       const darkPlastic = new MeshStandardMaterial({ color: 0x080909, metalness: 0.35, roughness: 0.72 });
-      const logo = new MeshBasicMaterial({ color: 0xd8ff3e });
+      const logo = new MeshBasicMaterial({ color: 0xff5a24 });
       const webcam = loadedScene.getObjectByName("camera");
 
       if (webcam) webcam.visible = false;
