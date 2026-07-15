@@ -292,7 +292,7 @@ if (heroModelCanvas) {
         portraitContext.clearRect(0, 0, width, height);
         portraitContext.save();
         portraitContext.globalAlpha = 0.65;
-        portraitContext.filter = "brightness(0.88) contrast(1.08) saturate(0.72)";
+        portraitContext.filter = "brightness(1.12) contrast(0.92) saturate(0.78)";
         portraitContext.drawImage(portraitImage, drawX, drawY, drawWidth, drawHeight);
         portraitContext.restore();
 
