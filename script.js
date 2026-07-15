@@ -249,14 +249,7 @@ if (heroModelCanvas) {
         context.stroke();
 
         context.textBaseline = "middle";
-        context.font = "600 20px ui-monospace, SFMono-Regular, Menlo, monospace";
-        context.fillStyle = "#f1f1ec";
-        context.fillText("JW", 35, 29);
-        context.fillStyle = "#d8ff3e";
-        context.fillRect(71, 22, 7, 7);
         context.font = "500 14px ui-monospace, SFMono-Regular, Menlo, monospace";
-        context.fillStyle = "rgba(241, 241, 236, 0.56)";
-        context.fillText("/ CREATIVE WORKSPACE", 94, 29);
 
         const date = new Intl.DateTimeFormat("en-NZ", { weekday: "short", hour: "2-digit", minute: "2-digit" }).format(new Date()).toUpperCase();
         context.textAlign = "right";
