@@ -250,7 +250,25 @@ if (heroModelCanvas) {
           const drawX = (width - drawWidth) / 2;
           const drawY = 64 + (800 - drawHeight) / 2;
 
+          context.save();
+          context.globalAlpha = 0.72;
+          context.filter = "brightness(0.82) contrast(0.92) saturate(0.68)";
           context.drawImage(wallpaperImage, drawX, drawY, drawWidth, drawHeight);
+          context.restore();
+
+          const portraitVignette = context.createRadialGradient(
+            drawX + drawWidth * 0.5,
+            drawY + drawHeight * 0.44,
+            drawWidth * 0.18,
+            drawX + drawWidth * 0.5,
+            drawY + drawHeight * 0.44,
+            drawHeight * 0.62,
+          );
+          portraitVignette.addColorStop(0, "rgba(7, 9, 7, 0)");
+          portraitVignette.addColorStop(0.62, "rgba(7, 9, 7, 0.08)");
+          portraitVignette.addColorStop(1, "rgba(7, 9, 7, 0.58)");
+          context.fillStyle = portraitVignette;
+          context.fillRect(drawX - 72, drawY - 48, drawWidth + 144, drawHeight + 96);
         }
 
         context.fillStyle = "rgba(3, 4, 3, 0.76)";
