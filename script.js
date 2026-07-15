@@ -225,12 +225,30 @@ if (heroModelCanvas) {
     const createLaptopScreenTexture = () => {
       const screenCanvas = document.createElement("canvas");
       const context = screenCanvas.getContext("2d");
+      const staticScreenCanvas = document.createElement("canvas");
+      const staticContext = staticScreenCanvas.getContext("2d");
       const iconImages = new Map();
       const wallpaperImage = new Image();
+      const footballVideo = document.createElement("video");
       const width = 1470;
       const height = 1000;
+      let wallpaperLayout;
+      let footballIsInView = true;
+      let footballFallbackTimer;
+      let lastFootballTime = -1;
       screenCanvas.width = width;
       screenCanvas.height = height;
+      staticScreenCanvas.width = width;
+      staticScreenCanvas.height = height;
+
+      footballVideo.autoplay = !reducedMotion;
+      footballVideo.loop = true;
+      footballVideo.muted = true;
+      footballVideo.playsInline = true;
+      footballVideo.preload = "auto";
+      footballVideo.disablePictureInPicture = true;
+      footballVideo.setAttribute("muted", "");
+      footballVideo.setAttribute("playsinline", "");
 
       const texture = new CanvasTexture(screenCanvas);
       texture.colorSpace = SRGBColorSpace;
@@ -249,6 +267,7 @@ if (heroModelCanvas) {
           const drawHeight = wallpaperImage.naturalHeight * scale;
           const drawX = (width - drawWidth) / 2;
           const drawY = 64;
+          wallpaperLayout = { drawX, drawY, drawWidth, drawHeight };
 
           context.save();
           context.globalAlpha = 0.72;
@@ -289,6 +308,35 @@ if (heroModelCanvas) {
         context.textAlign = "left";
       };
 
+      const drawFootball = () => {
+        if (!wallpaperLayout || footballVideo.readyState < 2) return;
+
+        const { drawX, drawY, drawWidth, drawHeight } = wallpaperLayout;
+        const centerX = drawX + drawWidth * 0.488;
+        const centerY = drawY + drawHeight * 0.694;
+        const frameSize = drawWidth * 0.38;
+        const radius = frameSize * 0.48;
+        const backdrop = context.createRadialGradient(centerX, centerY, radius * 0.82, centerX, centerY, radius);
+
+        backdrop.addColorStop(0, "rgba(7, 9, 7, 1)");
+        backdrop.addColorStop(0.88, "rgba(7, 9, 7, 1)");
+        backdrop.addColorStop(1, "rgba(7, 9, 7, 0)");
+        context.fillStyle = backdrop;
+        context.beginPath();
+        context.arc(centerX, centerY, radius, 0, Math.PI * 2);
+        context.fill();
+
+        context.save();
+        context.beginPath();
+        context.arc(centerX, centerY, radius, 0, Math.PI * 2);
+        context.clip();
+        context.globalCompositeOperation = "screen";
+        context.globalAlpha = 0.82;
+        context.filter = "grayscale(1) brightness(0.82) contrast(1.08)";
+        context.drawImage(footballVideo, centerX - frameSize / 2, centerY - frameSize / 2, frameSize, frameSize);
+        context.restore();
+      };
+
       const drawFallbackIcon = (app, x, y, size, compact = false) => {
         const fontSize = compact ? size * 0.38 : size * (app.short.length > 2 ? 0.28 : 0.43);
         context.font = `700 ${fontSize}px Arial, sans-serif`;
@@ -314,7 +362,7 @@ if (heroModelCanvas) {
         context.drawImage(image, x + (size - drawWidth) / 2, y + (size - drawHeight) / 2, drawWidth, drawHeight);
       };
 
-      const drawHomeScreen = () => {
+      const drawStaticHomeScreen = () => {
         context.clearRect(0, 0, width, height);
         drawWallpaper();
 
@@ -341,10 +389,39 @@ if (heroModelCanvas) {
         });
       };
 
-      drawHomeScreen();
+      const drawScreenFrame = () => {
+        context.clearRect(0, 0, width, height);
+        context.drawImage(staticScreenCanvas, 0, 0);
+        drawFootball();
+      };
+
+      const cacheStaticScreen = () => {
+        drawStaticHomeScreen();
+        staticContext.clearRect(0, 0, width, height);
+        staticContext.drawImage(screenCanvas, 0, 0);
+        drawScreenFrame();
+      };
+
+      const updateFootballFrame = () => {
+        drawScreenFrame();
+        texture.needsUpdate = true;
+        requestRender();
+      };
+
+      const updateFootballVisibility = () => {
+        if (reducedMotion || footballVideo.readyState < 2) return;
+
+        if (footballIsInView && !document.hidden) {
+          footballVideo.play().catch(() => {});
+        } else {
+          footballVideo.pause();
+        }
+      };
+
+      cacheStaticScreen();
 
       wallpaperImage.onload = () => {
-        drawHomeScreen();
+        cacheStaticScreen();
         texture.needsUpdate = true;
         requestRender();
       };
@@ -354,10 +431,55 @@ if (heroModelCanvas) {
         const image = await loadScreenIcon(app.icon);
         iconImages.set(app.label, image);
       })).then(() => {
-        drawHomeScreen();
+        cacheStaticScreen();
         texture.needsUpdate = true;
         requestRender();
       });
+
+      footballVideo.addEventListener("loadeddata", () => {
+        updateFootballFrame();
+
+        if (reducedMotion) return;
+
+        if ("requestVideoFrameCallback" in footballVideo) {
+          const handleFootballFrame = () => {
+            updateFootballFrame();
+            footballVideo.requestVideoFrameCallback(handleFootballFrame);
+          };
+          footballVideo.requestVideoFrameCallback(handleFootballFrame);
+        } else {
+          const startFootballFallback = () => {
+            if (footballFallbackTimer) return;
+            footballFallbackTimer = window.setInterval(() => {
+              if (footballVideo.currentTime !== lastFootballTime) {
+                lastFootballTime = footballVideo.currentTime;
+                updateFootballFrame();
+              }
+            }, 1000 / 30);
+          };
+          const stopFootballFallback = () => {
+            window.clearInterval(footballFallbackTimer);
+            footballFallbackTimer = undefined;
+          };
+
+          footballVideo.addEventListener("play", startFootballFallback);
+          footballVideo.addEventListener("pause", stopFootballFallback);
+        }
+
+        updateFootballVisibility();
+      }, { once: true });
+
+      if ("IntersectionObserver" in window) {
+        const footballVisibility = new IntersectionObserver(([entry]) => {
+          footballIsInView = entry.isIntersecting;
+          updateFootballVisibility();
+        });
+        footballVisibility.observe(modelHost);
+      }
+
+      document.addEventListener("visibilitychange", updateFootballVisibility);
+      footballVideo.src = "assets/football-spin-loop.mp4";
+      footballVideo.load();
 
       return texture;
     };
