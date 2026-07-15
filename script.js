@@ -147,7 +147,7 @@ if (capabilities) {
 const heroModelCanvas = document.querySelector(".hero__model-canvas");
 
 if (heroModelCanvas) {
-  import("three").then(async ({ Scene, PerspectiveCamera, WebGLRenderer, AmbientLight, DirectionalLight, Group, MathUtils, MeshStandardMaterial, MeshBasicMaterial, PlaneGeometry, Mesh, BackSide, CanvasTexture, SRGBColorSpace }) => {
+  import("three").then(async ({ Scene, PerspectiveCamera, WebGLRenderer, AmbientLight, DirectionalLight, Group, MathUtils, MeshStandardMaterial, MeshBasicMaterial, PlaneGeometry, Mesh, BackSide, CanvasTexture, SRGBColorSpace, Box3, Vector3 }) => {
     const { GLTFLoader } = await import("https://unpkg.com/three@0.181.2/examples/jsm/loaders/GLTFLoader.js");
     const modelHost = heroModelCanvas.parentElement;
     const scene = new Scene();
@@ -157,6 +157,8 @@ if (heroModelCanvas) {
     const laptop = new Group();
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let modelReady = false;
+    let footballSpinner;
+    let previousFrameTime;
     let targetRotation = -0.45;
     let targetLift = 0;
     let frame;
@@ -364,7 +366,9 @@ if (heroModelCanvas) {
       targetLift = progress * (window.innerWidth <= 800 ? 5 : -10);
     };
 
-    new GLTFLoader().load("assets/macbook.glb", ({ scene: loadedScene }) => {
+    const modelLoader = new GLTFLoader();
+
+    modelLoader.load("assets/macbook.glb", ({ scene: loadedScene }) => {
       const baseMetal = new MeshStandardMaterial({ color: 0x9da1a5, metalness: 0.82, roughness: 0.3 });
       const darkPlastic = new MeshStandardMaterial({ color: 0x080909, metalness: 0.35, roughness: 0.72 });
       const logo = new MeshBasicMaterial({ color: 0xd8ff3e });
@@ -385,20 +389,55 @@ if (heroModelCanvas) {
       screen.position.set(0, 10.5, -0.11);
       screen.rotation.set(Math.PI, 0, 0);
       loadedScene.add(screen);
+
+      modelLoader.load("assets/football/football.gltf", ({ scene: footballScene }) => {
+        const deflatedFootball = footballScene.getObjectByName("football_deflated");
+        const inflatedFootball = footballScene.getObjectByName("football_inflated");
+
+        if (deflatedFootball) deflatedFootball.visible = false;
+
+        if (inflatedFootball) {
+          const footballBounds = new Box3().setFromObject(inflatedFootball);
+          const footballSize = footballBounds.getSize(new Vector3());
+          const footballCenter = footballBounds.getCenter(new Vector3());
+          const targetDiameter = 2.08;
+          const footballScale = targetDiameter / Math.max(footballSize.x, footballSize.y, footballSize.z);
+          const footballTilt = new Group();
+
+          inflatedFootball.position.sub(footballCenter);
+          footballScene.scale.setScalar(footballScale);
+          footballSpinner = new Group();
+          footballSpinner.add(footballScene);
+          footballTilt.rotation.set(0.22, 0, 0.58);
+          footballTilt.add(footballSpinner);
+          footballTilt.position.set(2.67, 8.22, 0.34);
+          loadedScene.add(footballTilt);
+        }
+
+        requestRender();
+      });
+
       laptop.add(loadedScene);
       modelReady = true;
       requestRender();
     });
 
-    const render = () => {
+    const render = (time = 0) => {
       frame = undefined;
       if (!modelReady) return;
+      const delta = previousFrameTime === undefined ? 0 : Math.min((time - previousFrameTime) / 1000, 0.05);
+      previousFrameTime = time;
       laptop.rotation.y = reducedMotion ? targetRotation : MathUtils.lerp(laptop.rotation.y, targetRotation, 0.075);
       laptop.position.y = reducedMotion ? targetLift : MathUtils.lerp(laptop.position.y, targetLift, 0.075);
       laptop.rotation.z = MathUtils.lerp(laptop.rotation.z, -0.05, 0.075);
+
+      if (footballSpinner && !reducedMotion) {
+        footballSpinner.rotation.y += delta * 1.35;
+      }
+
       renderer.render(scene, camera);
 
-      if (!reducedMotion && (Math.abs(laptop.rotation.y - targetRotation) > 0.001 || Math.abs(laptop.position.y - targetLift) > 0.001)) {
+      if (!reducedMotion && (footballSpinner || Math.abs(laptop.rotation.y - targetRotation) > 0.001 || Math.abs(laptop.position.y - targetLift) > 0.001)) {
         requestRender();
       }
     };
