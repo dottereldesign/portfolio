@@ -177,8 +177,11 @@ if (heroModelCanvas) {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       renderer.setPixelRatio(dpr);
       renderer.setSize(bounds.width, bounds.height, false);
-      camera.aspect = bounds.width / bounds.height;
-      camera.position.z = bounds.width < 700 ? 72 : 78;
+      const aspect = bounds.width / bounds.height;
+      const portraitCameraZ = 78 + Math.max(0, 1.1 - aspect) * 80;
+      const compactCameraZ = window.innerWidth <= 800 ? 88 : 78;
+      camera.aspect = aspect;
+      camera.position.z = MathUtils.clamp(Math.max(compactCameraZ, portraitCameraZ), 78, 108);
       camera.updateProjectionMatrix();
     };
 
