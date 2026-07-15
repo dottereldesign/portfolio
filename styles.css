@@ -105,8 +105,6 @@ a { color: inherit; text-decoration: none; }
 .capability-card__index { margin: 0 0 0.55rem; color: var(--accent); font-family: "DM Mono", monospace; font-size: 0.64rem; letter-spacing: 0.1em; text-transform: uppercase; }
 .capability-card h3 { margin: 0; font-size: clamp(2rem, 3vw, 3.2rem); letter-spacing: -0.08em; line-height: 0.95; }
 .capability-card__description { max-width: 19rem; min-height: 4.5rem; margin: 0.9rem 0 1.6rem; color: var(--muted); font-size: 0.9rem; line-height: 1.55; }
-.capability-card__tag { display: block; border: 1px solid rgba(232, 231, 225, 0.14); background: rgba(232, 231, 225, 0.045); color: var(--muted); font-family: "DM Mono", monospace; font-size: 0.62rem; letter-spacing: 0.12em; text-align: center; text-transform: uppercase; }
-.capability-card__tag { padding: 0.85rem 0.6rem; }
 .capabilities--reveal-ready .capabilities__intro, .capabilities--reveal-ready .capability-card { opacity: 0; transform: translateY(2rem); transition: opacity 700ms ease, transform 850ms cubic-bezier(0.2, 0.8, 0.2, 1); }
 .capabilities--reveal-ready .capabilities__intro { transition-delay: 80ms; }
 .capabilities--reveal-ready .capability-card:nth-of-type(1) { transition-delay: 220ms; }
