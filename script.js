@@ -203,9 +203,10 @@ if (heroModelCanvas) {
       loadedScene.position.set(0, -3.4, 0);
       loadedScene.position.z = -10;
 
-      const screen = new Mesh(new PlaneGeometry(29.4, 20), new MeshBasicMaterial({ color: 0x050606, side: BackSide }));
-      screen.position.set(0, 10.5, -0.12);
+      const screen = new Mesh(new PlaneGeometry(25.5, 16.7), new MeshBasicMaterial({ color: 0x080a09, side: BackSide }));
+      screen.position.set(0, 10.3, -0.2);
       screen.rotation.set(Math.PI, 0, 0);
+      screen.scale.setScalar(0.94);
       loadedScene.children.find((part) => part.name === "_top")?.add(screen);
       laptop.add(loadedScene);
       modelReady = true;
