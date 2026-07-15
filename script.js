@@ -169,7 +169,7 @@ if (heroModelCanvas) {
     const camera = new PerspectiveCamera(28, 1, 0.1, 250);
     const renderer = new WebGLRenderer({
       alpha: true,
-      antialias: !usesCompactRendering(),
+      antialias: true,
       canvas: heroModelCanvas,
       powerPreference: "high-performance",
     });
