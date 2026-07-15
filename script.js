@@ -246,8 +246,6 @@ if (heroModelCanvas) {
       footballVideo.muted = true;
       footballVideo.playsInline = true;
       footballVideo.preload = "auto";
-      footballVideo.defaultPlaybackRate = 0.55;
-      footballVideo.playbackRate = 0.55;
       footballVideo.disablePictureInPicture = true;
       footballVideo.setAttribute("muted", "");
       footballVideo.setAttribute("playsinline", "");
@@ -473,7 +471,7 @@ if (heroModelCanvas) {
                 lastFootballTime = footballVideo.currentTime;
                 updateFootballFrame();
               }
-            }, 1000 / 30);
+            }, 1000 / 60);
           };
           const stopFootballFallback = () => {
             window.clearInterval(footballFallbackTimer);
