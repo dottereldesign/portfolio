@@ -145,30 +145,16 @@ if (statementCanvas) {
 
   const routes = [
     { alpha: 0.34, width: 0.75, path: [[-40, 486], [75, 486], [104, 477], [123, 447], [128, 405], [145, 379], [178, 370], [250, 370]] },
-    { alpha: 0.18, width: 0.55, path: [[-30, 485], [78, 485], [110, 469], [125, 430], [129, 392], [154, 365], [197, 360], [250, 360]] },
-    { alpha: 0.26, width: 0.65, path: [[124, 371], [207, 371], [242, 369], [278, 369], [365, 369], [407, 370], [690, 370]] },
-    { alpha: 0.18, width: 0.55, path: [[118, 380], [205, 380], [248, 375], [364, 375], [409, 379], [690, 379]] },
-    { alpha: 0.16, width: 0.5, path: [[128, 390], [212, 390], [248, 383], [368, 383], [416, 389], [690, 389]] },
-    { alpha: 0.2, width: 0.55, path: [[138, 350], [191, 350], [220, 356], [250, 360]] },
-    { alpha: 0.25, width: 0.65, path: [[203, 261], [203, 320], [208, 345], [224, 360], [250, 368]] },
-    { alpha: 0.12, width: 0.5, path: [[192, 281], [192, 326], [201, 352], [224, 370]] },
-    { alpha: 0.13, width: 0.5, path: [[204, 261], [218, 232], [246, 209], [273, 208]] },
-    { alpha: 0.16, width: 0.55, path: [[333, 208], [356, 208], [382, 224], [402, 242], [402, 348], [376, 370]] },
+    { alpha: 0.24, width: 0.65, path: [[124, 370], [250, 370], [358, 370], [690, 370]] },
     { alpha: 0.24, width: 0.65, path: [[402, 52], [402, 182], [402, 224], [402, 333], [397, 350], [375, 370]] },
-    { alpha: 0.17, width: 0.5, path: [[391, 224], [391, 326], [386, 347], [370, 363]] },
     { alpha: 0.2, width: 0.55, path: [[402, 224], [560, 224], [590, 216], [620, 195], [690, 195]] },
-    { alpha: 0.17, width: 0.5, path: [[402, 258], [439, 258], [450, 257], [510, 257], [532, 249], [548, 224], [690, 224]] },
-    { alpha: 0.14, width: 0.5, path: [[402, 282], [436, 282], [452, 281], [690, 281]] },
-    { alpha: 0.18, width: 0.55, path: [[402, 346], [424, 345], [444, 324], [454, 312]] },
-    { alpha: 0.18, width: 0.55, path: [[496, 302], [536, 302], [572, 290], [690, 290]] },
-    { alpha: 0.2, width: 0.55, path: [[402, 395], [420, 407], [445, 409], [690, 409]] },
+    { alpha: 0.15, width: 0.55, path: [[333, 208], [356, 208], [382, 224], [402, 242]] },
+    { alpha: 0.18, width: 0.55, path: [[402, 302], [454, 302]] },
+    { alpha: 0.16, width: 0.5, path: [[496, 302], [548, 302], [582, 288], [690, 288]] },
     { alpha: 0.18, width: 0.55, path: [[402, 421], [429, 421], [448, 437], [454, 446]] },
-    { alpha: 0.17, width: 0.5, path: [[496, 446], [544, 446], [572, 456], [690, 456]] },
     { alpha: 0.28, width: 0.7, path: [[402, 392], [402, 479], [404, 500], [418, 514], [440, 522], [449, 522], [470, 527], [486, 545], [489, 565], [489, 581], [690, 581]] },
-    { alpha: 0.13, width: 0.5, path: [[414, 392], [414, 470], [416, 493], [430, 504], [455, 504], [478, 513]] },
-    { alpha: 0.14, width: 0.5, path: [[319, 511], [326, 540], [346, 566], [375, 579], [455, 579], [476, 568], [489, 547]] },
-    { alpha: 0.12, width: 0.5, path: [[281, 445], [281, 492], [281, 552]] },
-    { alpha: 0.12, width: 0.5, path: [[202, 394], [202, 486]] },
+    { alpha: 0.14, width: 0.5, path: [[304, 424], [304, 476], [319, 511], [326, 540], [346, 566], [375, 579], [455, 579], [476, 568], [489, 547]] },
+    { alpha: 0.14, width: 0.5, path: [[202, 370], [202, 506]] },
   ];
 
   const satellites = [
@@ -180,14 +166,9 @@ if (statementCanvas) {
   ];
 
   const fixedNodes = [
-    [402, 52, 1.8, 0.45], [402, 176, 1.3, 0.95], [402, 239, 1.5, 0.88],
-    [402, 258, 1.4, 0.52], [402, 289, 2.1, 0.88], [402, 315, 1.45, 0.7],
-    [402, 346, 1.45, 0.7], [415, 370, 3.6, 0.9], [508, 370, 3.6, 0.9],
-    [202, 261, 1.5, 0.78], [202, 290, 1.7, 0.75], [202, 323, 1.25, 0.76],
-    [191, 487, 1.4, 0.74], [202, 487, 1.5, 0.9], [202, 508, 1.4, 0.67],
-    [489, 565, 1.25, 0.65], [489, 581, 1.5, 0.72], [75, 486, 1.2, 0.66],
-    [288, 179, 1.2, 0.48], [275, 209, 1.05, 0.78], [304, 237, 0.9, 0.28],
-    [350, 240, 0.8, 0.28], [434, 321, 1.05, 0.58], [508, 258, 1.1, 0.55],
+    [402, 52, 1.7, 0.5], [402, 224, 1.45, 0.82], [402, 302, 1.45, 0.75],
+    [402, 346, 1.45, 0.72], [202, 370, 1.35, 0.62], [202, 506, 1.4, 0.76],
+    [489, 581, 1.45, 0.7],
   ];
 
   function resizeStatementCanvas() {
@@ -245,7 +226,7 @@ if (statementCanvas) {
     context.restore();
   }
 
-  function drawSatellites(time) {
+  function drawSatellites() {
     satellites.forEach((satellite, index) => {
       context.beginPath();
       context.arc(satellite.x, satellite.y, satellite.radius, 0, Math.PI * 2);
@@ -260,46 +241,6 @@ if (statementCanvas) {
         context.strokeStyle = `rgba(226, 232, 228, ${satellite.alpha * 0.7})`;
         context.stroke();
         drawPoint(satellite.x, satellite.y, 1.8, index === 0 ? 0.9 : 0.72, 4);
-      }
-
-      const orbit = time * (0.00008 + index * 0.00001) + index * 1.7;
-      drawPoint(
-        satellite.x + Math.cos(orbit) * satellite.radius,
-        satellite.y + Math.sin(orbit) * satellite.radius,
-        0.85,
-        0.6,
-        2,
-      );
-    });
-  }
-
-  function drawMicroDetails() {
-    context.save();
-    context.fillStyle = "rgba(226, 232, 228, 0.15)";
-    for (let row = 0; row < 9; row += 1) {
-      for (let column = 0; column < 14; column += 1) {
-        if ((row + column * 2) % 5 !== 0) continue;
-        context.fillRect(347 + column * 8, 255 + row * 11, 0.7, 0.7);
-      }
-    }
-
-    context.setLineDash([1, 4]);
-    context.lineWidth = 0.5;
-    context.strokeStyle = "rgba(226, 232, 228, 0.16)";
-    context.beginPath();
-    context.moveTo(180, 370);
-    context.lineTo(660, 370);
-    context.moveTo(281, 395);
-    context.lineTo(281, 553);
-    context.stroke();
-    context.restore();
-
-    [[181, 323], [190, 291], [218, 247], [353, 238], [365, 259], [418, 321], [433, 321], [414, 397], [415, 420], [292, 466], [324, 469], [346, 491]].forEach(([x, y], index) => {
-      if (index % 3 === 0) {
-        context.fillStyle = "rgba(235, 239, 236, 0.52)";
-        context.fillRect(x, y, 1.2, 4);
-      } else {
-        drawPoint(x, y, 0.7, 0.35);
       }
     });
   }
@@ -363,12 +304,87 @@ if (statementCanvas) {
     drawPoint(304, 370, 1.45, 0.92, 4);
   }
 
-  function drawMovingSignals(time) {
-    if (reducedMotion) return;
-    const horizontalProgress = (time * 0.000055) % 1;
-    const verticalProgress = (time * 0.000038 + 0.35) % 1;
-    drawPoint(376 + horizontalProgress * 160, 370, 1.7, 0.88, 6);
-    drawPoint(402, 52 + verticalProgress * 294, 1.15, 0.78, 4);
+  function clamp(value, min = 0, max = 1) {
+    return Math.min(max, Math.max(min, value));
+  }
+
+  function progressBetween(value, start, end) {
+    return clamp((value - start) / (end - start));
+  }
+
+  function smoothStep(value) {
+    return value * value * (3 - 2 * value);
+  }
+
+  function easeOutCubic(value) {
+    return 1 - (1 - value) ** 3;
+  }
+
+  function drawElasticBall(x, y, radius, scaleX = 1, scaleY = 1, alpha = 1) {
+    context.save();
+    context.translate(x, y);
+    context.scale(scaleX, scaleY);
+    context.fillStyle = `rgba(248, 250, 247, ${alpha})`;
+    context.shadowColor = `rgba(248, 250, 247, ${alpha * 0.8})`;
+    context.shadowBlur = 6;
+    context.beginPath();
+    context.arc(0, 0, radius, 0, Math.PI * 2);
+    context.fill();
+    context.restore();
+  }
+
+  function drawImpactRipple(x, strength) {
+    if (strength <= 0) return;
+    context.save();
+    context.beginPath();
+    context.arc(x, 370, 4 + strength * 9, 0, Math.PI * 2);
+    context.lineWidth = 0.65;
+    context.strokeStyle = `rgba(244, 247, 244, ${(1 - strength) * 0.42})`;
+    context.stroke();
+    context.restore();
+  }
+
+  function drawMomentumTransfer(time) {
+    if (reducedMotion) {
+      drawElasticBall(415, 370, 3.2, 1, 1, 0.9);
+      drawElasticBall(508, 370, 3.2, 1, 1, 0.9);
+      return;
+    }
+
+    const cycle = (time % 7000) / 7000;
+    const fade = cycle > 0.94 ? 1 - progressBetween(cycle, 0.94, 1) : 1;
+    const firstTravel = smoothStep(progressBetween(cycle, 0.03, 0.3));
+    const firstImpact = Math.sin(progressBetween(cycle, 0.3, 0.37) * Math.PI);
+    const secondTravel = easeOutCubic(progressBetween(cycle, 0.37, 0.67));
+    const secondImpact = Math.sin(progressBetween(cycle, 0.67, 0.74) * Math.PI);
+    const thirdTravel = easeOutCubic(progressBetween(cycle, 0.74, 0.94));
+
+    const firstX = 363 + firstTravel * 45;
+    const secondX = 415 + secondTravel * 86.5;
+    const thirdX = 508 + thirdTravel * 82;
+    const secondStretch = Math.sin(secondTravel * Math.PI) * 0.16;
+    const thirdStretch = Math.sin(thirdTravel * Math.PI) * 0.14;
+
+    drawElasticBall(firstX, 370, 3.2, 1 - firstImpact * 0.3, 1 + firstImpact * 0.32, fade);
+    drawElasticBall(
+      secondX,
+      370,
+      3.2,
+      1 + firstImpact * 0.2 + secondStretch - secondImpact * 0.26,
+      1 - firstImpact * 0.12 - secondStretch * 0.45 + secondImpact * 0.28,
+      fade,
+    );
+    drawElasticBall(
+      thirdX,
+      370,
+      3.2,
+      1 + secondImpact * 0.2 + thirdStretch,
+      1 - secondImpact * 0.12 - thirdStretch * 0.45,
+      fade,
+    );
+
+    drawImpactRipple(415, progressBetween(cycle, 0.33, 0.45));
+    drawImpactRipple(508, progressBetween(cycle, 0.7, 0.82));
   }
 
   function renderStatementCircuit(time = 0) {
@@ -387,11 +403,10 @@ if (statementCanvas) {
     context.save();
     context.translate(designLeft, designTop);
     context.scale(designScale, designScale);
-    routes.forEach((route, index) => strokeRoute(route, index % 5 === 0 ? 1.2 : 1));
-    drawMicroDetails();
-    drawSatellites(time);
+    routes.forEach((route) => strokeRoute(route));
+    drawSatellites();
     fixedNodes.forEach(([x, y, radius, alpha], index) => drawPoint(x, y, radius, alpha, index % 6 === 0 ? 4 : 1.5));
-    drawMovingSignals(time);
+    drawMomentumTransfer(time);
     drawCore(time);
     context.restore();
 
