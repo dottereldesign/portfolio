@@ -28,7 +28,7 @@ a { color: inherit; text-decoration: none; }
   overflow: hidden;
   isolation: isolate;
   padding: 2rem clamp(1.5rem, 5vw, 5rem) 1.75rem;
-  background: var(--background);
+  background: linear-gradient(180deg, var(--background) 0%, #0f100e 70%, #0B0C0C 100%);
 }
 
 .hero::before {
@@ -71,9 +71,9 @@ a { color: inherit; text-decoration: none; }
 .cta:hover { gap: 1.5rem; color: var(--accent); }
 .hero__footer { color: var(--muted); }
 .footer-line { width: 5rem; height: 1px; margin: 0 1rem; background: var(--line); }
-.statement { position: relative; display: flex; min-height: clamp(30rem, 65vw, 52rem); align-items: center; overflow: hidden; isolation: isolate; padding: clamp(3rem, 8vw, 8rem) clamp(1.5rem, 5vw, 5rem); background: #0b0d0c; color: var(--ink); }
-.statement::after { position: absolute; z-index: -1; inset: 0; background: linear-gradient(90deg, rgba(11, 13, 12, 1) 0%, rgba(11, 13, 12, 0.98) 28%, rgba(11, 13, 12, 0.78) 42%, rgba(11, 13, 12, 0.08) 67%, rgba(11, 13, 12, 0.1) 100%); content: ""; pointer-events: none; }
-.statement__backdrop { position: absolute; z-index: -2; inset: 0; background: #0b0d0c; }
+.statement { position: relative; display: flex; min-height: clamp(30rem, 65vw, 52rem); align-items: center; overflow: hidden; isolation: isolate; padding: clamp(3rem, 8vw, 8rem) clamp(1.5rem, 5vw, 5rem); background: #0B0C0C; color: var(--ink); }
+.statement::after { position: absolute; z-index: -1; inset: 0; background: linear-gradient(90deg, rgba(11, 12, 12, 1) 0%, rgba(11, 12, 12, 0.98) 28%, rgba(11, 12, 12, 0.78) 42%, rgba(11, 12, 12, 0.08) 67%, rgba(11, 12, 12, 0.1) 100%); content: ""; pointer-events: none; }
+.statement__backdrop { position: absolute; z-index: -2; inset: 0; background: #0B0C0C; }
 .statement__canvas { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 1; }
 .statement__copy { position: relative; z-index: 1; max-width: 32rem; }
 .statement__kicker { margin: 0 0 1.8rem; color: var(--accent); font-family: "DM Mono", monospace; font-size: 0.66rem; letter-spacing: 0.13em; text-transform: uppercase; }
