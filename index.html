@@ -8,6 +8,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <script type="importmap">
+      {"imports":{"three":"https://unpkg.com/three@0.181.2/build/three.module.js"}}
+    </script>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
@@ -33,6 +36,11 @@
         <p class="hero__intro">I make considered, useful things for the web — from the first idea to the final line of code.</p>
         <a class="cta" href="#work">Explore my work <span aria-hidden="true">↓</span></a>
       </section>
+
+      <div class="hero__model" aria-hidden="true">
+        <canvas class="hero__model-canvas"></canvas>
+        <span class="hero__model-label">Interactive object / 01</span>
+      </div>
 
       <footer class="hero__footer">
         <span>Based in Aotearoa New Zealand</span>

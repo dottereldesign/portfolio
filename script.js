@@ -144,6 +144,98 @@ if (capabilities) {
   revealCapabilities.observe(capabilities);
 }
 
+const heroModelCanvas = document.querySelector(".hero__model-canvas");
+
+if (heroModelCanvas) {
+  import("three").then(async ({ Scene, PerspectiveCamera, WebGLRenderer, AmbientLight, DirectionalLight, Group, MathUtils, MeshStandardMaterial, MeshBasicMaterial, PlaneGeometry, Mesh, BackSide }) => {
+    const { GLTFLoader } = await import("https://unpkg.com/three@0.181.2/examples/jsm/loaders/GLTFLoader.js");
+    const modelHost = heroModelCanvas.parentElement;
+    const scene = new Scene();
+    const camera = new PerspectiveCamera(28, 1, 0.1, 100);
+    const renderer = new WebGLRenderer({ alpha: true, antialias: true, canvas: heroModelCanvas });
+    const laptop = new Group();
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let modelReady = false;
+    let targetRotation = -0.45;
+    let targetLift = 0;
+    let frame;
+
+    scene.add(new AmbientLight(0xe8e7e1, 2.2));
+
+    const keyLight = new DirectionalLight(0xd8ff3e, 2.4);
+    keyLight.position.set(4, 5, 6);
+    scene.add(keyLight);
+
+    const fillLight = new DirectionalLight(0x9fa8ff, 1.5);
+    fillLight.position.set(-5, 2, 3);
+    scene.add(fillLight);
+    scene.add(laptop);
+
+    const resize = () => {
+      const bounds = modelHost.getBoundingClientRect();
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      renderer.setPixelRatio(dpr);
+      renderer.setSize(bounds.width, bounds.height, false);
+      camera.aspect = bounds.width / bounds.height;
+      camera.updateProjectionMatrix();
+    };
+
+    const updateScroll = () => {
+      const bounds = document.querySelector(".hero").getBoundingClientRect();
+      const progress = MathUtils.clamp(-bounds.top / Math.max(1, bounds.height), 0, 1);
+      targetRotation = -0.45 + progress * Math.PI * 0.95;
+      targetLift = progress * 5;
+    };
+
+    new GLTFLoader().load("assets/macbook.glb", ({ scene: loadedScene }) => {
+      const baseMetal = new MeshStandardMaterial({ color: 0x9da1a5, metalness: 0.82, roughness: 0.3 });
+      const darkPlastic = new MeshStandardMaterial({ color: 0x080909, metalness: 0.35, roughness: 0.72 });
+      const logo = new MeshBasicMaterial({ color: 0xd8ff3e });
+
+      loadedScene.children.forEach((part) => {
+        part.children?.forEach((mesh) => {
+          if (!mesh.isMesh) return;
+          mesh.material = part.name === "_top" && mesh.name === "logo" ? logo : part.name === "_top" && mesh.name === "lid" || part.name === "_bottom" && mesh.name === "base" ? baseMetal : darkPlastic;
+        });
+      });
+      loadedScene.rotation.set(0.1, 0.35, -0.08);
+      loadedScene.scale.setScalar(1.1);
+      loadedScene.position.set(0, -3.4, 0);
+      loadedScene.position.z = -10;
+
+      const screen = new Mesh(new PlaneGeometry(29.4, 20), new MeshBasicMaterial({ color: 0x050606, side: BackSide }));
+      screen.position.set(0, 10.5, -0.12);
+      screen.rotation.set(Math.PI, 0, 0);
+      loadedScene.children.find((part) => part.name === "_top")?.add(screen);
+      laptop.add(loadedScene);
+      modelReady = true;
+      requestRender();
+    });
+
+    const render = () => {
+      frame = undefined;
+      if (!modelReady) return;
+      laptop.rotation.y = reducedMotion ? targetRotation : MathUtils.lerp(laptop.rotation.y, targetRotation, 0.075);
+      laptop.position.y = reducedMotion ? targetLift : MathUtils.lerp(laptop.position.y, targetLift, 0.075);
+      laptop.rotation.z = MathUtils.lerp(laptop.rotation.z, -0.05, 0.075);
+      renderer.render(scene, camera);
+    };
+
+    const requestRender = () => {
+      if (!frame) frame = window.requestAnimationFrame(render);
+    };
+
+    camera.position.set(0, 0.1, 75);
+    resize();
+    updateScroll();
+    window.addEventListener("resize", () => { resize(); requestRender(); });
+    window.addEventListener("scroll", () => { updateScroll(); requestRender(); }, { passive: true });
+    requestRender();
+  }).catch(() => {
+    heroModelCanvas.parentElement.classList.add("hero__model--unavailable");
+  });
+}
+
 const statementCanvas = document.querySelector(".statement__canvas");
 
 if (statementCanvas) {
