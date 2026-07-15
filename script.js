@@ -177,6 +177,7 @@ if (heroModelCanvas) {
       renderer.setPixelRatio(dpr);
       renderer.setSize(bounds.width, bounds.height, false);
       camera.aspect = bounds.width / bounds.height;
+      camera.position.z = bounds.width < 600 ? 72 : 90;
       camera.updateProjectionMatrix();
     };
 
@@ -203,11 +204,10 @@ if (heroModelCanvas) {
       loadedScene.position.set(0, -3.4, 0);
       loadedScene.position.z = -10;
 
-      const screen = new Mesh(new PlaneGeometry(25.5, 16.7), new MeshBasicMaterial({ color: 0x080a09, side: BackSide }));
-      screen.position.set(0, 10.3, -0.2);
+      const screen = new Mesh(new PlaneGeometry(29.4, 20), new MeshBasicMaterial({ color: 0x080a09, side: BackSide }));
+      screen.position.set(0, 10.5, -0.11);
       screen.rotation.set(Math.PI, 0, 0);
-      screen.scale.setScalar(0.94);
-      loadedScene.children.find((part) => part.name === "_top")?.add(screen);
+      loadedScene.add(screen);
       laptop.add(loadedScene);
       modelReady = true;
       requestRender();
@@ -220,13 +220,17 @@ if (heroModelCanvas) {
       laptop.position.y = reducedMotion ? targetLift : MathUtils.lerp(laptop.position.y, targetLift, 0.075);
       laptop.rotation.z = MathUtils.lerp(laptop.rotation.z, -0.05, 0.075);
       renderer.render(scene, camera);
+
+      if (!reducedMotion && (Math.abs(laptop.rotation.y - targetRotation) > 0.001 || Math.abs(laptop.position.y - targetLift) > 0.001)) {
+        requestRender();
+      }
     };
 
     const requestRender = () => {
       if (!frame) frame = window.requestAnimationFrame(render);
     };
 
-    camera.position.set(0, 0.1, 75);
+    camera.position.set(0, 0.1, 90);
     resize();
     updateScroll();
     window.addEventListener("resize", () => { resize(); requestRender(); });
