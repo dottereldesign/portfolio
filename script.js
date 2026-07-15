@@ -131,8 +131,7 @@ const statementCanvas = document.querySelector(".statement__canvas");
 
 if (statementCanvas) {
   const context = statementCanvas.getContext("2d");
-  const referenceWidth = 532;
-  const referenceHeight = 629;
+  const referenceSize = 760;
   const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
   let canvasWidth = 0;
   let canvasHeight = 0;
@@ -144,31 +143,23 @@ if (statementCanvas) {
   let circuitVisible = false;
 
   const routes = [
-    { alpha: 0.34, width: 0.75, path: [[-40, 486], [75, 486], [104, 477], [123, 447], [128, 405], [145, 379], [178, 370], [250, 370]] },
-    { alpha: 0.24, width: 0.65, path: [[124, 370], [250, 370], [358, 370], [690, 370]] },
-    { alpha: 0.24, width: 0.65, path: [[402, 52], [402, 182], [402, 224], [402, 333], [397, 350], [375, 370]] },
-    { alpha: 0.2, width: 0.55, path: [[402, 224], [560, 224], [590, 216], [620, 195], [690, 195]] },
-    { alpha: 0.15, width: 0.55, path: [[333, 208], [356, 208], [382, 224], [402, 242]] },
-    { alpha: 0.18, width: 0.55, path: [[402, 302], [454, 302]] },
-    { alpha: 0.16, width: 0.5, path: [[496, 302], [548, 302], [582, 288], [690, 288]] },
-    { alpha: 0.18, width: 0.55, path: [[402, 421], [429, 421], [448, 437], [454, 446]] },
-    { alpha: 0.28, width: 0.7, path: [[402, 392], [402, 479], [404, 500], [418, 514], [440, 522], [449, 522], [470, 527], [486, 545], [489, 565], [489, 581], [690, 581]] },
-    { alpha: 0.14, width: 0.5, path: [[304, 424], [304, 476], [319, 511], [326, 540], [346, 566], [375, 579], [455, 579], [476, 568], [489, 547]] },
-    { alpha: 0.14, width: 0.5, path: [[202, 370], [202, 506]] },
+    { alpha: 0.25, width: 0.75, path: [[380, 92], [380, 668]] },
+    { alpha: 0.25, width: 0.75, path: [[92, 380], [668, 380]] },
+    { alpha: 0.32, width: 0.72, path: [[380, 212], [330, 212], [300, 226], [286, 250], [286, 286], [268, 304], [230, 304], [202, 318], [190, 342], [190, 360], [170, 380], [92, 380]] },
+    { alpha: 0.32, width: 0.72, path: [[380, 212], [430, 212], [460, 226], [474, 250], [474, 286], [492, 304], [530, 304], [558, 318], [570, 342], [570, 360], [590, 380], [668, 380]] },
+    { alpha: 0.32, width: 0.72, path: [[380, 548], [330, 548], [300, 534], [286, 510], [286, 474], [268, 456], [230, 456], [202, 442], [190, 418], [190, 400], [170, 380], [92, 380]] },
+    { alpha: 0.32, width: 0.72, path: [[380, 548], [430, 548], [460, 534], [474, 510], [474, 474], [492, 456], [530, 456], [558, 442], [570, 418], [570, 400], [590, 380], [668, 380]] },
+    { alpha: 0.16, width: 0.55, path: [[380, 212], [380, 178], [350, 148], [320, 132]] },
+    { alpha: 0.16, width: 0.55, path: [[380, 212], [380, 178], [410, 148], [440, 132]] },
+    { alpha: 0.16, width: 0.55, path: [[380, 548], [380, 582], [350, 612], [320, 628]] },
+    { alpha: 0.16, width: 0.55, path: [[380, 548], [380, 582], [410, 612], [440, 628]] },
   ];
 
-  const satellites = [
-    { x: 402, y: 138, radius: 38, alpha: 0.33, inner: 9 },
-    { x: 303, y: 208, radius: 29, alpha: 0.09, inner: 0 },
-    { x: 475, y: 302, radius: 21, alpha: 0.12, inner: 7 },
-    { x: 475, y: 446, radius: 21, alpha: 0.15, inner: 7 },
-    { x: 202, y: 558, radius: 52, alpha: 0.1, inner: 11 },
-  ];
-
-  const fixedNodes = [
-    [402, 52, 1.7, 0.5], [402, 224, 1.45, 0.82], [402, 302, 1.45, 0.75],
-    [402, 346, 1.45, 0.72], [202, 370, 1.35, 0.62], [202, 506, 1.4, 0.76],
-    [489, 581, 1.45, 0.7],
+  const nodes = [
+    { x: 380, y: 112, radius: 52, type: "top" },
+    { x: 108, y: 380, radius: 52, type: "left" },
+    { x: 652, y: 380, radius: 52, type: "right" },
+    { x: 380, y: 648, radius: 52, type: "bottom" },
   ];
 
   function resizeStatementCanvas() {
@@ -181,11 +172,14 @@ if (statementCanvas) {
     context.setTransform(dpr, 0, 0, dpr, 0, 0);
 
     const compact = canvasWidth < 800;
-    designScale = canvasHeight / referenceHeight * (compact ? 1 : 0.92);
-    const coreScreenX = canvasWidth * (compact ? 0.87 : 0.7);
-    const coreScreenY = canvasHeight * 0.56;
-    designLeft = coreScreenX - 304 * designScale;
-    designTop = coreScreenY - 370 * designScale;
+    designScale = Math.min(
+      canvasWidth / referenceSize * (compact ? 0.92 : 0.8),
+      canvasHeight / referenceSize * (compact ? 0.88 : 0.95),
+    );
+    const coreScreenX = canvasWidth * (compact ? 0.72 : 0.72);
+    const coreScreenY = canvasHeight * (compact ? 0.54 : 0.53);
+    designLeft = coreScreenX - 380 * designScale;
+    designTop = coreScreenY - 380 * designScale;
   }
 
   function roundedRoute(points) {
@@ -226,176 +220,216 @@ if (statementCanvas) {
     context.restore();
   }
 
-  function drawSatellites() {
-    satellites.forEach((satellite, index) => {
-      context.beginPath();
-      context.arc(satellite.x, satellite.y, satellite.radius, 0, Math.PI * 2);
-      context.lineWidth = index === 0 ? 0.8 : 0.55;
-      context.strokeStyle = `rgba(226, 232, 228, ${satellite.alpha})`;
-      context.stroke();
+  function drawOrbitFrame(node) {
+    const { x, y, radius } = node;
+    context.save();
+    context.setLineDash([1.2, 4.5]);
+    context.lineWidth = 0.65;
+    context.strokeStyle = "rgba(226, 232, 228, 0.3)";
+    context.beginPath();
+    context.arc(x, y, radius, 0, Math.PI * 2);
+    context.stroke();
+    context.setLineDash([]);
+    context.lineWidth = 0.55;
+    context.strokeStyle = "rgba(226, 232, 228, 0.18)";
+    context.beginPath();
+    context.arc(x, y, radius * 0.68, 0, Math.PI * 2);
+    context.stroke();
+    context.restore();
 
-      if (satellite.inner) {
-        context.beginPath();
-        context.arc(satellite.x, satellite.y, satellite.inner, 0, Math.PI * 2);
-        context.lineWidth = 0.55;
-        context.strokeStyle = `rgba(226, 232, 228, ${satellite.alpha * 0.7})`;
-        context.stroke();
-        drawPoint(satellite.x, satellite.y, 1.8, index === 0 ? 0.9 : 0.72, 4);
-      }
+    [0, Math.PI / 2, Math.PI, Math.PI * 1.5].forEach((angle) => {
+      drawPoint(x + Math.cos(angle) * radius, y + Math.sin(angle) * radius, 1.5, 0.7, 2);
     });
+  }
+
+  function drawTopNode(node) {
+    const { x, y } = node;
+    context.save();
+    context.strokeStyle = "rgba(239, 243, 240, 0.68)";
+    context.lineWidth = 0.7;
+    context.beginPath();
+    context.moveTo(x, y - 34);
+    context.lineTo(x + 34, y);
+    context.lineTo(x, y + 34);
+    context.lineTo(x - 34, y);
+    context.closePath();
+    context.moveTo(x, y - 22);
+    context.lineTo(x + 22, y);
+    context.lineTo(x, y + 22);
+    context.lineTo(x - 22, y);
+    context.closePath();
+    context.stroke();
+    context.restore();
+    drawPoint(x, y, 5, 0.95, 9);
+    drawPoint(x, y - 44, 1.5, 0.8, 3);
+  }
+
+  function drawLeftNode(node) {
+    const { x, y } = node;
+    const size = 27;
+    context.save();
+    context.strokeStyle = "rgba(239, 243, 240, 0.68)";
+    context.lineWidth = 0.8;
+    [[-size, -size, 1, 1], [size, -size, -1, 1], [-size, size, 1, -1], [size, size, -1, -1]].forEach(([cornerX, cornerY, directionX, directionY]) => {
+      context.beginPath();
+      context.moveTo(x + cornerX, y + cornerY + directionY * 13);
+      context.lineTo(x + cornerX, y + cornerY);
+      context.lineTo(x + cornerX + directionX * 13, y + cornerY);
+      context.stroke();
+    });
+    context.beginPath();
+    context.moveTo(x - 10, y - 9);
+    context.lineTo(x - 21, y);
+    context.lineTo(x - 10, y + 9);
+    context.moveTo(x + 10, y - 9);
+    context.lineTo(x + 21, y);
+    context.lineTo(x + 10, y + 9);
+    context.stroke();
+    context.restore();
+    drawPoint(x, y, 1.7, 0.84, 3);
+  }
+
+  function drawRightNode(node) {
+    const { x, y } = node;
+    context.save();
+    context.strokeStyle = "rgba(239, 243, 240, 0.68)";
+    context.lineWidth = 0.7;
+    context.beginPath();
+    context.moveTo(x - 22, y - 13);
+    context.lineTo(x + 13, y - 13);
+    context.quadraticCurveTo(x + 29, y - 13, x + 29, y);
+    context.quadraticCurveTo(x + 29, y + 13, x + 13, y + 13);
+    context.lineTo(x - 15, y + 13);
+    context.quadraticCurveTo(x - 29, y + 13, x - 29, y + 24);
+    context.quadraticCurveTo(x - 29, y + 34, x - 14, y + 34);
+    context.lineTo(x + 16, y + 34);
+    context.stroke();
+    context.restore();
+    drawPoint(x - 23, y - 13, 5, 0.92, 5);
+    drawPoint(x + 18, y + 34, 5, 0.92, 5);
+    drawPoint(x, y, 1.5, 0.78, 2);
+  }
+
+  function drawBottomNode(node) {
+    const { x, y } = node;
+    context.save();
+    context.strokeStyle = "rgba(239, 243, 240, 0.5)";
+    context.lineWidth = 0.65;
+    [0, Math.PI / 3, Math.PI * 2 / 3].forEach((angle) => {
+      context.save();
+      context.translate(x, y);
+      context.rotate(angle);
+      context.beginPath();
+      context.ellipse(0, 0, 30, 12, 0, 0, Math.PI * 2);
+      context.stroke();
+      context.restore();
+    });
+    context.restore();
+    drawPoint(x, y, 4.2, 0.92, 6);
+  }
+
+  function drawNodes() {
+    nodes.forEach((node) => {
+      drawOrbitFrame(node);
+      if (node.type === "top") drawTopNode(node);
+      if (node.type === "left") drawLeftNode(node);
+      if (node.type === "right") drawRightNode(node);
+      if (node.type === "bottom") drawBottomNode(node);
+    });
+  }
+
+  function drawAxisDetails() {
+    context.save();
+    context.setLineDash([1, 4]);
+    context.lineWidth = 0.55;
+    context.strokeStyle = "rgba(241, 244, 241, 0.44)";
+    context.beginPath();
+    context.moveTo(230, 380);
+    context.lineTo(530, 380);
+    context.moveTo(380, 230);
+    context.lineTo(380, 530);
+    context.stroke();
+    context.restore();
+    [[230, 380], [300, 380], [460, 380], [530, 380], [380, 230], [380, 300], [380, 460], [380, 530]].forEach(([x, y]) => drawPoint(x, y, 1.6, 0.78, 2));
   }
 
   function drawCore(time) {
     const pulse = reducedMotion ? 1 : 1 + Math.sin(time * 0.0011) * 0.025;
-    const radius = 54 * pulse;
+    const radius = 34 * pulse;
 
-    const outerGlow = context.createRadialGradient(304, 370, 30, 304, 370, 104);
-    outerGlow.addColorStop(0, "rgba(255, 255, 255, 0.11)");
-    outerGlow.addColorStop(0.42, "rgba(230, 237, 232, 0.055)");
+    const outerGlow = context.createRadialGradient(380, 380, 20, 380, 380, 108);
+    outerGlow.addColorStop(0, "rgba(255, 255, 255, 0.16)");
+    outerGlow.addColorStop(0.42, "rgba(230, 237, 232, 0.06)");
     outerGlow.addColorStop(1, "rgba(230, 237, 232, 0)");
     context.fillStyle = outerGlow;
     context.beginPath();
-    context.arc(304, 370, 104, 0, Math.PI * 2);
+    context.arc(380, 380, 108, 0, Math.PI * 2);
     context.fill();
 
-    const coreFill = context.createRadialGradient(304, 370, 0, 304, 370, radius);
-    coreFill.addColorStop(0, "rgba(22, 27, 24, 0.96)");
-    coreFill.addColorStop(0.72, "rgba(13, 16, 14, 0.98)");
+    const coreFill = context.createRadialGradient(380, 380, 0, 380, 380, radius);
+    coreFill.addColorStop(0, "rgba(22, 27, 24, 0.98)");
+    coreFill.addColorStop(0.72, "rgba(13, 16, 14, 0.99)");
     coreFill.addColorStop(1, "rgba(9, 11, 10, 1)");
     context.fillStyle = coreFill;
     context.beginPath();
-    context.arc(304, 370, radius - 1.8, 0, Math.PI * 2);
+    context.arc(380, 380, radius - 1.8, 0, Math.PI * 2);
     context.fill();
 
     context.save();
-    context.setLineDash([1, 2.6]);
+    context.setLineDash([1, 3.5]);
     context.lineWidth = 0.65;
     context.strokeStyle = "rgba(235, 239, 236, 0.42)";
     context.beginPath();
-    context.arc(304, 370, 74, 0, Math.PI * 2);
+    context.arc(380, 380, 70, 0, Math.PI * 2);
     context.stroke();
     context.restore();
 
     context.save();
     context.shadowColor = "rgba(248, 250, 247, 0.92)";
-    context.shadowBlur = 11;
-    context.strokeStyle = "rgba(250, 251, 249, 0.95)";
+    context.shadowBlur = 12;
+    context.strokeStyle = "rgba(250, 251, 249, 0.96)";
     context.lineWidth = 1.55;
     context.beginPath();
-    context.arc(304, 370, radius, 0, Math.PI * 2);
+    context.arc(380, 380, radius, 0, Math.PI * 2);
     context.stroke();
     context.restore();
-
-    context.beginPath();
-    context.arc(304, 370, radius - 2.2, 0, Math.PI * 2);
-    context.lineWidth = 0.6;
-    context.strokeStyle = "rgba(217, 224, 219, 0.5)";
-    context.stroke();
-
-    context.save();
-    context.setLineDash([1, 4]);
-    context.lineWidth = 0.55;
-    context.strokeStyle = "rgba(241, 244, 241, 0.52)";
-    context.beginPath();
-    context.moveTo(229, 370);
-    context.lineTo(379, 370);
-    context.stroke();
-    context.restore();
-    drawPoint(304, 370, 1.45, 0.92, 4);
-  }
-
-  function clamp(value, min = 0, max = 1) {
-    return Math.min(max, Math.max(min, value));
-  }
-
-  function progressBetween(value, start, end) {
-    return clamp((value - start) / (end - start));
-  }
-
-  function smoothStep(value) {
-    return value * value * (3 - 2 * value);
-  }
-
-  function easeOutCubic(value) {
-    return 1 - (1 - value) ** 3;
-  }
-
-  function drawElasticBall(x, y, radius, scaleX = 1, scaleY = 1, alpha = 1) {
-    context.save();
-    context.translate(x, y);
-    context.scale(scaleX, scaleY);
-    context.fillStyle = `rgba(248, 250, 247, ${alpha})`;
-    context.shadowColor = `rgba(248, 250, 247, ${alpha * 0.8})`;
-    context.shadowBlur = 6;
-    context.beginPath();
-    context.arc(0, 0, radius, 0, Math.PI * 2);
-    context.fill();
-    context.restore();
-  }
-
-  function drawImpactRipple(x, strength) {
-    if (strength <= 0) return;
-    context.save();
-    context.beginPath();
-    context.arc(x, 370, 4 + strength * 9, 0, Math.PI * 2);
-    context.lineWidth = 0.65;
-    context.strokeStyle = `rgba(244, 247, 244, ${(1 - strength) * 0.42})`;
-    context.stroke();
-    context.restore();
+    drawPoint(380, 380, 1.6, 0.96, 5);
   }
 
   function drawMomentumTransfer(time) {
     if (reducedMotion) {
-      drawElasticBall(415, 370, 3.2, 1, 1, 0.9);
-      drawElasticBall(508, 370, 3.2, 1, 1, 0.9);
+      drawPoint(320, 380, 2.8, 0.84, 4);
+      drawPoint(440, 380, 2.8, 0.84, 4);
       return;
     }
 
-    const cycle = (time % 7000) / 7000;
-    const fade = cycle > 0.94 ? 1 - progressBetween(cycle, 0.94, 1) : 1;
-    const firstTravel = smoothStep(progressBetween(cycle, 0.03, 0.3));
-    const firstImpact = Math.sin(progressBetween(cycle, 0.3, 0.37) * Math.PI);
-    const secondTravel = easeOutCubic(progressBetween(cycle, 0.37, 0.67));
-    const secondImpact = Math.sin(progressBetween(cycle, 0.67, 0.74) * Math.PI);
-    const thirdTravel = easeOutCubic(progressBetween(cycle, 0.74, 0.94));
-
-    const firstX = 363 + firstTravel * 45;
-    const secondX = 415 + secondTravel * 86.5;
-    const thirdX = 508 + thirdTravel * 82;
-    const secondStretch = Math.sin(secondTravel * Math.PI) * 0.16;
-    const thirdStretch = Math.sin(thirdTravel * Math.PI) * 0.14;
-
-    drawElasticBall(firstX, 370, 3.2, 1 - firstImpact * 0.3, 1 + firstImpact * 0.32, fade);
-    drawElasticBall(
-      secondX,
-      370,
-      3.2,
-      1 + firstImpact * 0.2 + secondStretch - secondImpact * 0.26,
-      1 - firstImpact * 0.12 - secondStretch * 0.45 + secondImpact * 0.28,
-      fade,
-    );
-    drawElasticBall(
-      thirdX,
-      370,
-      3.2,
-      1 + secondImpact * 0.2 + thirdStretch,
-      1 - secondImpact * 0.12 - thirdStretch * 0.45,
-      fade,
-    );
-
-    drawImpactRipple(415, progressBetween(cycle, 0.33, 0.45));
-    drawImpactRipple(508, progressBetween(cycle, 0.7, 0.82));
+    const cycle = (time % 6400) / 6400;
+    const travel = (cycle * 2) % 1;
+    const direction = cycle < 0.5 ? 1 : -1;
+    const progress = direction === 1 ? travel : 1 - travel;
+    const x = 170 + progress * 420;
+    const stretch = Math.sin(progress * Math.PI) * 0.2;
+    context.save();
+    context.translate(x, 380);
+    context.scale(1 + stretch, 1 - stretch * 0.45);
+    context.fillStyle = "rgba(248, 250, 247, 0.88)";
+    context.shadowColor = "rgba(248, 250, 247, 0.8)";
+    context.shadowBlur = 6;
+    context.beginPath();
+    context.arc(0, 0, 3.1, 0, Math.PI * 2);
+    context.fill();
+    context.restore();
   }
 
   function renderStatementCircuit(time = 0) {
     animationFrame = undefined;
     context.clearRect(0, 0, canvasWidth, canvasHeight);
 
-    const coreX = designLeft + 304 * designScale;
-    const coreY = designTop + 370 * designScale;
-    const ambient = context.createRadialGradient(coreX, coreY, 0, coreX, coreY, 250 * designScale);
-    ambient.addColorStop(0, "rgba(202, 211, 204, 0.09)");
-    ambient.addColorStop(0.48, "rgba(102, 112, 105, 0.025)");
+    const coreX = designLeft + 380 * designScale;
+    const coreY = designTop + 380 * designScale;
+    const ambient = context.createRadialGradient(coreX, coreY, 0, coreX, coreY, 270 * designScale);
+    ambient.addColorStop(0, "rgba(202, 211, 204, 0.11)");
+    ambient.addColorStop(0.48, "rgba(102, 112, 105, 0.028)");
     ambient.addColorStop(1, "rgba(11, 13, 12, 0)");
     context.fillStyle = ambient;
     context.fillRect(0, 0, canvasWidth, canvasHeight);
@@ -404,8 +438,8 @@ if (statementCanvas) {
     context.translate(designLeft, designTop);
     context.scale(designScale, designScale);
     routes.forEach((route) => strokeRoute(route));
-    drawSatellites();
-    fixedNodes.forEach(([x, y, radius, alpha], index) => drawPoint(x, y, radius, alpha, index % 6 === 0 ? 4 : 1.5));
+    drawAxisDetails();
+    drawNodes();
     drawMomentumTransfer(time);
     drawCore(time);
     context.restore();
