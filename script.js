@@ -319,15 +319,16 @@ if (heroModelCanvas) {
         context.clearRect(0, 0, width, height);
         drawWallpaper();
 
-        const startX = 282;
+        const startX = 78;
         const startY = 98;
-        const columnGap = 420;
+        const columnGap = 154;
         const rowGap = 112;
         const tileSize = 64;
+        const rowsPerColumn = 7;
 
         screenApps.forEach((app, index) => {
-          const column = index % 3;
-          const row = Math.floor(index / 3);
+          const column = Math.floor(index / rowsPerColumn);
+          const row = index % rowsPerColumn;
           const x = startX + column * columnGap;
           const y = startY + row * rowGap;
 
