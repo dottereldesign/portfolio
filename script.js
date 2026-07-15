@@ -386,16 +386,16 @@ if (heroModelCanvas) {
         context.setLineDash([neonOutlineLength, neonOutlineLength]);
         context.lineDashOffset = neonOutlineLength * (1 - easedReveal);
 
-        context.strokeStyle = `rgba(255, 255, 255, ${0.18 * opacity})`;
-        context.lineWidth = 8;
-        context.shadowColor = `rgba(255, 255, 255, ${0.8 * opacity})`;
-        context.shadowBlur = 24;
+        context.strokeStyle = `rgba(255, 255, 255, ${0.045 * opacity})`;
+        context.lineWidth = 5;
+        context.shadowColor = `rgba(255, 255, 255, ${0.22 * opacity})`;
+        context.shadowBlur = 14;
         context.stroke(neonOutlinePath);
 
-        context.strokeStyle = `rgba(255, 255, 255, ${0.96 * opacity})`;
-        context.lineWidth = 1.6;
-        context.shadowColor = `rgba(255, 255, 255, ${0.96 * opacity})`;
-        context.shadowBlur = 8;
+        context.strokeStyle = `rgba(255, 255, 255, ${0.42 * opacity})`;
+        context.lineWidth = 0.9;
+        context.shadowColor = `rgba(255, 255, 255, ${0.28 * opacity})`;
+        context.shadowBlur = 4;
         context.stroke(neonOutlinePath);
         context.restore();
       };
