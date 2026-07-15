@@ -178,7 +178,7 @@ if (heroModelCanvas) {
       renderer.setPixelRatio(dpr);
       renderer.setSize(bounds.width, bounds.height, false);
       camera.aspect = bounds.width / bounds.height;
-      camera.position.z = bounds.width < 600 ? 72 : 90;
+      camera.position.z = bounds.width < 700 ? 72 : 78;
       camera.updateProjectionMatrix();
     };
 
@@ -231,7 +231,7 @@ if (heroModelCanvas) {
       if (!frame) frame = window.requestAnimationFrame(render);
     };
 
-    camera.position.set(0, 0.1, 90);
+    camera.position.set(0, 0.1, 78);
     resize();
     updateScroll();
     window.addEventListener("resize", () => { resize(); requestRender(); });
