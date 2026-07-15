@@ -174,7 +174,7 @@ if (heroModelCanvas) {
 
     const screenApps = [
       { label: "Git", short: "G", icon: "https://api.iconify.design/logos/git-icon.svg", color: "#f05032" },
-      { label: "Codex", short: "Cx", icon: "https://api.iconify.design/simple-icons/openai.svg?color=%23f3f3ee", color: "#f3f3ee", active: true },
+      { label: "Codex", short: "Cx", icon: "https://api.iconify.design/simple-icons/openai.svg?color=%23f3f3ee", color: "#f3f3ee" },
       { label: "HTML", short: "5", icon: "https://api.iconify.design/simple-icons/html5.svg?color=%23e44d26", color: "#e44d26" },
       { label: "CSS", short: "3", icon: "https://api.iconify.design/simple-icons/css.svg?color=%231572b6", color: "#1572b6" },
       { label: "JavaScript", short: "JS", icon: "https://api.iconify.design/logos/javascript.svg", color: "#f7df1e" },
@@ -242,28 +242,6 @@ if (heroModelCanvas) {
       const drawWallpaper = () => {
         context.fillStyle = "#070907";
         context.fillRect(0, 0, width, height);
-
-        const glow = context.createRadialGradient(1130, 300, 0, 1130, 300, 720);
-        glow.addColorStop(0, "rgba(172, 220, 69, 0.15)");
-        glow.addColorStop(0.42, "rgba(80, 118, 32, 0.06)");
-        glow.addColorStop(1, "rgba(7, 9, 7, 0)");
-        context.fillStyle = glow;
-        context.fillRect(0, 0, width, height);
-
-        context.strokeStyle = "rgba(216, 255, 62, 0.035)";
-        context.lineWidth = 1;
-        for (let x = 0; x <= width; x += 70) {
-          context.beginPath();
-          context.moveTo(x, 58);
-          context.lineTo(x, height);
-          context.stroke();
-        }
-        for (let y = 58; y <= height; y += 70) {
-          context.beginPath();
-          context.moveTo(0, y);
-          context.lineTo(width, y);
-          context.stroke();
-        }
 
         context.fillStyle = "rgba(3, 4, 3, 0.76)";
         context.fillRect(0, 0, width, 58);
@@ -333,26 +311,19 @@ if (heroModelCanvas) {
           const y = startY + row * rowGap;
 
           context.save();
-          context.shadowColor = app.active ? "rgba(216, 255, 62, 0.2)" : "rgba(0, 0, 0, 0.42)";
-          context.shadowBlur = app.active ? 30 : 18;
+          context.shadowColor = "rgba(0, 0, 0, 0.42)";
+          context.shadowBlur = 18;
           context.shadowOffsetY = 10;
           addRoundedRect(context, x, y, tileSize, tileSize, 17);
-          context.fillStyle = app.active ? "rgba(216, 255, 62, 0.095)" : "rgba(17, 20, 17, 0.86)";
+          context.fillStyle = "rgba(17, 20, 17, 0.86)";
           context.fill();
           context.shadowColor = "transparent";
-          context.strokeStyle = app.active ? "rgba(216, 255, 62, 0.46)" : "rgba(255, 255, 255, 0.12)";
-          context.lineWidth = app.active ? 2 : 1;
+          context.strokeStyle = "rgba(255, 255, 255, 0.12)";
+          context.lineWidth = 1;
           context.stroke();
           context.restore();
 
           drawIcon(app, x, y, tileSize, true);
-
-          if (app.active) {
-            context.fillStyle = "#d8ff3e";
-            context.beginPath();
-            context.arc(x + tileSize - 3, y + 3, 4, 0, Math.PI * 2);
-            context.fill();
-          }
         });
 
         const dockApps = [screenApps[1], screenApps[0], screenApps[16], screenApps[17], screenApps[18]];
@@ -372,15 +343,10 @@ if (heroModelCanvas) {
           const x = dockX + 35 + index * 62;
           const y = dockY + 10;
           addRoundedRect(context, x, y, size, size, 12);
-          context.fillStyle = app.active ? "rgba(216, 255, 62, 0.11)" : "rgba(255, 255, 255, 0.045)";
+          context.fillStyle = "rgba(255, 255, 255, 0.045)";
           context.fill();
           drawIcon(app, x, y, size, true);
         });
-
-        context.fillStyle = "#d8ff3e";
-        context.beginPath();
-        context.arc(dockX + 35 + 21, dockY + dockHeight - 5, 2, 0, Math.PI * 2);
-        context.fill();
       };
 
       drawHomeScreen();
