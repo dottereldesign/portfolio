@@ -99,6 +99,7 @@ const timeline = document.querySelector("[data-timeline]");
 if (timeline) {
   const events = [...timeline.querySelectorAll(".timeline-event")];
   const progress = timeline.querySelector(".timeline__progress");
+  let timelineIsNearby = false;
   let scrollFrame;
 
   const updateTimeline = () => {
@@ -118,7 +119,15 @@ if (timeline) {
 
   events.forEach((event) => revealEvents.observe(event));
 
+  const timelineVisibility = new IntersectionObserver(([entry]) => {
+    timelineIsNearby = entry.isIntersecting;
+    if (timelineIsNearby) updateTimeline();
+  }, { rootMargin: "100% 0px" });
+
+  timelineVisibility.observe(timeline);
+
   const onScroll = () => {
+    if (!timelineIsNearby) return;
     if (!scrollFrame) scrollFrame = window.requestAnimationFrame(updateTimeline);
   };
 
@@ -147,18 +156,30 @@ if (capabilities) {
 const heroModelCanvas = document.querySelector(".hero__model-canvas");
 
 if (heroModelCanvas) {
-  import("three").then(async ({ Scene, PerspectiveCamera, WebGLRenderer, AmbientLight, DirectionalLight, Group, MathUtils, MeshStandardMaterial, MeshBasicMaterial, PlaneGeometry, Mesh, BackSide, CanvasTexture, SRGBColorSpace }) => {
+  import("three").then(async ({ Scene, PerspectiveCamera, WebGLRenderer, AmbientLight, DirectionalLight, Group, MathUtils, MeshStandardMaterial, MeshBasicMaterial, PlaneGeometry, Mesh, BackSide, CanvasTexture, LinearFilter, SRGBColorSpace }) => {
     const { GLTFLoader } = await import("https://unpkg.com/three@0.181.2/examples/jsm/loaders/GLTFLoader.js");
     const modelHost = heroModelCanvas.parentElement;
+    const hero = modelHost.closest(".hero");
     const scene = new Scene();
+    const stackedHeroQuery = window.matchMedia("(max-width: 800px), (max-width: 1024px) and (max-aspect-ratio: 1/1)");
+    const coarsePointerQuery = window.matchMedia("(pointer: coarse)");
+    const usesStackedHeroLayout = () => stackedHeroQuery.matches;
+    const usesCompactRendering = () => usesStackedHeroLayout() || coarsePointerQuery.matches;
     // Keep the full laptop inside the depth range while it rotates on scroll.
     const camera = new PerspectiveCamera(28, 1, 0.1, 250);
-    const renderer = new WebGLRenderer({ alpha: true, antialias: true, canvas: heroModelCanvas });
+    const renderer = new WebGLRenderer({
+      alpha: true,
+      antialias: !usesCompactRendering(),
+      canvas: heroModelCanvas,
+      powerPreference: "high-performance",
+    });
     const laptop = new Group();
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let modelReady = false;
+    let heroIsVisible = true;
     let targetRotation = -0.45;
     let targetLift = 0;
+    let heroScrollDirty = false;
     let frame;
 
     scene.add(new AmbientLight(0xe8e7e1, 2.2));
@@ -232,14 +253,19 @@ if (heroModelCanvas) {
       const footballVideo = document.createElement("video");
       const width = 1470;
       const height = 1000;
+      const optimizeForCompactHero = usesCompactRendering();
+      const textureScale = optimizeForCompactHero ? 0.5 : 1;
       let wallpaperLayout;
       let footballIsInView = true;
       let footballFallbackTimer;
+      let footballResumeTimer;
       let lastFootballTime = -1;
-      screenCanvas.width = width;
-      screenCanvas.height = height;
-      staticScreenCanvas.width = width;
-      staticScreenCanvas.height = height;
+      screenCanvas.width = Math.round(width * textureScale);
+      screenCanvas.height = Math.round(height * textureScale);
+      staticScreenCanvas.width = screenCanvas.width;
+      staticScreenCanvas.height = screenCanvas.height;
+      context.setTransform(textureScale, 0, 0, textureScale, 0, 0);
+      staticContext.setTransform(textureScale, 0, 0, textureScale, 0, 0);
 
       footballVideo.autoplay = !reducedMotion;
       footballVideo.loop = true;
@@ -253,7 +279,14 @@ if (heroModelCanvas) {
       const texture = new CanvasTexture(screenCanvas);
       texture.colorSpace = SRGBColorSpace;
       texture.flipY = false;
-      texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+      texture.generateMipmaps = false;
+      texture.minFilter = LinearFilter;
+      texture.magFilter = LinearFilter;
+      texture.anisotropy = 1;
+
+      const drawCanvasAtLogicalSize = (targetContext, sourceCanvas) => {
+        targetContext.drawImage(sourceCanvas, 0, 0, sourceCanvas.width, sourceCanvas.height, 0, 0, width, height);
+      };
 
       const drawWallpaper = () => {
         context.fillStyle = "#070907";
@@ -407,14 +440,14 @@ if (heroModelCanvas) {
 
       const drawScreenFrame = () => {
         context.clearRect(0, 0, width, height);
-        context.drawImage(staticScreenCanvas, 0, 0);
+        drawCanvasAtLogicalSize(context, staticScreenCanvas);
         drawFootball();
       };
 
       const cacheStaticScreen = () => {
         drawStaticHomeScreen();
         staticContext.clearRect(0, 0, width, height);
-        staticContext.drawImage(screenCanvas, 0, 0);
+        drawCanvasAtLogicalSize(staticContext, screenCanvas);
         drawScreenFrame();
       };
 
@@ -433,6 +466,19 @@ if (heroModelCanvas) {
           footballVideo.pause();
         }
       };
+
+      const pauseFootballForInteraction = () => {
+        if (!optimizeForCompactHero || reducedMotion || footballVideo.readyState < 2) return;
+
+        if (!footballVideo.paused) footballVideo.pause();
+        window.clearTimeout(footballResumeTimer);
+        footballResumeTimer = window.setTimeout(updateFootballVisibility, 180);
+      };
+
+      if (optimizeForCompactHero) {
+        window.addEventListener("touchstart", pauseFootballForInteraction, { passive: true });
+        window.addEventListener("scroll", pauseFootballForInteraction, { passive: true });
+      }
 
       cacheStaticScreen();
 
@@ -500,11 +546,10 @@ if (heroModelCanvas) {
       return texture;
     };
 
-    const usesStackedHeroLayout = () => window.matchMedia("(max-width: 800px), (max-width: 1024px) and (max-aspect-ratio: 1/1)").matches;
-
     const resize = () => {
       const bounds = modelHost.getBoundingClientRect();
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const maxDpr = usesCompactRendering() ? 1.25 : 2;
+      const dpr = Math.min(window.devicePixelRatio || 1, maxDpr);
       renderer.setPixelRatio(dpr);
       renderer.setSize(bounds.width, bounds.height, false);
       const aspect = bounds.width / bounds.height;
@@ -516,7 +561,7 @@ if (heroModelCanvas) {
     };
 
     const updateScroll = () => {
-      const bounds = document.querySelector(".hero").getBoundingClientRect();
+      const bounds = hero.getBoundingClientRect();
       const progress = MathUtils.clamp(-bounds.top / Math.max(1, bounds.height), 0, 1);
       targetRotation = -0.45 + progress * Math.PI * 0.95;
       targetLift = progress * (usesStackedHeroLayout() ? 5 : -10);
@@ -554,9 +599,14 @@ if (heroModelCanvas) {
     const render = () => {
       frame = undefined;
       if (!modelReady) return;
-      laptop.rotation.y = reducedMotion ? targetRotation : MathUtils.lerp(laptop.rotation.y, targetRotation, 0.075);
-      laptop.position.y = reducedMotion ? targetLift : MathUtils.lerp(laptop.position.y, targetLift, 0.075);
-      laptop.rotation.z = MathUtils.lerp(laptop.rotation.z, -0.05, 0.075);
+      if (heroScrollDirty) {
+        updateScroll();
+        heroScrollDirty = false;
+      }
+      const motionEase = usesCompactRendering() ? 0.16 : 0.075;
+      laptop.rotation.y = reducedMotion ? targetRotation : MathUtils.lerp(laptop.rotation.y, targetRotation, motionEase);
+      laptop.position.y = reducedMotion ? targetLift : MathUtils.lerp(laptop.position.y, targetLift, motionEase);
+      laptop.rotation.z = MathUtils.lerp(laptop.rotation.z, -0.05, motionEase);
       renderer.render(scene, camera);
 
       if (!reducedMotion && (Math.abs(laptop.rotation.y - targetRotation) > 0.001 || Math.abs(laptop.position.y - targetLift) > 0.001)) {
@@ -568,11 +618,27 @@ if (heroModelCanvas) {
       if (!frame) frame = window.requestAnimationFrame(render);
     };
 
+    if ("IntersectionObserver" in window) {
+      const heroVisibility = new IntersectionObserver(([entry]) => {
+        heroIsVisible = entry.isIntersecting;
+        if (heroIsVisible) {
+          heroScrollDirty = true;
+          requestRender();
+        }
+      }, { rootMargin: "20% 0px" });
+
+      heroVisibility.observe(hero);
+    }
+
     camera.position.set(0, 0.1, 78);
     resize();
     updateScroll();
     window.addEventListener("resize", () => { resize(); updateScroll(); requestRender(); });
-    window.addEventListener("scroll", () => { updateScroll(); requestRender(); }, { passive: true });
+    window.addEventListener("scroll", () => {
+      if (!heroIsVisible) return;
+      heroScrollDirty = true;
+      requestRender();
+    }, { passive: true });
     requestRender();
   }).catch(() => {
     heroModelCanvas.parentElement.classList.add("hero__model--unavailable");
