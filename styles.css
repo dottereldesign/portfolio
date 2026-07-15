@@ -117,11 +117,11 @@ a { color: inherit; text-decoration: none; }
 .capabilities__lede { max-width: 48rem; margin: 2rem auto 0; color: var(--supporting-copy); font-size: clamp(1.35rem, 1.8vw, 1.9rem); line-height: 1.45; }
 .capabilities__flow { position: relative; z-index: 1; display: grid; max-width: 78rem; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(1rem, 2.5vw, 2.5rem); margin: 0 auto; }
 .capability-card { min-width: 0; }
-.capability-card__visual { position: relative; display: grid; min-height: clamp(13rem, 19vw, 17rem); place-items: center; overflow: hidden; margin-bottom: 1.5rem; border: 0; background: #111412; }
+.capability-card__visual { position: relative; display: grid; aspect-ratio: 111 / 104; place-items: center; overflow: hidden; margin-bottom: 1.5rem; border: 0; background: #111412; }
 .capability-card__visual::before, .capability-card__visual::after, .capability-glyph::before, .capability-glyph::after { position: absolute; content: ""; }
 .capability-card__visual-index { position: absolute; z-index: 1; top: 1rem; left: 1rem; color: var(--muted); font-family: "DM Mono", monospace; font-size: 0.62rem; letter-spacing: 0.1em; }
-.capability-card__image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.92; transition: transform 500ms cubic-bezier(0.2, 0.8, 0.2, 1), opacity 300ms ease; }
-.capability-card:hover .capability-card__image { opacity: 1; transform: scale(1.04); }
+.capability-card__image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; opacity: 0.92; transition: opacity 300ms ease; }
+.capability-card:hover .capability-card__image { opacity: 1; }
 .capability-card__visual--design { background: radial-gradient(circle at 50% 50%, rgba(255, 90, 36, 0.2), transparent 22%), linear-gradient(135deg, #2b1711, #120f0e 62%); }
 .capability-card__visual--design::before { width: 7rem; height: 7rem; border: 1px solid rgba(255, 90, 36, 0.7); border-radius: 50%; box-shadow: 0 0 0 1.5rem rgba(255, 90, 36, 0.08), 0 0 0 3rem rgba(255, 90, 36, 0.04); animation: capability-orbit 8s linear infinite; }
 .capability-card__visual--design::after { width: 12rem; height: 1px; background: rgba(232, 231, 225, 0.35); box-shadow: 0 -3.5rem 0 rgba(232, 231, 225, 0.12), 0 3.5rem 0 rgba(232, 231, 225, 0.12); transform: rotate(-38deg); }
@@ -147,7 +147,7 @@ a { color: inherit; text-decoration: none; }
 .capabilities--reveal-ready .capability-card:nth-of-type(3) { transition-delay: 620ms; }
 .capabilities--reveal-ready.is-visible .capabilities__intro, .capabilities--reveal-ready.is-visible .capability-card { opacity: 1; transform: translateY(0); }
 .capabilities--reveal-ready.is-visible .capability-card__image { animation: capability-image-reveal 1100ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
-@keyframes capability-image-reveal { from { opacity: 0; transform: scale(1.08); } to { opacity: 0.92; transform: scale(1); } }
+@keyframes capability-image-reveal { from { opacity: 0; transform: scale(0.97); } to { opacity: 0.92; transform: scale(1); } }
 @keyframes capability-orbit { to { transform: rotate(360deg); } }
 .work-placeholder { position: relative; min-height: 80vh; overflow: hidden; padding: clamp(5rem, 10vw, 10rem) clamp(1.5rem, 5vw, 5rem); background: #0A0A0A; color: var(--ink); }
 .work-placeholder .eyebrow { color: var(--accent-secondary); }
