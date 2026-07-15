@@ -186,7 +186,7 @@ if (heroModelCanvas) {
       const bounds = document.querySelector(".hero").getBoundingClientRect();
       const progress = MathUtils.clamp(-bounds.top / Math.max(1, bounds.height), 0, 1);
       targetRotation = -0.45 + progress * Math.PI * 0.95;
-      targetLift = progress * 5;
+      targetLift = progress * (window.innerWidth <= 800 ? 5 : -15);
     };
 
     new GLTFLoader().load("assets/macbook.glb", ({ scene: loadedScene }) => {
@@ -234,7 +234,7 @@ if (heroModelCanvas) {
     camera.position.set(0, 0.1, 78);
     resize();
     updateScroll();
-    window.addEventListener("resize", () => { resize(); requestRender(); });
+    window.addEventListener("resize", () => { resize(); updateScroll(); requestRender(); });
     window.addEventListener("scroll", () => { updateScroll(); requestRender(); }, { passive: true });
     requestRender();
   }).catch(() => {
