@@ -243,6 +243,80 @@ if (heroModelCanvas) {
       return image;
     };
 
+    const createPortraitOverlayTexture = () => {
+      const portraitCanvas = document.createElement("canvas");
+      const portraitContext = portraitCanvas.getContext("2d");
+      const portraitImage = new Image();
+      const width = 1470;
+      const height = 1000;
+      portraitCanvas.width = width;
+      portraitCanvas.height = height;
+      portraitContext.imageSmoothingEnabled = true;
+      portraitContext.imageSmoothingQuality = "high";
+
+      const texture = new CanvasTexture(portraitCanvas);
+      texture.colorSpace = SRGBColorSpace;
+      texture.flipY = false;
+      texture.generateMipmaps = true;
+      texture.magFilter = LinearFilter;
+      texture.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+
+      const drawPortrait = () => {
+        const maxWidth = 680;
+        const maxHeight = 980;
+        const scale = Math.min(maxWidth / portraitImage.naturalWidth, maxHeight / portraitImage.naturalHeight);
+        const drawWidth = portraitImage.naturalWidth * scale;
+        const drawHeight = portraitImage.naturalHeight * scale;
+        const drawX = (width - drawWidth) / 2;
+        const drawY = 64;
+        const centerX = drawX + drawWidth * 0.488;
+        const centerY = drawY + drawHeight * 0.694;
+        const frameSize = drawWidth * 0.38;
+        const radius = frameSize * 0.48;
+        const dockWidth = 1040;
+        const dockHeight = 62;
+        const dockX = (width - dockWidth) / 2;
+        const dockY = height - 170;
+
+        portraitContext.clearRect(0, 0, width, height);
+        portraitContext.save();
+        portraitContext.globalAlpha = 0.65;
+        portraitContext.filter = "brightness(0.88) contrast(1.08) saturate(0.72)";
+        portraitContext.drawImage(portraitImage, drawX, drawY, drawWidth, drawHeight);
+        portraitContext.restore();
+
+        portraitContext.save();
+        portraitContext.globalCompositeOperation = "destination-out";
+        const ballCutout = portraitContext.createRadialGradient(
+          centerX,
+          centerY,
+          radius * 0.8,
+          centerX,
+          centerY,
+          radius * 1.08,
+        );
+        ballCutout.addColorStop(0, "rgba(0, 0, 0, 1)");
+        ballCutout.addColorStop(1, "rgba(0, 0, 0, 0)");
+        portraitContext.fillStyle = ballCutout;
+        portraitContext.beginPath();
+        portraitContext.arc(centerX, centerY, radius * 1.08, 0, Math.PI * 2);
+        portraitContext.fill();
+
+        addRoundedRect(portraitContext, dockX - 4, dockY - 4, dockWidth + 8, dockHeight + 8, 26);
+        portraitContext.fillStyle = "#000";
+        portraitContext.fill();
+        portraitContext.restore();
+
+        texture.needsUpdate = true;
+        requestRender();
+      };
+
+      portraitImage.onload = drawPortrait;
+      portraitImage.src = "assets/laptop-wallper.png";
+
+      return texture;
+    };
+
     const createLaptopScreenTexture = () => {
       const screenCanvas = document.createElement("canvas");
       const context = screenCanvas.getContext("2d");
@@ -303,7 +377,7 @@ if (heroModelCanvas) {
           wallpaperLayout = { drawX, drawY, drawWidth, drawHeight };
 
           context.save();
-          context.globalAlpha = 0.72;
+          context.globalAlpha = 0.2;
           context.filter = "brightness(0.82) contrast(0.92) saturate(0.68)";
           context.drawImage(wallpaperImage, drawX, drawY, drawWidth, drawHeight);
           context.restore();
@@ -587,10 +661,32 @@ if (heroModelCanvas) {
       loadedScene.position.z = -10;
 
       const screenTexture = createLaptopScreenTexture();
-      const screen = new Mesh(new PlaneGeometry(29.4, 20), new MeshBasicMaterial({ color: 0xffffff, map: screenTexture, side: BackSide, toneMapped: false }));
+      const screenGeometry = new PlaneGeometry(29.4, 20);
+      const screen = new Mesh(screenGeometry, new MeshBasicMaterial({ color: 0xffffff, map: screenTexture, side: BackSide, toneMapped: false }));
       screen.position.set(0, 10.5, -0.11);
       screen.rotation.set(Math.PI, 0, 0);
+      screen.renderOrder = 1;
       loadedScene.add(screen);
+
+      const portraitTexture = createPortraitOverlayTexture();
+      const portraitOverlay = new Mesh(screenGeometry, new MeshBasicMaterial({
+        alphaTest: 0.01,
+        color: 0xffffff,
+        depthWrite: false,
+        map: portraitTexture,
+        polygonOffset: true,
+        polygonOffsetFactor: -1,
+        polygonOffsetUnits: -1,
+        side: BackSide,
+        toneMapped: false,
+        transparent: true,
+      }));
+      portraitOverlay.position.copy(screen.position);
+      portraitOverlay.position.z += 0.012;
+      portraitOverlay.rotation.copy(screen.rotation);
+      portraitOverlay.renderOrder = 2;
+      loadedScene.add(portraitOverlay);
+
       laptop.add(loadedScene);
       modelReady = true;
       requestRender();
