@@ -32,14 +32,10 @@ a { color: inherit; text-decoration: none; }
   isolation: isolate;
   padding: 2rem clamp(1.5rem, 5vw, 5rem) 1.75rem;
   background:
-    var(--grain-texture),
     radial-gradient(ellipse 56% 68% at 80% 46%, rgba(255, 82, 28, 0.24) 0%, rgba(158, 24, 11, 0.22) 34%, transparent 72%),
     radial-gradient(ellipse 46% 24% at 76% 76%, rgba(255, 91, 30, 0.18) 0%, rgba(119, 17, 8, 0.1) 48%, transparent 76%),
     radial-gradient(ellipse 32% 42% at 95% 18%, rgba(132, 18, 10, 0.16) 0%, transparent 72%),
     linear-gradient(112deg, #090a09 0%, #0b0a09 44%, #170a07 72%, #090909 100%);
-  background-blend-mode: soft-light, normal, normal, normal, normal;
-  background-repeat: repeat, no-repeat, no-repeat, no-repeat, no-repeat;
-  background-size: 144px 144px, auto, auto, auto, auto;
 }
 
 .hero::before, .hero::after { position: absolute; pointer-events: none; content: ""; }
@@ -59,9 +55,13 @@ a { color: inherit; text-decoration: none; }
   z-index: -2;
   inset: 0;
   background:
+    var(--grain-texture),
     linear-gradient(180deg, rgba(4, 5, 4, 0.54) 0%, transparent 22% 55%, rgba(10, 10, 10, 0.16) 68%, rgba(10, 10, 10, 0.55) 82%, rgba(10, 10, 10, 0.9) 94%, #0A0A0A 100%),
     linear-gradient(90deg, rgba(7, 8, 7, 0.94) 0%, rgba(8, 8, 7, 0.87) 27%, rgba(9, 8, 7, 0.56) 48%, transparent 70%),
     radial-gradient(ellipse 58% 76% at 76% 50%, transparent 30%, rgba(4, 3, 3, 0.2) 72%, rgba(3, 3, 3, 0.62) 100%);
+  background-blend-mode: soft-light, normal, normal, normal;
+  background-repeat: repeat, no-repeat, no-repeat, no-repeat;
+  background-size: 144px 144px, auto, auto, auto;
 }
 
 .site-header, .hero__footer { display: flex; align-items: center; justify-content: space-between; font-family: "DM Mono", monospace; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; }
