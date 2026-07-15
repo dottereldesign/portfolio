@@ -298,23 +298,12 @@ if (heroModelCanvas) {
 
         portraitContext.save();
         portraitContext.globalCompositeOperation = "destination-out";
-        const ballCutout = portraitContext.createRadialGradient(
-          centerX,
-          centerY,
-          radius * 0.8,
-          centerX,
-          centerY,
-          radius * 1.08,
-        );
-        ballCutout.addColorStop(0, "rgba(0, 0, 0, 1)");
-        ballCutout.addColorStop(1, "rgba(0, 0, 0, 0)");
-        portraitContext.fillStyle = ballCutout;
+        portraitContext.fillStyle = "#000";
         portraitContext.beginPath();
-        portraitContext.arc(centerX, centerY, radius * 1.08, 0, Math.PI * 2);
+        portraitContext.arc(centerX, centerY, radius * 1.01, 0, Math.PI * 2);
         portraitContext.fill();
 
         addRoundedRect(portraitContext, dockX - 4, dockY - 4, dockWidth + 8, dockHeight + 8, 26);
-        portraitContext.fillStyle = "#000";
         portraitContext.fill();
         portraitContext.restore();
 
