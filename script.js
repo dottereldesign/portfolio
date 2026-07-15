@@ -226,6 +226,7 @@ if (heroModelCanvas) {
       const screenCanvas = document.createElement("canvas");
       const context = screenCanvas.getContext("2d");
       const iconImages = new Map();
+      const wallpaperImage = new Image();
       const width = 1470;
       const height = 1000;
       screenCanvas.width = width;
@@ -239,6 +240,18 @@ if (heroModelCanvas) {
       const drawWallpaper = () => {
         context.fillStyle = "#070907";
         context.fillRect(0, 0, width, height);
+
+        if (wallpaperImage.complete && wallpaperImage.naturalWidth) {
+          const maxWidth = 560;
+          const maxHeight = 800;
+          const scale = Math.min(maxWidth / wallpaperImage.naturalWidth, maxHeight / wallpaperImage.naturalHeight);
+          const drawWidth = wallpaperImage.naturalWidth * scale;
+          const drawHeight = wallpaperImage.naturalHeight * scale;
+          const drawX = (width - drawWidth) / 2;
+          const drawY = 64 + (800 - drawHeight) / 2;
+
+          context.drawImage(wallpaperImage, drawX, drawY, drawWidth, drawHeight);
+        }
 
         context.fillStyle = "rgba(3, 4, 3, 0.76)";
         context.fillRect(0, 0, width, 58);
@@ -311,6 +324,13 @@ if (heroModelCanvas) {
       };
 
       drawHomeScreen();
+
+      wallpaperImage.onload = () => {
+        drawHomeScreen();
+        texture.needsUpdate = true;
+        requestRender();
+      };
+      wallpaperImage.src = "assets/laptop-wallper.png";
 
       Promise.allSettled(screenApps.filter((app) => app.icon).map(async (app) => {
         const image = await loadScreenIcon(app.icon);
