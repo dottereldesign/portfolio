@@ -554,7 +554,7 @@ if (heroModelCanvas) {
       renderer.setSize(bounds.width, bounds.height, false);
       const aspect = bounds.width / bounds.height;
       const portraitCameraZ = 78 + Math.max(0, 1.1 - aspect) * 80;
-      const compactCameraZ = usesStackedHeroLayout() ? 88 : 78;
+      const compactCameraZ = usesStackedHeroLayout() ? 85 : 78;
       camera.aspect = aspect;
       camera.position.z = MathUtils.clamp(Math.max(compactCameraZ, portraitCameraZ), 78, 108);
       camera.updateProjectionMatrix();
