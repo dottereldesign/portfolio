@@ -154,63 +154,193 @@ if (capabilities) {
 }
 
 const heroModelCanvas = document.querySelector(".hero__model-canvas");
-const heroRipple = document.querySelector(".hero__ripple");
+const heroFlowCanvas = document.querySelector(".hero__flow-canvas");
 
-if (heroRipple) {
-  const rippleHero = heroRipple.closest(".hero");
-  const supportsFinePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+if (heroFlowCanvas) {
+  const flowHero = heroFlowCanvas.closest(".hero");
+  const supportsFlowInteraction = window.matchMedia("(min-width: 801px) and (hover: hover) and (pointer: fine)").matches;
   const reducesMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  if (rippleHero && supportsFinePointer && !reducesMotion) {
-    let rippleFrame;
-    let rippleIdleTimer;
-    let pointerClientX = 0;
-    let pointerClientY = 0;
-    let previousRippleX;
-    let previousRippleY;
+  if (flowHero && supportsFlowInteraction && !reducesMotion) {
+    import("https://cdn.jsdelivr.net/npm/ogl@1.0.11/+esm").then(({ Renderer, Program, Mesh, Vec2, Flowmap, Triangle }) => {
+      const renderer = new Renderer({
+        alpha: false,
+        antialias: false,
+        canvas: heroFlowCanvas,
+        depth: false,
+        dpr: 0.8,
+        powerPreference: "low-power",
+      });
+      const gl = renderer.gl;
+      const mouse = new Vec2(-1);
+      const velocity = new Vec2();
+      const lastPointer = new Vec2();
+      let aspect = 1;
+      let flowFrame;
+      let inputPending = false;
+      let idleFrames = 0;
+      let lastPointerTime;
+      let flowIsReady = false;
 
-    const paintRipple = () => {
-      const bounds = rippleHero.getBoundingClientRect();
-      const rippleX = pointerClientX - bounds.left;
-      const rippleY = pointerClientY - bounds.top;
-      rippleFrame = undefined;
-      rippleHero.style.setProperty("--hero-ripple-x", `${rippleX}px`);
-      rippleHero.style.setProperty("--hero-ripple-y", `${rippleY}px`);
+      gl.clearColor(0.035, 0.039, 0.035, 1);
 
-      if (Number.isFinite(previousRippleX) && Number.isFinite(previousRippleY)) {
-        const deltaX = rippleX - previousRippleX;
-        const deltaY = rippleY - previousRippleY;
-        const distance = Math.hypot(deltaX, deltaY);
+      const flowmap = new Flowmap(gl, {
+        alpha: 0.18,
+        dissipation: 0.94,
+        falloff: 0.07,
+        size: 128,
+      });
 
-        if (distance > 0.5) {
-          rippleHero.style.setProperty("--hero-ripple-angle", `${Math.atan2(deltaY, deltaX)}rad`);
-          rippleHero.style.setProperty("--hero-ripple-stretch", `${1 + Math.min(0.48, distance / 48)}`);
+      const vertex = `
+        attribute vec2 uv;
+        attribute vec2 position;
+        varying vec2 vUv;
+
+        void main() {
+          vUv = uv;
+          gl_Position = vec4(position, 0.0, 1.0);
         }
-      }
+      `;
 
-      previousRippleX = rippleX;
-      previousRippleY = rippleY;
-      rippleHero.classList.add("is-ripple-active");
-      window.clearTimeout(rippleIdleTimer);
-      rippleIdleTimer = window.setTimeout(() => rippleHero.classList.remove("is-ripple-active"), 620);
-    };
+      const fragment = `
+        precision highp float;
 
-    const queueRipple = (event) => {
-      pointerClientX = event.clientX;
-      pointerClientY = event.clientY;
-      if (!rippleFrame) rippleFrame = window.requestAnimationFrame(paintRipple);
-    };
+        uniform sampler2D tFlow;
+        varying vec2 vUv;
 
-    rippleHero.addEventListener("pointerenter", queueRipple, { passive: true });
-    rippleHero.addEventListener("pointermove", queueRipple, { passive: true });
-    rippleHero.addEventListener("pointerleave", () => {
-      if (rippleFrame) window.cancelAnimationFrame(rippleFrame);
-      window.clearTimeout(rippleIdleTimer);
-      rippleFrame = undefined;
-      previousRippleX = undefined;
-      previousRippleY = undefined;
-      rippleHero.classList.remove("is-ripple-active");
-    }, { passive: true });
+        float ellipseDistance(vec2 uv, vec2 center, vec2 radius) {
+          return length((uv - center) / radius);
+        }
+
+        vec3 addEmber(
+          vec3 base,
+          vec2 uv,
+          vec2 center,
+          vec2 radius,
+          vec3 innerColor,
+          vec3 outerColor,
+          float innerAlpha,
+          float outerAlpha,
+          float middle,
+          float edge
+        ) {
+          float distanceFromCenter = ellipseDistance(uv, center, radius);
+          float colorMix = smoothstep(0.0, middle, distanceFromCenter);
+          float alpha = mix(innerAlpha, outerAlpha, colorMix) * (1.0 - smoothstep(middle, edge, distanceFromCenter));
+          return mix(base, mix(innerColor, outerColor, colorMix), alpha);
+        }
+
+        float grain(vec2 uv) {
+          vec2 cell = floor(uv * vec2(960.0, 640.0));
+          return fract(sin(dot(cell, vec2(12.9898, 78.233))) * 43758.5453);
+        }
+
+        void main() {
+          vec3 flow = texture2D(tFlow, vUv).rgb;
+          vec2 uv = vUv + flow.xy * 0.0065;
+          float axis = clamp(uv.x * 0.82 + uv.y * 0.18, 0.0, 1.0);
+
+          vec3 color = mix(vec3(0.035, 0.039, 0.035), vec3(0.043, 0.039, 0.035), smoothstep(0.0, 0.44, axis));
+          color = mix(color, vec3(0.09, 0.039, 0.027), smoothstep(0.44, 0.72, axis));
+          color = mix(color, vec3(0.035), smoothstep(0.72, 1.0, axis));
+
+          color = addEmber(color, uv, vec2(0.80, 0.54), vec2(0.56, 0.68), vec3(1.0, 0.32, 0.11), vec3(0.62, 0.09, 0.04), 0.24, 0.22, 0.34, 0.72);
+          color = addEmber(color, uv, vec2(0.76, 0.24), vec2(0.46, 0.24), vec3(1.0, 0.36, 0.12), vec3(0.47, 0.07, 0.03), 0.18, 0.10, 0.48, 0.76);
+          color = addEmber(color, uv, vec2(0.95, 0.82), vec2(0.32, 0.42), vec3(0.52, 0.07, 0.04), vec3(0.22, 0.03, 0.02), 0.16, 0.04, 0.32, 0.72);
+          color = addEmber(color, uv, vec2(0.76, 0.53), vec2(0.27, 0.58), vec3(1.0, 0.39, 0.15), vec3(1.0, 0.22, 0.07), 0.34, 0.15, 0.34, 0.72);
+          color = addEmber(color, uv, vec2(0.74, 0.33), vec2(0.52, 0.18), vec3(1.0, 0.30, 0.09), vec3(0.51, 0.08, 0.03), 0.24, 0.10, 0.48, 0.76);
+          color = addEmber(color, uv, vec2(0.94, 0.58), vec2(0.17, 0.38), vec3(1.0, 0.52, 0.23), vec3(0.52, 0.12, 0.05), 0.17, 0.04, 0.30, 0.72);
+
+          color += (grain(uv) - 0.5) * 0.018;
+          gl_FragColor = vec4(color, 1.0);
+        }
+      `;
+
+      const program = new Program(gl, {
+        vertex,
+        fragment,
+        uniforms: { tFlow: flowmap.uniform },
+        depthTest: false,
+        depthWrite: false,
+      });
+      const mesh = new Mesh(gl, { geometry: new Triangle(gl), program });
+
+      const revealFlow = () => {
+        if (flowIsReady) return;
+        flowIsReady = true;
+        flowHero.classList.add("hero--flow-ready");
+      };
+
+      const resizeFlow = () => {
+        const bounds = flowHero.getBoundingClientRect();
+        if (!bounds.width || !bounds.height) return;
+        renderer.dpr = Math.max(0.5, Math.min(0.85, 1600 / bounds.width, 1000 / bounds.height));
+        renderer.setSize(bounds.width, bounds.height);
+        aspect = bounds.width / bounds.height;
+        renderer.render({ scene: mesh });
+        revealFlow();
+      };
+
+      const requestFlowFrame = () => {
+        if (!flowFrame) flowFrame = window.requestAnimationFrame(renderFlow);
+      };
+
+      const renderFlow = () => {
+        flowFrame = undefined;
+
+        if (inputPending) {
+          inputPending = false;
+          idleFrames = 0;
+        } else {
+          mouse.set(-1);
+          velocity.set(0);
+          idleFrames += 1;
+        }
+
+        flowmap.aspect = aspect;
+        flowmap.mouse.copy(mouse);
+        flowmap.velocity.lerp(velocity, velocity.len() ? 0.34 : 0.1);
+        flowmap.update();
+        renderer.render({ scene: mesh });
+        revealFlow();
+
+        if (idleFrames < 80 || flowmap.velocity.len() > 0.002) requestFlowFrame();
+      };
+
+      const updateFlowPointer = (event) => {
+        const bounds = flowHero.getBoundingClientRect();
+        const localX = event.clientX - bounds.left;
+        const localY = event.clientY - bounds.top;
+        const now = performance.now();
+
+        mouse.set(localX / bounds.width, 1 - localY / bounds.height);
+
+        if (lastPointerTime) {
+          const delta = Math.max(14, now - lastPointerTime);
+          velocity.set((event.clientX - lastPointer.x) / delta, (event.clientY - lastPointer.y) / delta);
+        }
+
+        lastPointer.set(event.clientX, event.clientY);
+        lastPointerTime = now;
+        inputPending = true;
+        idleFrames = 0;
+        requestFlowFrame();
+      };
+
+      const releaseFlow = () => {
+        mouse.set(-1);
+        velocity.set(0);
+        lastPointerTime = undefined;
+        inputPending = false;
+        requestFlowFrame();
+      };
+
+      flowHero.addEventListener("pointerenter", updateFlowPointer, { passive: true });
+      flowHero.addEventListener("pointermove", updateFlowPointer, { passive: true });
+      flowHero.addEventListener("pointerleave", releaseFlow, { passive: true });
+      window.addEventListener("resize", resizeFlow, { passive: true });
+      resizeFlow();
+    }).catch(() => {});
   }
 }
 

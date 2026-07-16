@@ -52,17 +52,8 @@ a { color: inherit; text-decoration: none; }
 
 .hero__frame { position: absolute; z-index: 0; top: var(--hero-frame-inset); right: var(--hero-frame-inset); bottom: 0; left: var(--hero-frame-inset); border: 1px solid var(--hero-frame-line); pointer-events: none; animation: hero-frame-in 1100ms var(--hero-ease) 40ms backwards; }
 .section-frame { position: absolute; z-index: 20; inset: 0 var(--page-frame-inset); border: 1px solid var(--hero-frame-line); pointer-events: none; }
-.hero__ripple { position: absolute; z-index: -1; inset: 0; contain: layout paint style; overflow: hidden; opacity: 0; pointer-events: none; transition: opacity 360ms ease; }
-.hero.is-ripple-active .hero__ripple { opacity: 1; }
-.hero__wake { --wake-scale: 1; --wake-lag: 90ms; position: absolute; top: 0; left: 0; width: clamp(9rem, 15vw, 15rem); height: clamp(3.5rem, 5.8vw, 5.8rem); border-radius: 50%; background: radial-gradient(ellipse at center, rgba(3, 3, 3, 0.2) 0%, rgba(6, 4, 3, 0.12) 22%, rgba(255, 90, 36, 0.035) 38%, transparent 70%); opacity: 0; transform: translate3d(calc(var(--hero-ripple-x, 76vw) - 50%), calc(var(--hero-ripple-y, 45vh) - 50%), 0) rotate(var(--hero-ripple-angle, 0deg)) scaleX(var(--hero-ripple-stretch, 1)) scale(var(--wake-scale)); transform-origin: center; transition: transform var(--wake-lag) linear, opacity 280ms ease; will-change: transform, opacity; }
-.hero__wake::before, .hero__wake::after { position: absolute; right: 8%; left: 8%; border-radius: 50%; content: ""; }
-.hero__wake::before { top: 17%; bottom: 49%; border-top: 1px solid rgba(255, 143, 92, 0.15); transform: rotate(-3deg); }
-.hero__wake::after { top: 49%; bottom: 17%; border-bottom: 1px solid rgba(140, 207, 227, 0.075); transform: rotate(3deg); }
-.hero__wake--echo { --wake-scale: 1.08; --wake-lag: 180ms; background: radial-gradient(ellipse at center, transparent 22%, rgba(255, 90, 36, 0.022) 42%, transparent 68%); }
-.hero__wake--trail { --wake-scale: 1.16; --wake-lag: 300ms; background: transparent; }
-.hero.is-ripple-active .hero__wake--lead { opacity: 0.72; }
-.hero.is-ripple-active .hero__wake--echo { opacity: 0.38; }
-.hero.is-ripple-active .hero__wake--trail { opacity: 0.2; }
+.hero__flow-canvas { position: absolute; z-index: -2; inset: 0; display: block; width: 100%; height: 100%; opacity: 0; pointer-events: none; transition: opacity 600ms ease; }
+.hero.hero--flow-ready .hero__flow-canvas { opacity: 0.9; }
 
 .hero::before, .hero::after { position: absolute; pointer-events: none; content: ""; }
 .hero::before {
@@ -78,7 +69,7 @@ a { color: inherit; text-decoration: none; }
   transform-origin: 76% 50%;
 }
 .hero::after {
-  z-index: -2;
+  z-index: -1;
   inset: 0;
   background:
     linear-gradient(180deg, rgba(4, 5, 4, 0.54) 0%, transparent 22% 55%, rgba(10, 10, 10, 0.16) 68%, rgba(10, 10, 10, 0.55) 82%, rgba(10, 10, 10, 0.9) 94%, #0A0A0A 100%),
@@ -327,9 +318,9 @@ body,
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-delay: 0ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
-  .hero__ripple { display: none; }
+  .hero__flow-canvas { display: none; }
 }
 
 @media (hover: none), (pointer: coarse) {
-  .hero__ripple { display: none; }
+  .hero__flow-canvas { display: none; }
 }
