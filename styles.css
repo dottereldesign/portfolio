@@ -255,7 +255,7 @@ html[data-theme="dark"] .theme-switcher-grid[data-theme-toggle] .star-4 { transf
 .capabilities--reveal-ready.is-visible .capabilities__intro, .capabilities--reveal-ready.is-visible .capability-card { opacity: 1; transform: translateY(0); }
 .capabilities--reveal-ready.is-visible .capability-card__image { animation: capability-image-reveal 1100ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
 @keyframes capability-image-reveal { from { opacity: 0; transform: scale(0.97); } to { opacity: 0.92; transform: scale(1); } }
-.work-placeholder { position: relative; min-height: 80vh; overflow: hidden; margin-top: -1px; padding: clamp(5rem, 10vw, 10rem) var(--page-section-inline); padding-left: var(--page-section-left); background: #0A0A0A; color: var(--ink); }
+.work-placeholder { position: relative; min-height: 80vh; overflow: hidden; margin-top: -1px; padding: 0 var(--page-section-inline) clamp(5rem, 10vw, 10rem); padding-left: var(--page-section-left); background: #0A0A0A; color: var(--ink); }
 .work-placeholder .eyebrow { color: var(--accent-secondary); }
 .work-heading { position: relative; z-index: 1; display: flex; align-items: end; justify-content: space-between; gap: 3rem; padding-right: clamp(18rem, 31vw, 30rem); }
 .work-placeholder h2 { max-width: 8ch; margin: 0; font-size: clamp(3rem, 8vw, 8rem); letter-spacing: -0.08em; line-height: 0.9; }
