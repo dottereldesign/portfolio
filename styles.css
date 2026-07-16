@@ -200,16 +200,15 @@ html[data-theme="dark"] .theme-switcher-grid[data-theme-toggle] .star-4 { transf
 .cta::after { --hero-line-start-x: 0; --hero-line-start-y: 1; position: absolute; right: 0; bottom: 0; left: 0; height: 1px; background: var(--accent-secondary); content: ""; transform-origin: left center; animation: hero-line-in 760ms var(--hero-ease) 1430ms backwards; }
 .cta span { color: var(--accent-secondary); font-size: 1.1rem; }
 .cta:hover { gap: 1.5rem; color: var(--accent-secondary); }
-.hero__study { position: absolute; z-index: 4; right: var(--hero-frame-inset); bottom: var(--hero-frame-inset); left: calc(var(--hero-frame-inset) + var(--page-rail-width)); border-top: 1px solid var(--hero-frame-line); border-bottom: 1px solid var(--hero-frame-line); background: linear-gradient(90deg, rgba(7, 8, 7, 0.84), rgba(11, 9, 8, 0.68)); animation: hero-copy-in 760ms var(--hero-ease) 1380ms backwards; }
-.hero__study-header { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; padding: 0.6rem clamp(1.25rem, 2.4vw, 2.25rem); border-bottom: 1px solid var(--hero-frame-line); }
-.hero__study-header h2, .hero__study-header p, .hero__study-item p, .hero__study-item h3 { margin: 0; }
-.hero__study-header h2, .hero__study-header p, .hero__study-item p { font-family: "DM Mono", monospace; font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; }
-.hero__study-header h2 { color: var(--accent-secondary); font-weight: 500; }
-.hero__study-header p { color: var(--muted); }
-.hero__study-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.hero__study { position: absolute; z-index: 4; right: var(--hero-frame-inset); bottom: var(--hero-frame-inset); left: calc(var(--hero-frame-inset) + var(--page-rail-width)); background: linear-gradient(90deg, rgba(7, 8, 7, 0.84), rgba(11, 9, 8, 0.68)); animation: hero-copy-in 760ms var(--hero-ease) 1380ms backwards; }
+.hero__study-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 0 clamp(1.25rem, 2.4vw, 2.25rem); border-top: 1px solid var(--hero-frame-line); border-bottom: 1px solid var(--hero-frame-line); }
 .hero__study-item { display: flex; min-width: 0; min-height: clamp(4.75rem, 6.5vh, 5.5rem); flex-direction: column; justify-content: center; gap: 0.55rem; padding: 0.75rem clamp(1.25rem, 2.4vw, 2.25rem); }
 .hero__study-item + .hero__study-item { border-left: 1px solid var(--hero-frame-line); }
-.hero__study-item p { color: var(--accent-secondary); }
+.hero__study-item p, .hero__study-item h3 { margin: 0; }
+.hero__study-item p { color: var(--study-metal); font-family: "DM Mono", monospace; font-size: 0.62rem; letter-spacing: 0.12em; text-transform: uppercase; text-shadow: 0 0 1rem color-mix(in srgb, var(--study-metal) 28%, transparent); }
+.hero__study-item--bronze { --study-metal: #c68158; }
+.hero__study-item--silver { --study-metal: #c8ced3; }
+.hero__study-item--gold { --study-metal: #ddb95f; }
 .hero__study-item h3 { max-width: 22rem; color: var(--ink); font-size: clamp(1rem, 1.15vw, 1.2rem); font-weight: 500; letter-spacing: -0.035em; line-height: 1.12; }
 .capabilities { position: relative; overflow: hidden; margin-top: -1px; padding: clamp(5.5rem, 7vw, 7rem) var(--page-section-inline) clamp(4.5rem, 7vw, 7rem); padding-left: var(--page-section-left); background: #0A0A0A; color: var(--ink); }
 .capabilities::before { position: absolute; z-index: 0; top: -12rem; left: 50%; width: 42rem; height: 42rem; border: 1px solid rgba(140, 207, 227, 0.09); border-radius: 50%; content: ""; transform: translateX(-50%); }
@@ -521,6 +520,10 @@ html[data-theme="light"] .hero__study {
   background: rgba(247, 243, 234, 0.84);
 }
 
+html[data-theme="light"] .hero__study-item--bronze { --study-metal: #8f4f2c; }
+html[data-theme="light"] .hero__study-item--silver { --study-metal: #68727c; }
+html[data-theme="light"] .hero__study-item--gold { --study-metal: #8a6700; }
+
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation-duration: 560ms;
@@ -600,11 +603,10 @@ html[data-theme="light"] .hero__study {
   .hero__title { font-size: clamp(3.75rem, 16vw, 5.4rem); }
   .hero__content .eyebrow { margin-bottom: 1rem; }
   .hero__role { margin-top: 1.2rem; font-size: clamp(0.82rem, 3.5vw, 1rem); }
-  .hero__study-header { padding: 0.65rem 1rem; }
-  .hero__study-header h2, .hero__study-header p, .hero__study-item p { font-size: 0.56rem; }
   .hero__study-grid { grid-template-columns: 1fr; }
   .hero__study-item { min-height: 4.75rem; padding: 0.9rem 1rem; }
   .hero__study-item + .hero__study-item { border-top: 1px solid var(--hero-frame-line); border-left: 0; }
+  .hero__study-item p { font-size: 0.56rem; }
   .hero__study-item h3 { font-size: 1rem; }
   .capabilities { padding-top: 5rem; padding-bottom: 5rem; }
   .capabilities__intro { margin-bottom: 3.25rem; }
