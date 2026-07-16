@@ -203,6 +203,7 @@ if (heroModelCanvas) {
     const modelHost = heroModelCanvas.parentElement;
     const hero = document.querySelector(".hero");
     const capabilitiesSection = document.querySelector(".capabilities");
+    const capabilitiesIntro = capabilitiesSection?.querySelector(".capabilities__intro");
 
     if (!hero || !capabilitiesSection) throw new Error("Laptop stage is incomplete");
 
@@ -1217,12 +1218,16 @@ if (heroModelCanvas) {
       const scaleEase = scaleProgress * scaleProgress * (3 - 2 * scaleProgress);
       const viewportHeight = window.innerHeight;
       const viewportWidth = window.innerWidth;
+      const isWideDesktop = viewportWidth >= 1101;
+      const capabilitiesIntroBounds = capabilitiesIntro?.getBoundingClientRect();
       const landingShiftX = viewportWidth <= 1100
         ? -viewportWidth * 0.06
-        : Math.min(72, viewportWidth * 0.05);
+        : Math.min(40, viewportWidth * 0.03);
       const arcCenterY = viewportHeight * (0.55 - smoothProgress * 0.1)
         + Math.sin(progress * Math.PI) * viewportHeight * 0.08;
-      const landingCenterY = capabilitiesBounds.top + Math.min(245, viewportHeight * 0.28);
+      const landingCenterY = isWideDesktop && capabilitiesIntroBounds
+        ? capabilitiesIntroBounds.top + capabilitiesIntroBounds.height * 0.52
+        : capabilitiesBounds.top + Math.min(245, viewportHeight * 0.28);
       const targetCenterY = MathUtils.lerp(arcCenterY, landingCenterY, settleEase);
 
       targetRotation = MathUtils.lerp(-0.45, Math.PI - 0.35, smoothProgress);
@@ -1232,7 +1237,7 @@ if (heroModelCanvas) {
       targetHostX = landingShiftX * settleEase;
       targetHostY = targetCenterY - viewportHeight * 0.55 + initialDesktopOffset;
       if (!modelReady) currentHostY = targetHostY;
-      targetHostScale = MathUtils.lerp(1, 0.44, scaleEase);
+      targetHostScale = MathUtils.lerp(1, isWideDesktop ? 0.6 : 0.44, scaleEase);
       stickerTimeline = settleEase;
     };
 
