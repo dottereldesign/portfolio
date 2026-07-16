@@ -37,7 +37,6 @@ a { color: inherit; text-decoration: none; }
   grid-template-columns: var(--page-rail-width) minmax(0, 1fr);
   grid-template-rows: var(--site-header-height) minmax(0, 1fr);
   overflow: hidden;
-  isolation: isolate;
   padding: var(--hero-frame-inset);
   background:
     var(--grain-texture),
@@ -57,7 +56,7 @@ a { color: inherit; text-decoration: none; }
 
 .hero::before, .hero::after { position: absolute; pointer-events: none; content: ""; }
 .hero::before {
-  z-index: -3;
+  z-index: 0;
   inset: -12%;
   background:
     radial-gradient(ellipse 27% 58% at 76% 47%, rgba(255, 100, 38, 0.34) 0%, rgba(255, 56, 18, 0.15) 34%, transparent 72%),
@@ -69,7 +68,7 @@ a { color: inherit; text-decoration: none; }
   transform-origin: 76% 50%;
 }
 .hero::after {
-  z-index: -1;
+  z-index: 1;
   inset: 0;
   background:
     linear-gradient(180deg, rgba(4, 5, 4, 0.54) 0%, transparent 22% 55%, rgba(10, 10, 10, 0.16) 68%, rgba(10, 10, 10, 0.55) 82%, rgba(10, 10, 10, 0.9) 94%, #0A0A0A 100%),
