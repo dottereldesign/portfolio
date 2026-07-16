@@ -1,37 +1,12 @@
 const root = document.documentElement;
 const themeToggle = document.querySelector("[data-theme-toggle]");
 const themeColorMeta = document.querySelector('meta[name="theme-color"]');
-const themePanelTrigger = document.querySelector("[data-theme-panel-trigger]");
-const themePanel = document.querySelector("[data-theme-panel]");
-const themePanelClose = document.querySelector("[data-theme-panel-close]");
-const themeSizeButtons = [...document.querySelectorAll("[data-theme-size]")];
-const themeColorInputs = [...document.querySelectorAll("[data-color-var]")];
-const themeColorsReset = document.querySelector("[data-theme-colors-reset]");
 const themeMotionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
-const themeKeys = {
-  theme: "jw-theme",
-  colors: "jw-theme-colors",
-  size: "jw-theme-toggle-size",
-};
-const defaultThemeColors = Object.fromEntries(themeColorInputs.map((input) => [input.dataset.colorVar, input.defaultValue]));
-
-const readStoredValue = (key) => {
-  try {
-    return window.localStorage.getItem(key);
-  } catch {
-    return null;
-  }
-};
+const themeStorageKey = "jw-theme";
 
 const storeValue = (key, value) => {
   try {
     window.localStorage.setItem(key, value);
-  } catch {}
-};
-
-const removeStoredValue = (key) => {
-  try {
-    window.localStorage.removeItem(key);
   } catch {}
 };
 
@@ -44,103 +19,25 @@ const applyTheme = (theme, { persist = true } = {}) => {
   themeToggle?.setAttribute("aria-pressed", String(isDark));
   themeToggle?.setAttribute("aria-label", isDark ? "Switch to light theme" : "Switch to dark theme");
   if (themeColorMeta) themeColorMeta.content = isDark ? "#10110f" : "#efebe2";
-  if (persist) storeValue(themeKeys.theme, nextTheme);
+  if (persist) storeValue(themeStorageKey, nextTheme);
 };
 
-const closeThemePanel = ({ restoreFocus = false } = {}) => {
-  if (!themePanel || themePanel.hidden) return;
-  themePanel.hidden = true;
-  themePanelTrigger?.setAttribute("aria-expanded", "false");
-  if (restoreFocus) themePanelTrigger?.focus();
-};
-
-const openThemePanel = () => {
-  if (!themePanel) return;
-  themePanel.hidden = false;
-  themePanelTrigger?.setAttribute("aria-expanded", "true");
-  themePanelClose?.focus();
-};
-
-const applyThemeSize = (size, { persist = true } = {}) => {
-  if (!themeToggle) return;
-  const validSize = ["small", "compact", "medium"].includes(size) ? size : "compact";
-
-  themeToggle.classList.remove("theme-switcher-grid--small", "theme-switcher-grid--compact", "theme-switcher-grid--medium");
-  themeToggle.classList.add(`theme-switcher-grid--${validSize}`);
-  themeSizeButtons.forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.themeSize === validSize)));
-  if (persist) storeValue(themeKeys.size, validSize);
-};
-
-const applyThemeColors = (colors, { persist = true } = {}) => {
-  const sanitizedColors = {};
-
-  themeColorInputs.forEach((input) => {
-    const variable = input.dataset.colorVar;
-    const candidate = colors?.[variable];
-    const value = /^#[0-9a-f]{6}$/i.test(candidate || "") ? candidate : defaultThemeColors[variable];
-    root.style.setProperty(variable, value);
-    input.value = value;
-    sanitizedColors[variable] = value;
-  });
-
-  if (persist) storeValue(themeKeys.colors, JSON.stringify(sanitizedColors));
-};
-
-let storedThemeColors;
 try {
-  storedThemeColors = JSON.parse(readStoredValue(themeKeys.colors) || "null");
-} catch {
-  storedThemeColors = null;
-}
+  window.localStorage.removeItem("jw-theme-colors");
+  window.localStorage.removeItem("jw-theme-toggle-size");
+} catch {}
 
 applyTheme(root.dataset.theme, { persist: false });
-applyThemeSize(readStoredValue(themeKeys.size) || "compact", { persist: false });
-if (storedThemeColors && typeof storedThemeColors === "object") applyThemeColors(storedThemeColors, { persist: false });
 
 themeToggle?.addEventListener("click", () => {
   const nextTheme = root.dataset.theme === "dark" ? "light" : "dark";
   const updateTheme = () => applyTheme(nextTheme);
 
-  closeThemePanel();
   if (document.startViewTransition && !themeMotionPreference.matches) {
     document.startViewTransition(updateTheme);
   } else {
     updateTheme();
   }
-});
-
-themePanelTrigger?.addEventListener("click", () => {
-  if (themePanel?.hidden) openThemePanel();
-  else closeThemePanel({ restoreFocus: true });
-});
-
-themePanelClose?.addEventListener("click", () => closeThemePanel({ restoreFocus: true }));
-
-themeSizeButtons.forEach((button) => {
-  button.addEventListener("click", () => applyThemeSize(button.dataset.themeSize));
-});
-
-themeColorInputs.forEach((input) => {
-  input.addEventListener("input", () => {
-    root.style.setProperty(input.dataset.colorVar, input.value);
-    const colors = Object.fromEntries(themeColorInputs.map((colorInput) => [colorInput.dataset.colorVar, colorInput.value]));
-    storeValue(themeKeys.colors, JSON.stringify(colors));
-  });
-});
-
-themeColorsReset?.addEventListener("click", () => {
-  Object.keys(defaultThemeColors).forEach((variable) => root.style.removeProperty(variable));
-  themeColorInputs.forEach((input) => { input.value = defaultThemeColors[input.dataset.colorVar]; });
-  removeStoredValue(themeKeys.colors);
-});
-
-document.addEventListener("pointerdown", (event) => {
-  if (!themePanel || themePanel.hidden || themePanel.contains(event.target) || themePanelTrigger?.contains(event.target)) return;
-  closeThemePanel();
-});
-
-document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape" && themePanel && !themePanel.hidden) closeThemePanel({ restoreFocus: true });
 });
 
 const title = document.querySelector(".hero__title span");
