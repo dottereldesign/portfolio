@@ -195,6 +195,31 @@ if (capabilities) {
   revealCapabilities.observe(capabilities);
 }
 
+const study = document.querySelector("[data-study-reveal]");
+
+if (study) {
+  const bounds = study.getBoundingClientRect();
+  const visibleHeight = Math.max(0, Math.min(window.innerHeight, bounds.bottom) - Math.max(0, bounds.top));
+  const isVisibleOnLoad = window.scrollY < 10 && visibleHeight >= bounds.height * 0.25;
+
+  if (isVisibleOnLoad) study.classList.add("hero__study--initial-reveal");
+  study.classList.add("hero__study--reveal-ready");
+
+  const revealStudy = () => study.classList.add("is-visible");
+
+  if ("IntersectionObserver" in window) {
+    const studyVisibility = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      revealStudy();
+      studyVisibility.disconnect();
+    }, { threshold: 0.2, rootMargin: "0px 0px -4% 0px" });
+
+    window.requestAnimationFrame(() => studyVisibility.observe(study));
+  } else {
+    revealStudy();
+  }
+}
+
 const heroModelCanvas = document.querySelector(".hero__model-canvas");
 
 if (heroModelCanvas) {
