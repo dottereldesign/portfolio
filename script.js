@@ -154,6 +154,45 @@ if (capabilities) {
 }
 
 const heroModelCanvas = document.querySelector(".hero__model-canvas");
+const heroRipple = document.querySelector(".hero__ripple");
+
+if (heroRipple) {
+  const rippleHero = heroRipple.closest(".hero");
+  const supportsFinePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+  const reducesMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  if (rippleHero && supportsFinePointer && !reducesMotion) {
+    let rippleFrame;
+    let rippleIdleTimer;
+    let pointerClientX = 0;
+    let pointerClientY = 0;
+
+    const paintRipple = () => {
+      const bounds = rippleHero.getBoundingClientRect();
+      rippleFrame = undefined;
+      rippleHero.style.setProperty("--hero-ripple-x", `${pointerClientX - bounds.left}px`);
+      rippleHero.style.setProperty("--hero-ripple-y", `${pointerClientY - bounds.top}px`);
+      rippleHero.classList.add("is-ripple-active");
+      window.clearTimeout(rippleIdleTimer);
+      rippleIdleTimer = window.setTimeout(() => rippleHero.classList.remove("is-ripple-active"), 900);
+    };
+
+    const queueRipple = (event) => {
+      pointerClientX = event.clientX;
+      pointerClientY = event.clientY;
+      if (!rippleFrame) rippleFrame = window.requestAnimationFrame(paintRipple);
+    };
+
+    rippleHero.addEventListener("pointerenter", queueRipple, { passive: true });
+    rippleHero.addEventListener("pointermove", queueRipple, { passive: true });
+    rippleHero.addEventListener("pointerleave", () => {
+      if (rippleFrame) window.cancelAnimationFrame(rippleFrame);
+      window.clearTimeout(rippleIdleTimer);
+      rippleFrame = undefined;
+      rippleHero.classList.remove("is-ripple-active");
+    }, { passive: true });
+  }
+}
 
 if (heroModelCanvas) {
   import("three").then(async ({ Scene, PerspectiveCamera, WebGLRenderer, AmbientLight, DirectionalLight, Group, MathUtils, MeshStandardMaterial, MeshBasicMaterial, PlaneGeometry, Mesh, BackSide, CanvasTexture, LinearFilter, SRGBColorSpace }) => {
