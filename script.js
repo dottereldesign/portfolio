@@ -238,6 +238,7 @@ if (heroModelCanvas) {
     let currentHostY = 0;
     let currentHostScale = 1;
     let stickerTimeline = 0;
+    let laptopHasSettled = false;
     let heroScrollDirty = false;
     let frame;
     let screenMesh;
@@ -1186,6 +1187,7 @@ if (heroModelCanvas) {
       moveModelToPageOverlay();
 
       if (reducedMotion) {
+        laptopHasSettled = false;
         targetRotation = -0.45;
         targetRotationX = 0;
         targetRotationZ = -0.05;
@@ -1199,6 +1201,7 @@ if (heroModelCanvas) {
       }
 
       if (usesStackedHeroLayout()) {
+        laptopHasSettled = false;
         targetRotation = -0.45 + progress * Math.PI * 0.95;
         targetRotationX = 0;
         targetRotationZ = -0.05;
@@ -1214,6 +1217,8 @@ if (heroModelCanvas) {
       const capabilitiesBounds = capabilitiesSection.getBoundingClientRect();
       const settleProgress = MathUtils.clamp((progress - 0.42) / 0.58, 0, 1);
       const settleEase = settleProgress * settleProgress * (3 - 2 * settleProgress);
+      if (settleProgress >= 0.995) laptopHasSettled = true;
+      else if (settleProgress <= 0.97) laptopHasSettled = false;
       const scaleProgress = MathUtils.clamp((progress - 0.03) / 0.52, 0, 1);
       const scaleEase = scaleProgress * scaleProgress * (3 - 2 * scaleProgress);
       const viewportHeight = window.innerHeight;
@@ -1326,14 +1331,15 @@ if (heroModelCanvas) {
         heroScrollDirty = false;
       }
       const motionEase = usesCompactRendering() ? 0.16 : 0.1;
-      laptop.rotation.y = reducedMotion ? targetRotation : MathUtils.lerp(laptop.rotation.y, targetRotation, motionEase);
-      laptop.rotation.x = reducedMotion ? targetRotationX : MathUtils.lerp(laptop.rotation.x, targetRotationX, motionEase);
-      laptop.position.y = reducedMotion ? targetLift : MathUtils.lerp(laptop.position.y, targetLift, motionEase);
-      laptop.rotation.z = reducedMotion ? targetRotationZ : MathUtils.lerp(laptop.rotation.z, targetRotationZ, motionEase);
+      const shouldLockToLanding = reducedMotion || laptopHasSettled;
+      laptop.rotation.y = shouldLockToLanding ? targetRotation : MathUtils.lerp(laptop.rotation.y, targetRotation, motionEase);
+      laptop.rotation.x = shouldLockToLanding ? targetRotationX : MathUtils.lerp(laptop.rotation.x, targetRotationX, motionEase);
+      laptop.position.y = shouldLockToLanding ? targetLift : MathUtils.lerp(laptop.position.y, targetLift, motionEase);
+      laptop.rotation.z = shouldLockToLanding ? targetRotationZ : MathUtils.lerp(laptop.rotation.z, targetRotationZ, motionEase);
 
-      currentHostX = reducedMotion ? targetHostX : MathUtils.lerp(currentHostX, targetHostX, motionEase);
-      currentHostY = reducedMotion ? targetHostY : MathUtils.lerp(currentHostY, targetHostY, motionEase);
-      currentHostScale = reducedMotion ? targetHostScale : MathUtils.lerp(currentHostScale, targetHostScale, motionEase);
+      currentHostX = shouldLockToLanding ? targetHostX : MathUtils.lerp(currentHostX, targetHostX, motionEase);
+      currentHostY = shouldLockToLanding ? targetHostY : MathUtils.lerp(currentHostY, targetHostY, motionEase);
+      currentHostScale = shouldLockToLanding ? targetHostScale : MathUtils.lerp(currentHostScale, targetHostScale, motionEase);
       modelHost.style.setProperty("--model-shift-x", `${currentHostX.toFixed(2)}px`);
       modelHost.style.setProperty("--model-shift-y", `${currentHostY.toFixed(2)}px`);
       modelHost.style.setProperty("--model-scale", currentHostScale.toFixed(4));
