@@ -222,7 +222,6 @@ html[data-theme="dark"] .theme-switcher-grid[data-theme-toggle] .star-4 { transf
 .hero__study--reveal-ready.is-visible .hero__study-item p, .hero__study--reveal-ready.is-visible .hero__study-item h3 { opacity: 1; transform: translateY(0); transition: opacity 720ms ease, transform 820ms var(--hero-ease); transition-delay: calc(var(--study-reveal-delay) + var(--study-item-delay)); }
 .hero__study--reveal-ready.is-visible .hero__study-item h3 { transition-delay: calc(var(--study-reveal-delay) + var(--study-item-delay) + 70ms); }
 .capabilities { position: relative; overflow: hidden; margin-top: -1px; padding: clamp(5.5rem, 7vw, 7rem) var(--page-section-inline) clamp(4.5rem, 7vw, 7rem); padding-left: var(--page-section-left); background: #0A0A0A; color: var(--ink); }
-.capabilities::before { position: absolute; z-index: 0; top: -12rem; left: 50%; width: 42rem; height: 42rem; border: 1px solid rgba(140, 207, 227, 0.09); border-radius: 50%; content: ""; transform: translateX(-50%); }
 .capabilities::after { position: absolute; z-index: 0; top: 0; right: 0; left: 0; height: clamp(8rem, 14vw, 13rem); pointer-events: none; background: linear-gradient(180deg, #0A0A0A 0%, rgba(10, 10, 10, 0.94) 14%, rgba(10, 10, 10, 0.7) 42%, rgba(10, 10, 10, 0.28) 74%, transparent 100%); content: ""; }
 .capabilities__grain { position: absolute; z-index: 1; inset: 0; background: var(--grain-texture) repeat; background-size: 144px 144px; mix-blend-mode: soft-light; pointer-events: none; }
 .capabilities__intro { position: relative; z-index: 3; display: flex; min-height: clamp(24rem, 34vw, 29rem); max-width: min(47%, 41rem); flex-direction: column; align-items: flex-start; justify-content: center; margin: 0 0 clamp(3.5rem, 5vw, 5rem); text-align: left; }
@@ -431,10 +430,6 @@ html[data-theme="light"] .hero__side-rail {
 
 html[data-theme="light"] .capabilities {
   background-color: #f7f3ea;
-}
-
-html[data-theme="light"] .capabilities::before {
-  border-color: rgba(23, 111, 135, 0.14);
 }
 
 html[data-theme="light"] .capabilities::after {
