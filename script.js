@@ -1132,21 +1132,24 @@ if (heroModelCanvas) {
       }
 
       const capabilitiesBounds = capabilitiesSection.getBoundingClientRect();
-      const settleProgress = MathUtils.clamp((progress - 0.58) / 0.42, 0, 1);
+      const settleProgress = MathUtils.clamp((progress - 0.42) / 0.58, 0, 1);
       const settleEase = settleProgress * settleProgress * (3 - 2 * settleProgress);
+      const scaleProgress = MathUtils.clamp((progress - 0.03) / 0.52, 0, 1);
+      const scaleEase = scaleProgress * scaleProgress * (3 - 2 * scaleProgress);
       const viewportHeight = window.innerHeight;
       const viewportWidth = window.innerWidth;
-      const arcCenterY = viewportHeight * 0.55 + Math.sin(progress * Math.PI) * viewportHeight * 0.16;
-      const landingCenterY = capabilitiesBounds.top + Math.min(275, viewportHeight * 0.31);
+      const arcCenterY = viewportHeight * (0.55 - smoothProgress * 0.1)
+        + Math.sin(progress * Math.PI) * viewportHeight * 0.08;
+      const landingCenterY = capabilitiesBounds.top + Math.min(245, viewportHeight * 0.28);
       const targetCenterY = MathUtils.lerp(arcCenterY, landingCenterY, settleEase);
 
       targetRotation = MathUtils.lerp(-0.45, Math.PI - 0.35, smoothProgress);
       targetRotationX = MathUtils.lerp(0, -0.12, settleEase);
       targetRotationZ = MathUtils.lerp(-0.05, 0.035, settleEase);
       targetLift = MathUtils.lerp(0, -4, smoothProgress);
-      targetHostX = viewportWidth * 0.19 * settleEase;
+      targetHostX = viewportWidth * 0.07 * settleEase;
       targetHostY = targetCenterY - viewportHeight * 0.55;
-      targetHostScale = MathUtils.lerp(1, 0.5, settleEase);
+      targetHostScale = MathUtils.lerp(1, 0.44, scaleEase);
       stickerTimeline = settleEase;
     };
 
@@ -1240,9 +1243,11 @@ if (heroModelCanvas) {
       laptop.position.y = reducedMotion ? targetLift : MathUtils.lerp(laptop.position.y, targetLift, motionEase);
       laptop.rotation.z = reducedMotion ? targetRotationZ : MathUtils.lerp(laptop.rotation.z, targetRotationZ, motionEase);
 
-      currentHostX = reducedMotion ? targetHostX : MathUtils.lerp(currentHostX, targetHostX, motionEase);
-      currentHostY = reducedMotion ? targetHostY : MathUtils.lerp(currentHostY, targetHostY, motionEase);
-      currentHostScale = reducedMotion ? targetHostScale : MathUtils.lerp(currentHostScale, targetHostScale, motionEase);
+      const hostMotionEase = usesCompactRendering() ? motionEase : 0.12;
+      const hostScaleEase = usesCompactRendering() ? motionEase : 0.15;
+      currentHostX = reducedMotion ? targetHostX : MathUtils.lerp(currentHostX, targetHostX, hostMotionEase);
+      currentHostY = reducedMotion ? targetHostY : MathUtils.lerp(currentHostY, targetHostY, hostMotionEase);
+      currentHostScale = reducedMotion ? targetHostScale : MathUtils.lerp(currentHostScale, targetHostScale, hostScaleEase);
       modelHost.style.setProperty("--model-shift-x", `${currentHostX.toFixed(2)}px`);
       modelHost.style.setProperty("--model-shift-y", `${currentHostY.toFixed(2)}px`);
       modelHost.style.setProperty("--model-scale", currentHostScale.toFixed(4));
