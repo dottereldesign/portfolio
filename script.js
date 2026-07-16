@@ -1179,6 +1179,9 @@ if (heroModelCanvas) {
       const bounds = hero.getBoundingClientRect();
       const progress = MathUtils.clamp(-bounds.top / Math.max(1, bounds.height), 0, 1);
       const smoothProgress = progress * progress * (3 - 2 * progress);
+      const initialDesktopOffset = window.innerWidth >= 1101
+        ? Math.min(112, window.innerHeight * 0.085) * (1 - smoothProgress)
+        : 0;
       moveModelToPageOverlay();
 
       if (reducedMotion) {
@@ -1187,7 +1190,8 @@ if (heroModelCanvas) {
         targetRotationZ = -0.05;
         targetLift = 0;
         targetHostX = 0;
-        targetHostY = bounds.top;
+        targetHostY = bounds.top + initialDesktopOffset;
+        if (!modelReady) currentHostY = targetHostY;
         targetHostScale = 1;
         stickerTimeline = 0;
         return;
@@ -1226,7 +1230,8 @@ if (heroModelCanvas) {
       targetRotationZ = MathUtils.lerp(-0.05, 0.035, settleEase);
       targetLift = MathUtils.lerp(0, -4, smoothProgress);
       targetHostX = landingShiftX * settleEase;
-      targetHostY = targetCenterY - viewportHeight * 0.55;
+      targetHostY = targetCenterY - viewportHeight * 0.55 + initialDesktopOffset;
+      if (!modelReady) currentHostY = targetHostY;
       targetHostScale = MathUtils.lerp(1, 0.44, scaleEase);
       stickerTimeline = settleEase;
     };
