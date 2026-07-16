@@ -350,10 +350,15 @@ if (heroFlowCanvas) {
 }
 
 if (heroModelCanvas) {
-  import("three").then(async ({ Scene, PerspectiveCamera, WebGLRenderer, AmbientLight, DirectionalLight, Group, MathUtils, MeshStandardMaterial, MeshBasicMaterial, PlaneGeometry, Mesh, BackSide, CanvasTexture, LinearFilter, SRGBColorSpace }) => {
+  import("three").then(async ({ Scene, PerspectiveCamera, WebGLRenderer, AmbientLight, DirectionalLight, Group, MathUtils, MeshStandardMaterial, MeshBasicMaterial, PlaneGeometry, Mesh, BackSide, DoubleSide, CanvasTexture, LinearFilter, SRGBColorSpace }) => {
     const { GLTFLoader } = await import("https://unpkg.com/three@0.181.2/examples/jsm/loaders/GLTFLoader.js");
     const modelHost = heroModelCanvas.parentElement;
-    const hero = modelHost.closest(".hero");
+    const hero = document.querySelector(".hero");
+    const capabilitiesSection = document.querySelector(".capabilities");
+    const capabilitiesIntro = capabilitiesSection?.querySelector(".capabilities__intro");
+
+    if (!hero || !capabilitiesSection || !capabilitiesIntro) throw new Error("Laptop stage is incomplete");
+
     const scene = new Scene();
     const stackedHeroQuery = window.matchMedia("(max-width: 800px), (max-width: 1024px) and (max-aspect-ratio: 1/1)");
     const coarsePointerQuery = window.matchMedia("(pointer: coarse)");
@@ -373,10 +378,22 @@ if (heroModelCanvas) {
     let modelReady = false;
     let modelHasPainted = false;
     let heroIsVisible = true;
+    let capabilitiesAreVisible = false;
     let targetRotation = -0.45;
+    let targetRotationX = 0;
+    let targetRotationZ = -0.05;
     let targetLift = 0;
+    let targetHostX = 0;
+    let targetHostY = 0;
+    let targetHostScale = 1;
+    let currentHostX = 0;
+    let currentHostY = 0;
+    let currentHostScale = 1;
+    let stickerTimeline = 0;
+    let modelIsDocked = false;
     let heroScrollDirty = false;
     let frame;
+    const stickerMeshes = [];
 
     scene.add(new AmbientLight(0xe8e7e1, 2.2));
 
@@ -401,6 +418,16 @@ if (heroModelCanvas) {
       { label: "VS Code", short: "<>_", icon: "https://api.iconify.design/logos/visual-studio-code.svg", color: "#23a8f2" },
       { label: "Terminal", short: ">_", icon: "https://api.iconify.design/lucide/terminal.svg?color=%23ff5a24", color: "#ff5a24" },
       { label: "Chrome", short: "C", icon: "https://api.iconify.design/logos/chrome.svg", color: "#4285f4" },
+    ];
+
+    const lidStickerSpecs = [
+      { label: "JavaScript", short: "JS", icon: "https://api.iconify.design/logos/javascript.svg", color: "#f7df1e", x: -8.9, y: 15.7, width: 4.3, height: 4.3, rotation: -0.12, shape: "rounded" },
+      { label: "CSS", short: "CSS", icon: "https://api.iconify.design/logos/css-3.svg", color: "#1572b6", x: 7.8, y: 15.4, width: 3.9, height: 4.4, rotation: 0.11, shape: "shield" },
+      { label: "HTML", short: "HTML", icon: "https://api.iconify.design/logos/html-5.svg", color: "#e34f26", x: -9.8, y: 8.8, width: 3.8, height: 4.3, rotation: 0.1, shape: "shield" },
+      { label: "PHP", short: "PHP", icon: "https://api.iconify.design/logos/php.svg", color: "#777bb4", x: 8.5, y: 9.1, width: 5.7, height: 3.6, rotation: -0.1, shape: "pill" },
+      { label: "Git", short: "GIT", icon: "https://api.iconify.design/logos/git-icon.svg", color: "#f05032", x: -5.1, y: 4.5, width: 3.8, height: 3.8, rotation: -0.17, shape: "diamond" },
+      { label: "Vite", short: "V", icon: "https://api.iconify.design/logos/vitejs.svg", color: "#646cff", x: 4.5, y: 4.2, width: 3.9, height: 4.1, rotation: 0.13, shape: "rounded" },
+      { label: "WordPress", short: "W", icon: "https://api.iconify.design/logos/wordpress-icon.svg", color: "#21759b", x: 12.1, y: 4.9, width: 3.5, height: 3.5, rotation: -0.06, shape: "circle" },
     ];
 
     const getDockLayout = (width, height) => {
@@ -451,6 +478,134 @@ if (heroModelCanvas) {
       }
 
       return image;
+    };
+
+    const createStickerTexture = (spec) => {
+      const stickerCanvas = document.createElement("canvas");
+      const context = stickerCanvas.getContext("2d");
+      const size = 384;
+      const inset = 42;
+      stickerCanvas.width = size;
+      stickerCanvas.height = size;
+      context.imageSmoothingEnabled = true;
+      context.imageSmoothingQuality = "high";
+
+      const drawShape = () => {
+        const x = inset;
+        const y = inset;
+        const width = size - inset * 2;
+        const height = size - inset * 2;
+        context.beginPath();
+
+        if (spec.shape === "circle") {
+          context.arc(size / 2, size / 2, width / 2, 0, Math.PI * 2);
+        } else if (spec.shape === "diamond") {
+          context.moveTo(size / 2, y);
+          context.lineTo(x + width, size / 2);
+          context.lineTo(size / 2, y + height);
+          context.lineTo(x, size / 2);
+          context.closePath();
+        } else if (spec.shape === "shield") {
+          context.moveTo(x + width * 0.14, y);
+          context.lineTo(x + width * 0.86, y);
+          context.lineTo(x + width * 0.8, y + height * 0.76);
+          context.quadraticCurveTo(size / 2, y + height, size / 2, y + height);
+          context.quadraticCurveTo(size / 2, y + height, x + width * 0.2, y + height * 0.76);
+          context.closePath();
+        } else {
+          addRoundedRect(context, x, y, width, height, spec.shape === "pill" ? height / 2 : 58);
+        }
+      };
+
+      const drawSticker = (iconImage) => {
+        context.clearRect(0, 0, size, size);
+        context.save();
+        context.shadowColor = "rgba(0, 0, 0, 0.42)";
+        context.shadowBlur = 22;
+        context.shadowOffsetY = 11;
+        drawShape();
+        context.fillStyle = "#f3f0e7";
+        context.fill();
+        context.restore();
+
+        const backing = context.createLinearGradient(0, inset, size, size - inset);
+        backing.addColorStop(0, "#fffdf5");
+        backing.addColorStop(0.62, "#eeeae0");
+        backing.addColorStop(1, "#d9d4c9");
+        drawShape();
+        context.fillStyle = backing;
+        context.fill();
+        context.lineWidth = 8;
+        context.strokeStyle = "rgba(255, 255, 255, 0.92)";
+        context.stroke();
+
+        context.save();
+        drawShape();
+        context.clip();
+        context.globalAlpha = 0.13;
+        for (let index = 0; index < 34; index += 1) {
+          const px = inset + ((index * 83) % (size - inset * 2));
+          const py = inset + ((index * 137) % (size - inset * 2));
+          context.fillStyle = index % 3 ? "#ffffff" : "#77736a";
+          context.fillRect(px, py, 2 + index % 3, 1 + index % 2);
+        }
+        context.restore();
+
+        if (iconImage) {
+          const iconBox = size * (spec.shape === "pill" ? 0.57 : 0.54);
+          const ratio = Math.min(iconBox / iconImage.naturalWidth, iconBox / iconImage.naturalHeight);
+          const width = iconImage.naturalWidth * ratio;
+          const height = iconImage.naturalHeight * ratio;
+          context.drawImage(iconImage, (size - width) / 2, (size - height) / 2, width, height);
+        } else {
+          context.fillStyle = spec.color;
+          context.font = `800 ${spec.short.length > 2 ? 76 : 104}px Arial, sans-serif`;
+          context.textAlign = "center";
+          context.textBaseline = "middle";
+          context.fillText(spec.short, size / 2, size / 2 + 5);
+        }
+      };
+
+      drawSticker();
+
+      const texture = new CanvasTexture(stickerCanvas);
+      texture.colorSpace = SRGBColorSpace;
+      texture.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+
+      loadScreenIcon(spec.icon).then((iconImage) => {
+        drawSticker(iconImage);
+        texture.needsUpdate = true;
+        requestRender();
+      }).catch(() => {});
+
+      return texture;
+    };
+
+    const createLidSticker = (spec, index) => {
+      const geometry = new PlaneGeometry(spec.width, spec.height);
+      const material = new MeshBasicMaterial({
+        alphaTest: 0.02,
+        depthWrite: false,
+        map: createStickerTexture(spec),
+        opacity: 0,
+        polygonOffset: true,
+        polygonOffsetFactor: -2,
+        polygonOffsetUnits: -2,
+        side: DoubleSide,
+        toneMapped: false,
+        transparent: true,
+      });
+      const sticker = new Mesh(geometry, material);
+      sticker.position.set(spec.x, spec.y, -0.49);
+      sticker.rotation.set(0, Math.PI, spec.rotation);
+      sticker.scale.setScalar(0.68);
+      sticker.visible = false;
+      sticker.renderOrder = 4 + index;
+      sticker.userData.baseRotation = spec.rotation;
+      sticker.userData.baseZ = -0.49;
+      sticker.userData.revealDirection = index % 2 ? -1 : 1;
+      sticker.userData.currentReveal = 0;
+      return sticker;
     };
 
     const createPortraitOverlayTexture = () => {
@@ -852,11 +1007,17 @@ if (heroModelCanvas) {
       }, { once: true });
 
       if ("IntersectionObserver" in window) {
-        const footballVisibility = new IntersectionObserver(([entry]) => {
-          footballIsInView = entry.isIntersecting;
+        const visibleScreenSections = new Set();
+        const footballVisibility = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) visibleScreenSections.add(entry.target);
+            else visibleScreenSections.delete(entry.target);
+          });
+          footballIsInView = visibleScreenSections.size > 0;
           updateFootballVisibility();
         });
-        footballVisibility.observe(modelHost);
+        footballVisibility.observe(hero);
+        footballVisibility.observe(capabilitiesSection);
       }
 
       document.addEventListener("visibilitychange", updateFootballVisibility);
@@ -867,12 +1028,13 @@ if (heroModelCanvas) {
     };
 
     const resize = () => {
-      const bounds = modelHost.getBoundingClientRect();
+      const width = modelHost.offsetWidth;
+      const height = modelHost.offsetHeight;
       const maxDpr = usesCompactRendering() ? 1.25 : 2;
       const dpr = Math.min(window.devicePixelRatio || 1, maxDpr);
       renderer.setPixelRatio(dpr);
-      renderer.setSize(bounds.width, bounds.height, false);
-      const aspect = bounds.width / bounds.height;
+      renderer.setSize(width, height, false);
+      const aspect = width / height;
       const portraitCameraZ = 78 + Math.max(0, 1.1 - aspect) * 80;
       const compactCameraZ = usesStackedHeroLayout() ? 85 : 78;
       camera.aspect = aspect;
@@ -883,8 +1045,63 @@ if (heroModelCanvas) {
     const updateScroll = () => {
       const bounds = hero.getBoundingClientRect();
       const progress = MathUtils.clamp(-bounds.top / Math.max(1, bounds.height), 0, 1);
-      targetRotation = -0.45 + progress * Math.PI * 0.95;
-      targetLift = progress * (usesStackedHeroLayout() ? 5 : -10);
+      const smoothProgress = progress * progress * (3 - 2 * progress);
+
+      if (reducedMotion) {
+        if (modelHost.parentElement !== hero) hero.appendChild(modelHost);
+        modelIsDocked = false;
+        targetRotation = -0.45;
+        targetRotationX = 0;
+        targetRotationZ = -0.05;
+        targetLift = 0;
+        targetHostX = 0;
+        targetHostY = 0;
+        targetHostScale = 1;
+        stickerTimeline = 0;
+        return;
+      }
+
+      if (usesStackedHeroLayout()) {
+        if (modelHost.parentElement !== hero) hero.appendChild(modelHost);
+        modelIsDocked = false;
+        targetRotation = -0.45 + progress * Math.PI * 0.95;
+        targetRotationX = 0;
+        targetRotationZ = -0.05;
+        targetLift = progress * 5;
+        targetHostX = 0;
+        targetHostY = 0;
+        targetHostScale = 1;
+        stickerTimeline = 0;
+        return;
+      }
+
+      const capabilitiesBounds = capabilitiesSection.getBoundingClientRect();
+      const settleProgress = MathUtils.clamp((progress - 0.58) / 0.42, 0, 1);
+      const settleEase = settleProgress * settleProgress * (3 - 2 * settleProgress);
+      const viewportHeight = window.innerHeight;
+      const viewportWidth = window.innerWidth;
+      const arcCenterY = viewportHeight * 0.55 + Math.sin(progress * Math.PI) * viewportHeight * 0.16;
+      const landingCenterY = capabilitiesBounds.top + Math.min(275, viewportHeight * 0.31);
+      const targetCenterY = MathUtils.lerp(arcCenterY, landingCenterY, settleEase);
+
+      targetRotation = MathUtils.lerp(-0.45, Math.PI - 0.35, smoothProgress);
+      targetRotationX = MathUtils.lerp(0, -0.12, settleEase);
+      targetRotationZ = MathUtils.lerp(-0.05, 0.035, settleEase);
+      targetLift = MathUtils.lerp(0, -4, smoothProgress);
+      targetHostX = viewportWidth * 0.19 * settleEase;
+      targetHostY = targetCenterY - viewportHeight * 0.55;
+      targetHostScale = MathUtils.lerp(1, 0.5, settleEase);
+      stickerTimeline = settleEase;
+
+      if (!modelIsDocked && progress > 0.58) {
+        capabilitiesSection.insertBefore(modelHost, capabilitiesIntro);
+        modelIsDocked = true;
+      } else if (modelIsDocked && progress < 0.52) {
+        hero.appendChild(modelHost);
+        modelIsDocked = false;
+      } else if (!modelIsDocked && modelHost.parentElement !== hero) {
+        hero.appendChild(modelHost);
+      }
     };
 
     new GLTFLoader().load("assets/macbook.glb", ({ scene: loadedScene }) => {
@@ -933,6 +1150,14 @@ if (heroModelCanvas) {
       portraitOverlay.renderOrder = 2;
       loadedScene.add(portraitOverlay);
 
+      const stickerGroup = new Group();
+      lidStickerSpecs.forEach((spec, index) => {
+        const sticker = createLidSticker(spec, index);
+        stickerGroup.add(sticker);
+        stickerMeshes.push(sticker);
+      });
+      loadedScene.add(stickerGroup);
+
       laptop.add(loadedScene);
       modelReady = true;
       requestRender();
@@ -947,8 +1172,37 @@ if (heroModelCanvas) {
       }
       const motionEase = usesCompactRendering() ? 0.16 : 0.075;
       laptop.rotation.y = reducedMotion ? targetRotation : MathUtils.lerp(laptop.rotation.y, targetRotation, motionEase);
+      laptop.rotation.x = reducedMotion ? targetRotationX : MathUtils.lerp(laptop.rotation.x, targetRotationX, motionEase);
       laptop.position.y = reducedMotion ? targetLift : MathUtils.lerp(laptop.position.y, targetLift, motionEase);
-      laptop.rotation.z = MathUtils.lerp(laptop.rotation.z, -0.05, motionEase);
+      laptop.rotation.z = reducedMotion ? targetRotationZ : MathUtils.lerp(laptop.rotation.z, targetRotationZ, motionEase);
+
+      currentHostX = reducedMotion ? targetHostX : MathUtils.lerp(currentHostX, targetHostX, motionEase);
+      currentHostY = reducedMotion ? targetHostY : MathUtils.lerp(currentHostY, targetHostY, motionEase);
+      currentHostScale = reducedMotion ? targetHostScale : MathUtils.lerp(currentHostScale, targetHostScale, motionEase);
+      modelHost.style.setProperty("--model-shift-x", `${currentHostX.toFixed(2)}px`);
+      modelHost.style.setProperty("--model-shift-y", `${currentHostY.toFixed(2)}px`);
+      modelHost.style.setProperty("--model-scale", currentHostScale.toFixed(4));
+
+      let stickersAreMoving = false;
+      stickerMeshes.forEach((sticker, index) => {
+        const start = index * 0.105;
+        const end = start + 0.26;
+        const targetReveal = MathUtils.clamp((stickerTimeline - start) / (end - start), 0, 1);
+        const easedReveal = 1 - Math.pow(1 - targetReveal, 3);
+        sticker.userData.currentReveal = reducedMotion
+          ? easedReveal
+          : MathUtils.lerp(sticker.userData.currentReveal, easedReveal, 0.18);
+
+        const reveal = sticker.userData.currentReveal;
+        const slap = Math.sin(MathUtils.clamp(reveal, 0, 1) * Math.PI) * 0.08;
+        sticker.visible = reveal > 0.005;
+        sticker.material.opacity = MathUtils.clamp(reveal * 1.35, 0, 1);
+        sticker.scale.setScalar(0.68 + reveal * 0.32 + slap);
+        sticker.position.z = sticker.userData.baseZ - (1 - reveal) * 0.35;
+        sticker.rotation.z = sticker.userData.baseRotation + (1 - reveal) * 0.28 * sticker.userData.revealDirection;
+        stickersAreMoving ||= Math.abs(reveal - easedReveal) > 0.002;
+      });
+
       renderer.render(scene, camera);
 
       if (!modelHasPainted) {
@@ -956,7 +1210,16 @@ if (heroModelCanvas) {
         modelHost.classList.add("hero__model--ready");
       }
 
-      if (!reducedMotion && (Math.abs(laptop.rotation.y - targetRotation) > 0.001 || Math.abs(laptop.position.y - targetLift) > 0.001)) {
+      if (!reducedMotion && (
+        Math.abs(laptop.rotation.y - targetRotation) > 0.001
+        || Math.abs(laptop.rotation.x - targetRotationX) > 0.001
+        || Math.abs(laptop.rotation.z - targetRotationZ) > 0.001
+        || Math.abs(laptop.position.y - targetLift) > 0.001
+        || Math.abs(currentHostX - targetHostX) > 0.1
+        || Math.abs(currentHostY - targetHostY) > 0.1
+        || Math.abs(currentHostScale - targetHostScale) > 0.001
+        || stickersAreMoving
+      )) {
         requestRender();
       }
     };
@@ -966,15 +1229,20 @@ if (heroModelCanvas) {
     };
 
     if ("IntersectionObserver" in window) {
-      const heroVisibility = new IntersectionObserver(([entry]) => {
-        heroIsVisible = entry.isIntersecting;
-        if (heroIsVisible) {
+      const modelVisibility = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.target === hero) heroIsVisible = entry.isIntersecting;
+          if (entry.target === capabilitiesSection) capabilitiesAreVisible = entry.isIntersecting;
+        });
+
+        if (heroIsVisible || capabilitiesAreVisible) {
           heroScrollDirty = true;
           requestRender();
         }
       }, { rootMargin: "20% 0px" });
 
-      heroVisibility.observe(hero);
+      modelVisibility.observe(hero);
+      modelVisibility.observe(capabilitiesSection);
     }
 
     camera.position.set(0, 0.1, 78);
@@ -982,12 +1250,12 @@ if (heroModelCanvas) {
     updateScroll();
     window.addEventListener("resize", () => { resize(); updateScroll(); requestRender(); });
     window.addEventListener("scroll", () => {
-      if (!heroIsVisible) return;
+      if (!heroIsVisible && !capabilitiesAreVisible) return;
       heroScrollDirty = true;
       requestRender();
     }, { passive: true });
     requestRender();
   }).catch(() => {
-    heroModelCanvas.parentElement.classList.add("hero__model--unavailable");
+    heroModelCanvas.closest(".hero__model")?.classList.add("hero__model--unavailable");
   });
 }
