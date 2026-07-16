@@ -468,14 +468,20 @@ if (heroModelCanvas) {
     const createPortraitOverlayTexture = () => {
       const portraitCanvas = document.createElement("canvas");
       const portraitContext = portraitCanvas.getContext("2d");
+      const portraitSourceCanvas = document.createElement("canvas");
+      const portraitSourceContext = portraitSourceCanvas.getContext("2d", { willReadFrequently: true });
       const portraitImage = new Image();
       const width = 1470;
       const height = 1000;
       const sharpenForCompactDisplay = usesCompactRendering();
       portraitCanvas.width = width;
       portraitCanvas.height = height;
+      portraitSourceCanvas.width = width;
+      portraitSourceCanvas.height = height;
       portraitContext.imageSmoothingEnabled = true;
       portraitContext.imageSmoothingQuality = "high";
+      portraitSourceContext.imageSmoothingEnabled = true;
+      portraitSourceContext.imageSmoothingQuality = "high";
 
       const texture = new CanvasTexture(portraitCanvas);
       texture.colorSpace = SRGBColorSpace;
@@ -535,6 +541,57 @@ if (heroModelCanvas) {
         portraitContext.putImageData(imageData, left, top);
       };
 
+      const featherPortraitEdges = (x, y, drawWidth, drawHeight) => {
+        const padding = 5;
+        const left = Math.max(0, Math.floor(x) - padding);
+        const top = Math.max(0, Math.floor(y) - padding);
+        const right = Math.min(width, Math.ceil(x + drawWidth) + padding);
+        const bottom = Math.min(height, Math.ceil(y + drawHeight) + padding);
+        const regionWidth = right - left;
+        const regionHeight = bottom - top;
+        if (regionWidth < 3 || regionHeight < 3) return;
+
+        const imageData = portraitContext.getImageData(left, top, regionWidth, regionHeight);
+        const pixels = imageData.data;
+        const sourceAlpha = new Uint8ClampedArray(regionWidth * regionHeight);
+        const horizontalAlpha = new Float32Array(regionWidth * regionHeight);
+        const radius = sharpenForCompactDisplay ? 2 : 3;
+
+        for (let index = 0; index < sourceAlpha.length; index += 1) {
+          sourceAlpha[index] = pixels[index * 4 + 3];
+        }
+
+        for (let row = 0; row < regionHeight; row += 1) {
+          let sum = 0;
+          for (let column = -radius; column <= radius; column += 1) {
+            sum += sourceAlpha[row * regionWidth + Math.max(0, Math.min(regionWidth - 1, column))];
+          }
+          for (let column = 0; column < regionWidth; column += 1) {
+            horizontalAlpha[row * regionWidth + column] = sum / (radius * 2 + 1);
+            const outgoing = Math.max(0, column - radius);
+            const incoming = Math.min(regionWidth - 1, column + radius + 1);
+            sum += sourceAlpha[row * regionWidth + incoming] - sourceAlpha[row * regionWidth + outgoing];
+          }
+        }
+
+        for (let column = 0; column < regionWidth; column += 1) {
+          let sum = 0;
+          for (let row = -radius; row <= radius; row += 1) {
+            sum += horizontalAlpha[Math.max(0, Math.min(regionHeight - 1, row)) * regionWidth + column];
+          }
+          for (let row = 0; row < regionHeight; row += 1) {
+            const index = row * regionWidth + column;
+            const softenedAlpha = sum / (radius * 2 + 1);
+            pixels[index * 4 + 3] = Math.round(Math.min(sourceAlpha[index], softenedAlpha));
+            const outgoing = Math.max(0, row - radius);
+            const incoming = Math.min(regionHeight - 1, row + radius + 1);
+            sum += horizontalAlpha[incoming * regionWidth + column] - horizontalAlpha[outgoing * regionWidth + column];
+          }
+        }
+
+        portraitContext.putImageData(imageData, left, top);
+      };
+
       const drawPortrait = () => {
         const maxWidth = 680;
         const maxHeight = 980;
@@ -546,12 +603,50 @@ if (heroModelCanvas) {
         const { dockHeight, dockWidth, dockX, dockY } = getDockLayout(width, height);
 
         portraitContext.clearRect(0, 0, width, height);
+        portraitSourceContext.clearRect(0, 0, width, height);
+        portraitSourceContext.save();
+        portraitSourceContext.filter = "brightness(1.06) contrast(0.94) saturate(0.7) sepia(0.06)";
+        portraitSourceContext.drawImage(portraitImage, drawX, drawY, drawWidth, drawHeight);
+        portraitSourceContext.restore();
+
+        portraitSourceContext.save();
+        portraitSourceContext.globalCompositeOperation = "source-atop";
+        const emberReflection = portraitSourceContext.createLinearGradient(
+          drawX + drawWidth * 0.28,
+          drawY + drawHeight * 0.16,
+          drawX + drawWidth,
+          drawY + drawHeight * 0.82,
+        );
+        emberReflection.addColorStop(0, "rgba(255, 90, 36, 0)");
+        emberReflection.addColorStop(0.58, "rgba(255, 90, 36, 0.025)");
+        emberReflection.addColorStop(1, "rgba(255, 90, 36, 0.13)");
+        portraitSourceContext.fillStyle = emberReflection;
+        portraitSourceContext.fillRect(drawX, drawY, drawWidth, drawHeight);
+        portraitSourceContext.restore();
+
         portraitContext.save();
-        portraitContext.globalAlpha = 0.65;
-        portraitContext.filter = "brightness(1.12) contrast(0.92) saturate(0.78)";
-        portraitContext.drawImage(portraitImage, drawX, drawY, drawWidth, drawHeight);
+        portraitContext.globalAlpha = 0.13;
+        portraitContext.filter = "blur(8px) brightness(1.18)";
+        portraitContext.drawImage(portraitSourceCanvas, 0, 0);
+        portraitContext.restore();
+
+        portraitContext.save();
+        portraitContext.globalAlpha = 0.68;
+        portraitContext.drawImage(portraitSourceCanvas, 0, 0);
         portraitContext.restore();
         sharpenPortrait(drawX, drawY, drawWidth, drawHeight);
+        featherPortraitEdges(drawX, drawY, drawWidth, drawHeight);
+
+        portraitContext.save();
+        portraitContext.globalCompositeOperation = "destination-out";
+        const legFade = portraitContext.createLinearGradient(0, dockY - 112, 0, dockY + 30);
+        legFade.addColorStop(0, "rgba(0, 0, 0, 0)");
+        legFade.addColorStop(0.5, "rgba(0, 0, 0, 0.15)");
+        legFade.addColorStop(0.78, "rgba(0, 0, 0, 0.72)");
+        legFade.addColorStop(1, "rgba(0, 0, 0, 1)");
+        portraitContext.fillStyle = legFade;
+        portraitContext.fillRect(drawX - 24, dockY - 112, drawWidth + 48, 154);
+        portraitContext.restore();
 
         portraitContext.save();
         portraitContext.globalCompositeOperation = "destination-out";
@@ -567,6 +662,59 @@ if (heroModelCanvas) {
       portraitImage.onload = drawPortrait;
       portraitImage.src = "assets/laptop-wallper.png";
 
+      return texture;
+    };
+
+    const createScreenGlassTexture = () => {
+      const glassCanvas = document.createElement("canvas");
+      const glassContext = glassCanvas.getContext("2d");
+      const width = 735;
+      const height = 500;
+      glassCanvas.width = width;
+      glassCanvas.height = height;
+
+      const reflection = glassContext.createLinearGradient(0, 0, width, height);
+      reflection.addColorStop(0, "rgba(255, 255, 255, 0.035)");
+      reflection.addColorStop(0.22, "rgba(255, 255, 255, 0.008)");
+      reflection.addColorStop(0.56, "rgba(255, 255, 255, 0)");
+      reflection.addColorStop(0.8, "rgba(255, 90, 36, 0.018)");
+      reflection.addColorStop(1, "rgba(255, 255, 255, 0.012)");
+      glassContext.fillStyle = reflection;
+      glassContext.fillRect(0, 0, width, height);
+
+      const edgeVignette = glassContext.createRadialGradient(
+        width * 0.52,
+        height * 0.45,
+        height * 0.12,
+        width * 0.52,
+        height * 0.45,
+        width * 0.68,
+      );
+      edgeVignette.addColorStop(0, "rgba(0, 0, 0, 0)");
+      edgeVignette.addColorStop(0.72, "rgba(0, 0, 0, 0.018)");
+      edgeVignette.addColorStop(1, "rgba(0, 0, 0, 0.18)");
+      glassContext.fillStyle = edgeVignette;
+      glassContext.fillRect(0, 0, width, height);
+
+      glassContext.save();
+      for (let y = 1; y < height; y += 3) {
+        for (let x = (y * 7) % 3; x < width; x += 3) {
+          const noise = ((x * 17 + y * 31) % 29) / 29;
+          glassContext.fillStyle = noise > 0.5
+            ? `rgba(255, 255, 255, ${0.006 + noise * 0.006})`
+            : `rgba(0, 0, 0, ${0.004 + noise * 0.005})`;
+          glassContext.fillRect(x, y, 1, 1);
+        }
+      }
+      glassContext.restore();
+
+      const texture = new CanvasTexture(glassCanvas);
+      texture.colorSpace = SRGBColorSpace;
+      texture.flipY = false;
+      texture.generateMipmaps = false;
+      texture.minFilter = LinearFilter;
+      texture.magFilter = LinearFilter;
+      texture.anisotropy = 1;
       return texture;
     };
 
@@ -1048,6 +1196,23 @@ if (heroModelCanvas) {
       portraitOverlay.rotation.copy(screen.rotation);
       portraitOverlay.renderOrder = 2;
       loadedScene.add(portraitOverlay);
+
+      const screenGlass = new Mesh(screenGeometry, new MeshBasicMaterial({
+        color: 0xffffff,
+        depthWrite: false,
+        map: createScreenGlassTexture(),
+        polygonOffset: true,
+        polygonOffsetFactor: -2,
+        polygonOffsetUnits: -2,
+        side: BackSide,
+        toneMapped: false,
+        transparent: true,
+      }));
+      screenGlass.position.copy(screen.position);
+      screenGlass.position.z += 0.024;
+      screenGlass.rotation.copy(screen.rotation);
+      screenGlass.renderOrder = 3;
+      loadedScene.add(screenGlass);
 
       const stickerGroup = new Group();
       lidStickerSpecs.forEach((spec, index) => {
