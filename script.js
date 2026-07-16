@@ -185,10 +185,10 @@ if (heroFlowCanvas) {
       gl.clearColor(0.035, 0.039, 0.035, 1);
 
       const flowmap = new Flowmap(gl, {
-        alpha: 0.18,
-        dissipation: 0.94,
-        falloff: 0.07,
-        size: 128,
+        alpha: 0.72,
+        dissipation: 0.96,
+        falloff: 0.075,
+        size: 256,
       });
 
       const vertex = `
@@ -237,7 +237,9 @@ if (heroFlowCanvas) {
 
         void main() {
           vec3 flow = texture2D(tFlow, vUv).rgb;
-          vec2 uv = vUv + flow.xy * 0.0065;
+          // Keep the field compact, then give that smaller area enough
+          // refraction to read clearly as a liquid groove.
+          vec2 uv = vUv + flow.xy * 0.034;
           float axis = clamp(uv.x * 0.82 + uv.y * 0.18, 0.0, 1.0);
 
           vec3 color = mix(vec3(0.035, 0.039, 0.035), vec3(0.043, 0.039, 0.035), smoothstep(0.0, 0.44, axis));
@@ -252,6 +254,9 @@ if (heroFlowCanvas) {
           color = addEmber(color, uv, vec2(0.94, 0.58), vec2(0.17, 0.38), vec3(1.0, 0.52, 0.23), vec3(0.52, 0.12, 0.05), 0.17, 0.04, 0.30, 0.72);
 
           color += (grain(uv) - 0.5) * 0.018;
+          float groove = smoothstep(0.0, 0.28, flow.b);
+          color *= 1.0 - groove * 0.075;
+          color += vec3(0.026, 0.007, 0.003) * groove;
           gl_FragColor = vec4(color, 1.0);
         }
       `;
