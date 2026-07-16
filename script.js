@@ -166,15 +166,33 @@ if (heroRipple) {
     let rippleIdleTimer;
     let pointerClientX = 0;
     let pointerClientY = 0;
+    let previousRippleX;
+    let previousRippleY;
 
     const paintRipple = () => {
       const bounds = rippleHero.getBoundingClientRect();
+      const rippleX = pointerClientX - bounds.left;
+      const rippleY = pointerClientY - bounds.top;
       rippleFrame = undefined;
-      rippleHero.style.setProperty("--hero-ripple-x", `${pointerClientX - bounds.left}px`);
-      rippleHero.style.setProperty("--hero-ripple-y", `${pointerClientY - bounds.top}px`);
+      rippleHero.style.setProperty("--hero-ripple-x", `${rippleX}px`);
+      rippleHero.style.setProperty("--hero-ripple-y", `${rippleY}px`);
+
+      if (Number.isFinite(previousRippleX) && Number.isFinite(previousRippleY)) {
+        const deltaX = rippleX - previousRippleX;
+        const deltaY = rippleY - previousRippleY;
+        const distance = Math.hypot(deltaX, deltaY);
+
+        if (distance > 0.5) {
+          rippleHero.style.setProperty("--hero-ripple-angle", `${Math.atan2(deltaY, deltaX)}rad`);
+          rippleHero.style.setProperty("--hero-ripple-stretch", `${1 + Math.min(0.48, distance / 48)}`);
+        }
+      }
+
+      previousRippleX = rippleX;
+      previousRippleY = rippleY;
       rippleHero.classList.add("is-ripple-active");
       window.clearTimeout(rippleIdleTimer);
-      rippleIdleTimer = window.setTimeout(() => rippleHero.classList.remove("is-ripple-active"), 900);
+      rippleIdleTimer = window.setTimeout(() => rippleHero.classList.remove("is-ripple-active"), 620);
     };
 
     const queueRipple = (event) => {
@@ -189,6 +207,8 @@ if (heroRipple) {
       if (rippleFrame) window.cancelAnimationFrame(rippleFrame);
       window.clearTimeout(rippleIdleTimer);
       rippleFrame = undefined;
+      previousRippleX = undefined;
+      previousRippleY = undefined;
       rippleHero.classList.remove("is-ripple-active");
     }, { passive: true });
   }
