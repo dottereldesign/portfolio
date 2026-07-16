@@ -1056,7 +1056,7 @@ if (heroModelCanvas) {
         targetRotationZ = -0.05;
         targetLift = 0;
         targetHostX = 0;
-        targetHostY = 0;
+        targetHostY = bounds.top;
         targetHostScale = 1;
         stickerTimeline = 0;
         return;
@@ -1068,7 +1068,8 @@ if (heroModelCanvas) {
         targetRotationZ = -0.05;
         targetLift = progress * 5;
         targetHostX = 0;
-        targetHostY = 0;
+        targetHostY = bounds.top;
+        currentHostY = targetHostY;
         targetHostScale = 1;
         stickerTimeline = 0;
         return;
