@@ -579,11 +579,12 @@ if (heroModelCanvas) {
       const wallpaperImage = new Image();
       const width = 1470;
       const height = 1000;
-      let hoveredIndex = -1;
-      let hoverBump = 0;
+      let hoverTargetIndex = -1;
+      let animatedHoverIndex = -1;
+      let hoverLift = 0;
+      let lastHoverFrameTime = performance.now();
       let toastIndex = -1;
       let toastOpacity = 0;
-      let hoverSettleTimer;
       let toastTimers = [];
       const optimizeForCompactHero = usesCompactRendering();
       const textureScale = optimizeForCompactHero ? 0.5 : 1;
@@ -687,22 +688,22 @@ if (heroModelCanvas) {
         const { dockX, dockY, dockPadding, iconGap, iconSize } = getDockLayout(width, height);
 
         screenApps.forEach((app, index) => {
-          const bump = index === hoveredIndex ? hoverBump : 0;
-          const scale = 1 + bump * 0.1;
+          const lift = index === animatedHoverIndex ? hoverLift : 0;
+          const scale = 1 + lift * 0.045;
           const size = iconSize * scale;
           const baseX = dockX + dockPadding + index * (iconSize + iconGap);
           const x = baseX - (size - iconSize) / 2;
-          const y = dockY + 10 - bump * 7 - (size - iconSize) / 2;
+          const y = dockY + 10 - lift * 22 - (size - iconSize) / 2;
 
           context.save();
-          if (bump > 0) {
-            context.shadowColor = "rgba(140, 207, 227, 0.28)";
-            context.shadowBlur = 13 * bump;
-            context.shadowOffsetY = 3 * bump;
+          if (lift > 0) {
+            context.shadowColor = "rgba(140, 207, 227, 0.16)";
+            context.shadowBlur = 9 * lift;
+            context.shadowOffsetY = 4 * lift;
           }
           addRoundedRect(context, x, y, size, size, 12 * scale);
-          context.fillStyle = bump > 0
-            ? `rgba(255, 255, 255, ${0.045 + bump * 0.055})`
+          context.fillStyle = lift > 0
+            ? `rgba(255, 255, 255, ${0.045 + lift * 0.04})`
             : "rgba(255, 255, 255, 0.045)";
           context.fill();
           drawIcon(app, x, y, size, true);
@@ -714,24 +715,24 @@ if (heroModelCanvas) {
         if (toastIndex < 0 || toastOpacity <= 0) return;
 
         const { dockX, dockY, dockPadding, dockWidth, iconGap, iconSize } = getDockLayout(width, height);
-        const label = "Imagine.";
-        const toastHeight = 38;
-        const horizontalPadding = 17;
+        const label = screenApps[toastIndex]?.label || "App";
+        const toastHeight = 56;
+        const horizontalPadding = 24;
         const iconCenter = dockX + dockPadding + toastIndex * (iconSize + iconGap) + iconSize / 2;
 
         context.save();
         context.globalAlpha = toastOpacity;
-        context.font = "500 16px ui-monospace, SFMono-Regular, Menlo, monospace";
+        context.font = "500 25px ui-monospace, SFMono-Regular, Menlo, monospace";
         context.textAlign = "center";
         context.textBaseline = "middle";
         const toastWidth = Math.ceil(context.measureText(label).width + horizontalPadding * 2);
         const toastX = MathUtils.clamp(iconCenter - toastWidth / 2, dockX + 8, dockX + dockWidth - toastWidth - 8);
-        const toastY = dockY - 48;
+        const toastY = dockY - 72;
 
         context.shadowColor = "rgba(0, 0, 0, 0.34)";
         context.shadowBlur = 18;
         context.shadowOffsetY = 8;
-        addRoundedRect(context, toastX, toastY, toastWidth, toastHeight, 13);
+        addRoundedRect(context, toastX, toastY, toastWidth, toastHeight, 16);
         context.fillStyle = "rgba(8, 10, 9, 0.94)";
         context.fill();
         context.shadowColor = "transparent";
@@ -770,19 +771,40 @@ if (heroModelCanvas) {
       };
 
       const setHovered = (index) => {
-        if (index === hoveredIndex) return;
-        window.clearTimeout(hoverSettleTimer);
-        hoveredIndex = index;
-        hoverBump = index >= 0 ? (reducedMotion ? 0.58 : 1) : 0;
-        repaintInteraction();
+        if (index === hoverTargetIndex) return;
+        hoverTargetIndex = index;
 
-        if (index >= 0 && !reducedMotion) {
-          hoverSettleTimer = window.setTimeout(() => {
-            if (hoveredIndex !== index) return;
-            hoverBump = 0.58;
-            repaintInteraction();
-          }, 95);
+        if (index >= 0) {
+          animatedHoverIndex = index;
+          hoverLift = reducedMotion ? 1 : Math.min(hoverLift, 0.08);
+        } else if (reducedMotion) {
+          animatedHoverIndex = -1;
+          hoverLift = 0;
         }
+
+        lastHoverFrameTime = performance.now();
+        if (reducedMotion) repaintInteraction();
+        else requestRender();
+      };
+
+      const update = (now) => {
+        if (reducedMotion) return false;
+
+        const targetLift = hoverTargetIndex >= 0 ? 1 : 0;
+        const delta = Math.min(0.05, Math.max(0.001, (now - lastHoverFrameTime) / 1000));
+        const easing = 1 - Math.exp(-(targetLift > hoverLift ? 15 : 20) * delta);
+        const nextLift = MathUtils.lerp(hoverLift, targetLift, easing);
+        const changed = Math.abs(nextLift - hoverLift) > 0.001;
+        hoverLift = Math.abs(nextLift - targetLift) < 0.004 ? targetLift : nextLift;
+        lastHoverFrameTime = now;
+
+        if (changed) {
+          drawScreenFrame();
+          texture.needsUpdate = true;
+        }
+
+        if (targetLift === 0 && hoverLift === 0) animatedHoverIndex = -1;
+        return Math.abs(hoverLift - targetLift) > 0.004;
       };
 
       const showToast = (index) => {
@@ -800,25 +822,32 @@ if (heroModelCanvas) {
           toastTimers.push(window.setTimeout(() => {
             toastOpacity = 0.45;
             repaintInteraction();
-          }, 1120));
+          }, 1450));
         }
         toastTimers.push(window.setTimeout(() => {
           toastOpacity = 0;
           toastIndex = -1;
           repaintInteraction();
-        }, 1260));
+        }, 1620));
       };
 
       const getDockIndexAtUv = (uv) => {
         if (!uv) return -1;
         const x = uv.x * width;
         const y = uv.y * height;
-        const { dockX, dockY, dockPadding, iconGap, iconSize } = getDockLayout(width, height);
+        const { dockHeight, dockX, dockY, dockPadding, iconGap, iconSize } = getDockLayout(width, height);
+        const iconStep = iconSize + iconGap;
+        const firstCenter = dockX + dockPadding + iconSize / 2;
+        const lastCenter = firstCenter + (screenApps.length - 1) * iconStep;
 
-        return screenApps.findIndex((app, index) => {
-          const iconX = dockX + dockPadding + index * (iconSize + iconGap);
-          return x >= iconX - 8 && x <= iconX + iconSize + 8 && y >= dockY + 2 && y <= dockY + iconSize + 18;
-        });
+        if (
+          x < firstCenter - iconStep / 2
+          || x > lastCenter + iconStep / 2
+          || y < dockY - 24
+          || y > dockY + dockHeight + 28
+        ) return -1;
+
+        return MathUtils.clamp(Math.round((x - firstCenter) / iconStep), 0, screenApps.length - 1);
       };
 
       const cacheStaticScreen = () => {
@@ -846,12 +875,12 @@ if (heroModelCanvas) {
         requestRender();
       });
 
-      return { getDockIndexAtUv, setHovered, showToast, texture };
+      return { getDockIndexAtUv, setHovered, showToast, texture, update };
     };
 
     const pointerIsOverForegroundContent = (clientX, clientY) => {
       const foreground = document.elementFromPoint(clientX, clientY);
-      return Boolean(foreground?.closest(".site-header, .hero__side-rail, .hero__title, .hero__role, .hero__intro, .eyebrow, .cta"));
+      return Boolean(foreground?.closest(".site-header, .hero__side-rail, .cta"));
     };
 
     const getDockIndexAtPoint = (clientX, clientY) => {
@@ -1073,6 +1102,7 @@ if (heroModelCanvas) {
         stickersAreMoving ||= Math.abs(reveal - easedReveal) > 0.002;
       });
 
+      const dockIsAnimating = screenController?.update(performance.now()) ?? false;
       renderer.render(scene, camera);
 
       if (!modelHasPainted) {
@@ -1089,6 +1119,7 @@ if (heroModelCanvas) {
         || Math.abs(currentHostY - targetHostY) > 0.1
         || Math.abs(currentHostScale - targetHostScale) > 0.001
         || stickersAreMoving
+        || dockIsAnimating
       )) {
         requestRender();
       }
