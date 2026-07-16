@@ -4,6 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Jamie Wilson — Developer portfolio." />
+    <meta name="theme-color" content="#10110f" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22><rect width=%2232%22 height=%2232%22 rx=%227%22 fill=%22%2310110f%22/><text x=%225%22 y=%2222%22 fill=%22%23ff5a24%22 font-family=%22Arial%22 font-size=%2217%22 font-weight=%22700%22>JW</text></svg>" />
     <title>Jamie Wilson | Developer</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -11,12 +13,105 @@
     <script type="importmap">
       {"imports":{"three":"https://unpkg.com/three@0.181.2/build/three.module.js"}}
     </script>
-    <link rel="stylesheet" href="styles.css?v=20260716-7" />
+    <script>
+      (() => {
+        let theme = "dark";
+        try {
+          const savedTheme = window.localStorage.getItem("jw-theme");
+          if (savedTheme === "light" || savedTheme === "dark") theme = savedTheme;
+        } catch {}
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+      })();
+    </script>
+    <link rel="stylesheet" href="styles.css?v=20260716-9" />
   </head>
   <body>
     <header class="site-header">
       <a class="logo" href="/" aria-label="Jamie Wilson home">JW<span>.</span></a>
-      <a class="header-link" href="mailto:howemanning@gmail.com">Let’s talk <span aria-hidden="true">↗</span></a>
+      <div class="site-header__actions">
+        <button
+          class="theme-switcher-grid theme-switcher-grid--compact"
+          type="button"
+          aria-label="Switch to light theme"
+          aria-pressed="true"
+          data-theme-toggle
+        >
+          <svg class="orb" aria-hidden="true" viewBox="0 0 20 20">
+            <defs>
+              <mask id="portfolio-crescent-mask">
+                <rect width="20" height="20" fill="white"></rect>
+                <circle class="orb-cutout" cx="6.5" cy="10" r="9" fill="black"></circle>
+              </mask>
+            </defs>
+            <circle class="orb-disc" cx="10" cy="10" r="10" mask="url(#portfolio-crescent-mask)"></circle>
+          </svg>
+          <span class="cloud-ball cloud-ball-left" aria-hidden="true"></span>
+          <span class="cloud-ball cloud-ball-middle" aria-hidden="true"></span>
+          <span class="cloud-ball cloud-ball-right" aria-hidden="true"></span>
+          <span class="cloud-ball cloud-ball-top" aria-hidden="true"></span>
+          <span class="star star-1" aria-hidden="true"></span>
+          <span class="star star-2" aria-hidden="true"></span>
+          <span class="star star-3" aria-hidden="true"></span>
+          <span class="star star-4" aria-hidden="true"></span>
+        </button>
+
+        <div class="theme-customizer">
+          <button
+            class="theme-customizer__trigger"
+            type="button"
+            aria-label="Customize theme colors"
+            aria-expanded="false"
+            aria-controls="theme-customizer-panel"
+            data-theme-panel-trigger
+          >
+            <span class="theme-customizer__swatch" aria-hidden="true"></span>
+          </button>
+
+          <section
+            id="theme-customizer-panel"
+            class="theme-customizer__panel"
+            role="dialog"
+            aria-label="Theme color controls"
+            data-theme-panel
+            hidden
+          >
+            <div class="theme-customizer__heading">
+              <div>
+                <p>Theme controls</p>
+                <span>Live component colors</span>
+              </div>
+              <button type="button" aria-label="Close theme controls" data-theme-panel-close>×</button>
+            </div>
+
+            <fieldset class="theme-customizer__sizes">
+              <legend>Switch size</legend>
+              <div>
+                <button type="button" data-theme-size="small" aria-pressed="false">Small</button>
+                <button type="button" data-theme-size="compact" aria-pressed="true">Compact</button>
+                <button type="button" data-theme-size="medium" aria-pressed="false">Medium</button>
+              </div>
+            </fieldset>
+
+            <fieldset class="theme-customizer__colors">
+              <legend>Colors</legend>
+              <label><span>Day sky</span><input type="color" value="#0dbdf6" data-color-var="--day-bg-color" /></label>
+              <label><span>Night sky</span><input type="color" value="#272a30" data-color-var="--night-bg-color" /></label>
+              <label><span>Sun</span><input type="color" value="#fabc1c" data-color-var="--sun-color" /></label>
+              <label><span>Moon</span><input type="color" value="#fffdf2" data-color-var="--moon-color" /></label>
+              <label><span>Stars</span><input type="color" value="#fffdf2" data-color-var="--star-color" /></label>
+              <label><span>Clouds</span><input type="color" value="#fffdf2" data-color-var="--cloud-color" /></label>
+            </fieldset>
+
+            <div class="theme-customizer__footer">
+              <button type="button" data-theme-colors-reset>Reset colors</button>
+              <p>Created by Jamie Wilson / Dotterel Design. <a href="https://codepen.io/jamiewilsonict/pen/LYKGjdb" target="_blank" rel="noreferrer">Free to use, remix and adapt.</a></p>
+            </div>
+          </section>
+        </div>
+
+        <a class="header-link" href="mailto:howemanning@gmail.com">Let’s talk <span aria-hidden="true">↗</span></a>
+      </div>
     </header>
 
     <aside class="hero__side-rail" aria-label="Portfolio 2026">
@@ -35,7 +130,6 @@
 
     <main class="hero" aria-labelledby="hero-title">
       <div class="hero__frame" aria-hidden="true"></div>
-      <canvas class="hero__flow-canvas" aria-hidden="true"></canvas>
 
       <section class="hero__content">
         <p class="eyebrow"><span class="status-dot" aria-hidden="true"></span> Available for work</p>
@@ -217,11 +311,6 @@
       </div>
     </section>
 
-    <footer class="site-credits">
-      <div class="section-frame" aria-hidden="true"></div>
-      <a href="https://www.freestock.com/free-videos/high-resolution-soccer-ball-spinning-alpha-2816227" target="_blank" rel="noreferrer">Video source: Freestock.com</a>
-    </footer>
-
-    <script src="script.js?v=20260716-6"></script>
+    <script src="script.js?v=20260716-9"></script>
   </body>
 </html>

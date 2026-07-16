@@ -1,3 +1,148 @@
+const root = document.documentElement;
+const themeToggle = document.querySelector("[data-theme-toggle]");
+const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+const themePanelTrigger = document.querySelector("[data-theme-panel-trigger]");
+const themePanel = document.querySelector("[data-theme-panel]");
+const themePanelClose = document.querySelector("[data-theme-panel-close]");
+const themeSizeButtons = [...document.querySelectorAll("[data-theme-size]")];
+const themeColorInputs = [...document.querySelectorAll("[data-color-var]")];
+const themeColorsReset = document.querySelector("[data-theme-colors-reset]");
+const themeMotionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
+const themeKeys = {
+  theme: "jw-theme",
+  colors: "jw-theme-colors",
+  size: "jw-theme-toggle-size",
+};
+const defaultThemeColors = Object.fromEntries(themeColorInputs.map((input) => [input.dataset.colorVar, input.defaultValue]));
+
+const readStoredValue = (key) => {
+  try {
+    return window.localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+};
+
+const storeValue = (key, value) => {
+  try {
+    window.localStorage.setItem(key, value);
+  } catch {}
+};
+
+const removeStoredValue = (key) => {
+  try {
+    window.localStorage.removeItem(key);
+  } catch {}
+};
+
+const applyTheme = (theme, { persist = true } = {}) => {
+  const nextTheme = theme === "light" ? "light" : "dark";
+  const isDark = nextTheme === "dark";
+
+  root.dataset.theme = nextTheme;
+  root.style.colorScheme = nextTheme;
+  themeToggle?.setAttribute("aria-pressed", String(isDark));
+  themeToggle?.setAttribute("aria-label", isDark ? "Switch to light theme" : "Switch to dark theme");
+  if (themeColorMeta) themeColorMeta.content = isDark ? "#10110f" : "#efebe2";
+  if (persist) storeValue(themeKeys.theme, nextTheme);
+};
+
+const closeThemePanel = ({ restoreFocus = false } = {}) => {
+  if (!themePanel || themePanel.hidden) return;
+  themePanel.hidden = true;
+  themePanelTrigger?.setAttribute("aria-expanded", "false");
+  if (restoreFocus) themePanelTrigger?.focus();
+};
+
+const openThemePanel = () => {
+  if (!themePanel) return;
+  themePanel.hidden = false;
+  themePanelTrigger?.setAttribute("aria-expanded", "true");
+  themePanelClose?.focus();
+};
+
+const applyThemeSize = (size, { persist = true } = {}) => {
+  if (!themeToggle) return;
+  const validSize = ["small", "compact", "medium"].includes(size) ? size : "compact";
+
+  themeToggle.classList.remove("theme-switcher-grid--small", "theme-switcher-grid--compact", "theme-switcher-grid--medium");
+  themeToggle.classList.add(`theme-switcher-grid--${validSize}`);
+  themeSizeButtons.forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.themeSize === validSize)));
+  if (persist) storeValue(themeKeys.size, validSize);
+};
+
+const applyThemeColors = (colors, { persist = true } = {}) => {
+  const sanitizedColors = {};
+
+  themeColorInputs.forEach((input) => {
+    const variable = input.dataset.colorVar;
+    const candidate = colors?.[variable];
+    const value = /^#[0-9a-f]{6}$/i.test(candidate || "") ? candidate : defaultThemeColors[variable];
+    root.style.setProperty(variable, value);
+    input.value = value;
+    sanitizedColors[variable] = value;
+  });
+
+  if (persist) storeValue(themeKeys.colors, JSON.stringify(sanitizedColors));
+};
+
+let storedThemeColors;
+try {
+  storedThemeColors = JSON.parse(readStoredValue(themeKeys.colors) || "null");
+} catch {
+  storedThemeColors = null;
+}
+
+applyTheme(root.dataset.theme, { persist: false });
+applyThemeSize(readStoredValue(themeKeys.size) || "compact", { persist: false });
+if (storedThemeColors && typeof storedThemeColors === "object") applyThemeColors(storedThemeColors, { persist: false });
+
+themeToggle?.addEventListener("click", () => {
+  const nextTheme = root.dataset.theme === "dark" ? "light" : "dark";
+  const updateTheme = () => applyTheme(nextTheme);
+
+  closeThemePanel();
+  if (document.startViewTransition && !themeMotionPreference.matches) {
+    document.startViewTransition(updateTheme);
+  } else {
+    updateTheme();
+  }
+});
+
+themePanelTrigger?.addEventListener("click", () => {
+  if (themePanel?.hidden) openThemePanel();
+  else closeThemePanel({ restoreFocus: true });
+});
+
+themePanelClose?.addEventListener("click", () => closeThemePanel({ restoreFocus: true }));
+
+themeSizeButtons.forEach((button) => {
+  button.addEventListener("click", () => applyThemeSize(button.dataset.themeSize));
+});
+
+themeColorInputs.forEach((input) => {
+  input.addEventListener("input", () => {
+    root.style.setProperty(input.dataset.colorVar, input.value);
+    const colors = Object.fromEntries(themeColorInputs.map((colorInput) => [colorInput.dataset.colorVar, colorInput.value]));
+    storeValue(themeKeys.colors, JSON.stringify(colors));
+  });
+});
+
+themeColorsReset?.addEventListener("click", () => {
+  Object.keys(defaultThemeColors).forEach((variable) => root.style.removeProperty(variable));
+  themeColorInputs.forEach((input) => { input.value = defaultThemeColors[input.dataset.colorVar]; });
+  removeStoredValue(themeKeys.colors);
+});
+
+document.addEventListener("pointerdown", (event) => {
+  if (!themePanel || themePanel.hidden || themePanel.contains(event.target) || themePanelTrigger?.contains(event.target)) return;
+  closeThemePanel();
+});
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && themePanel && !themePanel.hidden) closeThemePanel({ restoreFocus: true });
+});
+
 const title = document.querySelector(".hero__title span");
 const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 const randomBetween = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
@@ -154,200 +299,6 @@ if (capabilities) {
 }
 
 const heroModelCanvas = document.querySelector(".hero__model-canvas");
-const heroFlowCanvas = document.querySelector(".hero__flow-canvas");
-
-if (heroFlowCanvas) {
-  const flowHero = heroFlowCanvas.closest(".hero");
-  const supportsFlowInteraction = window.matchMedia("(min-width: 801px) and (hover: hover) and (pointer: fine)").matches;
-  const reducesMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-  if (flowHero && supportsFlowInteraction && !reducesMotion) {
-    import("https://cdn.jsdelivr.net/npm/ogl@1.0.11/+esm").then(({ Renderer, Program, Mesh, Vec2, Flowmap, Triangle }) => {
-      const renderer = new Renderer({
-        alpha: false,
-        antialias: false,
-        canvas: heroFlowCanvas,
-        depth: false,
-        dpr: 0.8,
-        powerPreference: "low-power",
-      });
-      const gl = renderer.gl;
-      const mouse = new Vec2(-1);
-      const velocity = new Vec2();
-      const lastPointer = new Vec2();
-      let aspect = 1;
-      let flowFrame;
-      let inputPending = false;
-      let idleFrames = 0;
-      let lastPointerTime;
-      let flowIsReady = false;
-
-      gl.clearColor(0.035, 0.039, 0.035, 1);
-
-      const flowmap = new Flowmap(gl, {
-        alpha: 0.72,
-        dissipation: 0.96,
-        falloff: 0.075,
-        size: 256,
-      });
-
-      const vertex = `
-        attribute vec2 uv;
-        attribute vec2 position;
-        varying vec2 vUv;
-
-        void main() {
-          vUv = uv;
-          gl_Position = vec4(position, 0.0, 1.0);
-        }
-      `;
-
-      const fragment = `
-        precision highp float;
-
-        uniform sampler2D tFlow;
-        varying vec2 vUv;
-
-        float ellipseDistance(vec2 uv, vec2 center, vec2 radius) {
-          return length((uv - center) / radius);
-        }
-
-        vec3 addEmber(
-          vec3 base,
-          vec2 uv,
-          vec2 center,
-          vec2 radius,
-          vec3 innerColor,
-          vec3 outerColor,
-          float innerAlpha,
-          float outerAlpha,
-          float middle,
-          float edge
-        ) {
-          float distanceFromCenter = ellipseDistance(uv, center, radius);
-          float colorMix = smoothstep(0.0, middle, distanceFromCenter);
-          float alpha = mix(innerAlpha, outerAlpha, colorMix) * (1.0 - smoothstep(middle, edge, distanceFromCenter));
-          return mix(base, mix(innerColor, outerColor, colorMix), alpha);
-        }
-
-        float grain(vec2 uv) {
-          vec2 cell = floor(uv * vec2(960.0, 640.0));
-          return fract(sin(dot(cell, vec2(12.9898, 78.233))) * 43758.5453);
-        }
-
-        void main() {
-          vec3 flow = texture2D(tFlow, vUv).rgb;
-          // Keep the field compact, then give that smaller area enough
-          // refraction to read clearly as a liquid groove.
-          vec2 uv = vUv + flow.xy * 0.034;
-          float axis = clamp(uv.x * 0.82 + uv.y * 0.18, 0.0, 1.0);
-
-          vec3 color = mix(vec3(0.035, 0.039, 0.035), vec3(0.043, 0.039, 0.035), smoothstep(0.0, 0.44, axis));
-          color = mix(color, vec3(0.09, 0.039, 0.027), smoothstep(0.44, 0.72, axis));
-          color = mix(color, vec3(0.035), smoothstep(0.72, 1.0, axis));
-
-          color = addEmber(color, uv, vec2(0.80, 0.54), vec2(0.56, 0.68), vec3(1.0, 0.32, 0.11), vec3(0.62, 0.09, 0.04), 0.24, 0.22, 0.34, 0.72);
-          color = addEmber(color, uv, vec2(0.76, 0.24), vec2(0.46, 0.24), vec3(1.0, 0.36, 0.12), vec3(0.47, 0.07, 0.03), 0.18, 0.10, 0.48, 0.76);
-          color = addEmber(color, uv, vec2(0.95, 0.82), vec2(0.32, 0.42), vec3(0.52, 0.07, 0.04), vec3(0.22, 0.03, 0.02), 0.16, 0.04, 0.32, 0.72);
-          color = addEmber(color, uv, vec2(0.76, 0.53), vec2(0.27, 0.58), vec3(1.0, 0.39, 0.15), vec3(1.0, 0.22, 0.07), 0.34, 0.15, 0.34, 0.72);
-          color = addEmber(color, uv, vec2(0.74, 0.33), vec2(0.52, 0.18), vec3(1.0, 0.30, 0.09), vec3(0.51, 0.08, 0.03), 0.24, 0.10, 0.48, 0.76);
-          color = addEmber(color, uv, vec2(0.94, 0.58), vec2(0.17, 0.38), vec3(1.0, 0.52, 0.23), vec3(0.52, 0.12, 0.05), 0.17, 0.04, 0.30, 0.72);
-
-          color += (grain(uv) - 0.5) * 0.018;
-          float groove = smoothstep(0.0, 0.28, flow.b);
-          color *= 1.0 - groove * 0.075;
-          color += vec3(0.026, 0.007, 0.003) * groove;
-          gl_FragColor = vec4(color, 1.0);
-        }
-      `;
-
-      const program = new Program(gl, {
-        vertex,
-        fragment,
-        uniforms: { tFlow: flowmap.uniform },
-        depthTest: false,
-        depthWrite: false,
-      });
-      const mesh = new Mesh(gl, { geometry: new Triangle(gl), program });
-
-      const revealFlow = () => {
-        if (flowIsReady) return;
-        flowIsReady = true;
-        flowHero.classList.add("hero--flow-ready");
-      };
-
-      const resizeFlow = () => {
-        const bounds = flowHero.getBoundingClientRect();
-        if (!bounds.width || !bounds.height) return;
-        renderer.dpr = Math.max(0.5, Math.min(0.85, 1600 / bounds.width, 1000 / bounds.height));
-        renderer.setSize(bounds.width, bounds.height);
-        aspect = bounds.width / bounds.height;
-        renderer.render({ scene: mesh });
-        revealFlow();
-      };
-
-      const requestFlowFrame = () => {
-        if (!flowFrame) flowFrame = window.requestAnimationFrame(renderFlow);
-      };
-
-      const renderFlow = () => {
-        flowFrame = undefined;
-
-        if (inputPending) {
-          inputPending = false;
-          idleFrames = 0;
-        } else {
-          mouse.set(-1);
-          velocity.set(0);
-          idleFrames += 1;
-        }
-
-        flowmap.aspect = aspect;
-        flowmap.mouse.copy(mouse);
-        flowmap.velocity.lerp(velocity, velocity.len() ? 0.34 : 0.1);
-        flowmap.update();
-        renderer.render({ scene: mesh });
-        revealFlow();
-
-        if (idleFrames < 80 || flowmap.velocity.len() > 0.002) requestFlowFrame();
-      };
-
-      const updateFlowPointer = (event) => {
-        const bounds = flowHero.getBoundingClientRect();
-        const localX = event.clientX - bounds.left;
-        const localY = event.clientY - bounds.top;
-        const now = performance.now();
-
-        mouse.set(localX / bounds.width, 1 - localY / bounds.height);
-
-        if (lastPointerTime) {
-          const delta = Math.max(14, now - lastPointerTime);
-          velocity.set((event.clientX - lastPointer.x) / delta, (event.clientY - lastPointer.y) / delta);
-        }
-
-        lastPointer.set(event.clientX, event.clientY);
-        lastPointerTime = now;
-        inputPending = true;
-        idleFrames = 0;
-        requestFlowFrame();
-      };
-
-      const releaseFlow = () => {
-        mouse.set(-1);
-        velocity.set(0);
-        lastPointerTime = undefined;
-        inputPending = false;
-        requestFlowFrame();
-      };
-
-      flowHero.addEventListener("pointerenter", updateFlowPointer, { passive: true });
-      flowHero.addEventListener("pointermove", updateFlowPointer, { passive: true });
-      flowHero.addEventListener("pointerleave", releaseFlow, { passive: true });
-      window.addEventListener("resize", resizeFlow, { passive: true });
-      resizeFlow();
-    }).catch(() => {});
-  }
-}
 
 if (heroModelCanvas) {
   import("three").then(async ({ Scene, PerspectiveCamera, WebGLRenderer, AmbientLight, DirectionalLight, Group, MathUtils, MeshStandardMaterial, MeshBasicMaterial, PlaneGeometry, Mesh, BackSide, DoubleSide, CanvasTexture, LinearFilter, SRGBColorSpace }) => {
@@ -688,10 +639,6 @@ if (heroModelCanvas) {
         const drawHeight = portraitImage.naturalHeight * scale;
         const drawX = (width - drawWidth) / 2;
         const drawY = 64;
-        const centerX = drawX + drawWidth * 0.488;
-        const centerY = drawY + drawHeight * 0.694;
-        const frameSize = drawWidth * 0.38;
-        const radius = frameSize * 0.48;
         const { dockHeight, dockWidth, dockX, dockY } = getDockLayout(width, height);
 
         portraitContext.clearRect(0, 0, width, height);
@@ -705,10 +652,6 @@ if (heroModelCanvas) {
         portraitContext.save();
         portraitContext.globalCompositeOperation = "destination-out";
         portraitContext.fillStyle = "#000";
-        portraitContext.beginPath();
-        portraitContext.arc(centerX, centerY, radius * 1.01, 0, Math.PI * 2);
-        portraitContext.fill();
-
         addRoundedRect(portraitContext, dockX - 4, dockY - 4, dockWidth + 8, dockHeight + 8, 26);
         portraitContext.fill();
         portraitContext.restore();
@@ -730,31 +673,16 @@ if (heroModelCanvas) {
       const staticContext = staticScreenCanvas.getContext("2d");
       const iconImages = new Map();
       const wallpaperImage = new Image();
-      const footballVideo = document.createElement("video");
       const width = 1470;
       const height = 1000;
       const optimizeForCompactHero = usesCompactRendering();
       const textureScale = optimizeForCompactHero ? 0.5 : 1;
-      let wallpaperLayout;
-      let footballIsInView = true;
-      let footballFallbackTimer;
-      let footballResumeTimer;
-      let lastFootballTime = -1;
       screenCanvas.width = Math.round(width * textureScale);
       screenCanvas.height = Math.round(height * textureScale);
       staticScreenCanvas.width = screenCanvas.width;
       staticScreenCanvas.height = screenCanvas.height;
       context.setTransform(textureScale, 0, 0, textureScale, 0, 0);
       staticContext.setTransform(textureScale, 0, 0, textureScale, 0, 0);
-
-      footballVideo.autoplay = !reducedMotion;
-      footballVideo.loop = true;
-      footballVideo.muted = true;
-      footballVideo.playsInline = true;
-      footballVideo.preload = "auto";
-      footballVideo.disablePictureInPicture = true;
-      footballVideo.setAttribute("muted", "");
-      footballVideo.setAttribute("playsinline", "");
 
       const texture = new CanvasTexture(screenCanvas);
       texture.colorSpace = SRGBColorSpace;
@@ -780,7 +708,6 @@ if (heroModelCanvas) {
           const drawHeight = wallpaperImage.naturalHeight * scale;
           const drawX = (width - drawWidth) / 2;
           const drawY = 64;
-          wallpaperLayout = { drawX, drawY, drawWidth, drawHeight };
 
           context.save();
           context.globalAlpha = 0.2;
@@ -819,51 +746,6 @@ if (heroModelCanvas) {
         context.fillStyle = "rgba(241, 241, 236, 0.72)";
         context.fillText(`●  ${date}`, width - 34, 29);
         context.textAlign = "left";
-      };
-
-      const drawFootball = () => {
-        if (!wallpaperLayout || footballVideo.readyState < 2) return;
-
-        const { drawX, drawY, drawWidth, drawHeight } = wallpaperLayout;
-        const centerX = drawX + drawWidth * 0.488;
-        const centerY = drawY + drawHeight * 0.694;
-        const frameSize = drawWidth * 0.38;
-        const radius = frameSize * 0.48;
-        const backdrop = context.createRadialGradient(centerX, centerY, radius * 0.82, centerX, centerY, radius);
-
-        backdrop.addColorStop(0, "rgba(7, 9, 7, 1)");
-        backdrop.addColorStop(0.88, "rgba(7, 9, 7, 1)");
-        backdrop.addColorStop(1, "rgba(7, 9, 7, 0)");
-        context.fillStyle = backdrop;
-        context.beginPath();
-        context.arc(centerX, centerY, radius, 0, Math.PI * 2);
-        context.fill();
-
-        context.save();
-        context.beginPath();
-        context.arc(centerX, centerY, radius, 0, Math.PI * 2);
-        context.clip();
-        context.globalCompositeOperation = "screen";
-        context.globalAlpha = 0.72;
-        context.filter = "grayscale(1) brightness(0.82) contrast(0.92)";
-        context.drawImage(footballVideo, centerX - frameSize / 2, centerY - frameSize / 2, frameSize, frameSize);
-        context.restore();
-
-        const footballVignette = context.createRadialGradient(
-          centerX - radius * 0.18,
-          centerY - radius * 0.2,
-          radius * 0.12,
-          centerX,
-          centerY,
-          radius,
-        );
-        footballVignette.addColorStop(0, "rgba(7, 9, 7, 0)");
-        footballVignette.addColorStop(0.62, "rgba(7, 9, 7, 0.05)");
-        footballVignette.addColorStop(1, "rgba(7, 9, 7, 0.46)");
-        context.fillStyle = footballVignette;
-        context.beginPath();
-        context.arc(centerX, centerY, radius, 0, Math.PI * 2);
-        context.fill();
       };
 
       const drawFallbackIcon = (app, x, y, size, compact = false) => {
@@ -918,7 +800,6 @@ if (heroModelCanvas) {
       const drawScreenFrame = () => {
         context.clearRect(0, 0, width, height);
         drawCanvasAtLogicalSize(context, staticScreenCanvas);
-        drawFootball();
       };
 
       const cacheStaticScreen = () => {
@@ -927,35 +808,6 @@ if (heroModelCanvas) {
         drawCanvasAtLogicalSize(staticContext, screenCanvas);
         drawScreenFrame();
       };
-
-      const updateFootballFrame = () => {
-        drawScreenFrame();
-        texture.needsUpdate = true;
-        requestRender();
-      };
-
-      const updateFootballVisibility = () => {
-        if (reducedMotion || footballVideo.readyState < 2) return;
-
-        if (footballIsInView && !document.hidden) {
-          footballVideo.play().catch(() => {});
-        } else {
-          footballVideo.pause();
-        }
-      };
-
-      const pauseFootballForInteraction = () => {
-        if (!optimizeForCompactHero || reducedMotion || footballVideo.readyState < 2) return;
-
-        if (!footballVideo.paused) footballVideo.pause();
-        window.clearTimeout(footballResumeTimer);
-        footballResumeTimer = window.setTimeout(updateFootballVisibility, 180);
-      };
-
-      if (optimizeForCompactHero) {
-        window.addEventListener("touchstart", pauseFootballForInteraction, { passive: true });
-        window.addEventListener("scroll", pauseFootballForInteraction, { passive: true });
-      }
 
       cacheStaticScreen();
 
@@ -974,57 +826,6 @@ if (heroModelCanvas) {
         texture.needsUpdate = true;
         requestRender();
       });
-
-      footballVideo.addEventListener("loadeddata", () => {
-        updateFootballFrame();
-
-        if (reducedMotion) return;
-
-        if ("requestVideoFrameCallback" in footballVideo) {
-          const handleFootballFrame = () => {
-            updateFootballFrame();
-            footballVideo.requestVideoFrameCallback(handleFootballFrame);
-          };
-          footballVideo.requestVideoFrameCallback(handleFootballFrame);
-        } else {
-          const startFootballFallback = () => {
-            if (footballFallbackTimer) return;
-            footballFallbackTimer = window.setInterval(() => {
-              if (footballVideo.currentTime !== lastFootballTime) {
-                lastFootballTime = footballVideo.currentTime;
-                updateFootballFrame();
-              }
-            }, 1000 / 60);
-          };
-          const stopFootballFallback = () => {
-            window.clearInterval(footballFallbackTimer);
-            footballFallbackTimer = undefined;
-          };
-
-          footballVideo.addEventListener("play", startFootballFallback);
-          footballVideo.addEventListener("pause", stopFootballFallback);
-        }
-
-        updateFootballVisibility();
-      }, { once: true });
-
-      if ("IntersectionObserver" in window) {
-        const visibleScreenSections = new Set();
-        const footballVisibility = new IntersectionObserver((entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) visibleScreenSections.add(entry.target);
-            else visibleScreenSections.delete(entry.target);
-          });
-          footballIsInView = visibleScreenSections.size > 0;
-          updateFootballVisibility();
-        });
-        footballVisibility.observe(hero);
-        footballVisibility.observe(capabilitiesSection);
-      }
-
-      document.addEventListener("visibilitychange", updateFootballVisibility);
-      footballVideo.src = "assets/football-spin-loop.mp4";
-      footballVideo.load();
 
       return texture;
     };
