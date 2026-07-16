@@ -31,6 +31,7 @@
 * { box-sizing: border-box; }
 
 html { scroll-behavior: smooth; }
+html.is-laptop-dock-hovered { cursor: pointer; }
 html[data-theme="dark"] { color-scheme: dark; }
 html[data-theme="light"] { color-scheme: light; }
 

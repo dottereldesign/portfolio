@@ -198,7 +198,7 @@ if (capabilities) {
 const heroModelCanvas = document.querySelector(".hero__model-canvas");
 
 if (heroModelCanvas) {
-  import("three").then(async ({ Scene, PerspectiveCamera, WebGLRenderer, AmbientLight, DirectionalLight, Group, MathUtils, MeshStandardMaterial, MeshBasicMaterial, PlaneGeometry, Mesh, BackSide, DoubleSide, CanvasTexture, LinearFilter, SRGBColorSpace }) => {
+  import("three").then(async ({ Scene, PerspectiveCamera, WebGLRenderer, AmbientLight, DirectionalLight, Group, MathUtils, MeshStandardMaterial, MeshBasicMaterial, PlaneGeometry, Mesh, BackSide, DoubleSide, CanvasTexture, LinearFilter, SRGBColorSpace, Raycaster, Vector2 }) => {
     const { GLTFLoader } = await import("https://unpkg.com/three@0.181.2/examples/jsm/loaders/GLTFLoader.js");
     const modelHost = heroModelCanvas.parentElement;
     const hero = document.querySelector(".hero");
@@ -239,7 +239,14 @@ if (heroModelCanvas) {
     let stickerTimeline = 0;
     let heroScrollDirty = false;
     let frame;
+    let screenMesh;
+    let screenController;
     const stickerMeshes = [];
+    const dockRaycaster = new Raycaster();
+    const dockPointer = new Vector2();
+    let dockPointerFrame;
+    let latestDockPointer;
+    let hoveredDockIndex = -1;
 
     const moveModelToPageOverlay = () => {
       if (hero.nextElementSibling !== modelHost) hero.insertAdjacentElement("afterend", modelHost);
@@ -572,6 +579,12 @@ if (heroModelCanvas) {
       const wallpaperImage = new Image();
       const width = 1470;
       const height = 1000;
+      let hoveredIndex = -1;
+      let hoverBump = 0;
+      let toastIndex = -1;
+      let toastOpacity = 0;
+      let hoverSettleTimer;
+      let toastTimers = [];
       const optimizeForCompactHero = usesCompactRendering();
       const textureScale = optimizeForCompactHero ? 0.5 : 1;
       screenCanvas.width = Math.round(width * textureScale);
@@ -670,33 +683,142 @@ if (heroModelCanvas) {
         context.drawImage(image, x + (size - drawWidth) / 2, y + (size - drawHeight) / 2, drawWidth, drawHeight);
       };
 
+      const drawDockIcons = () => {
+        const { dockX, dockY, dockPadding, iconGap, iconSize } = getDockLayout(width, height);
+
+        screenApps.forEach((app, index) => {
+          const bump = index === hoveredIndex ? hoverBump : 0;
+          const scale = 1 + bump * 0.1;
+          const size = iconSize * scale;
+          const baseX = dockX + dockPadding + index * (iconSize + iconGap);
+          const x = baseX - (size - iconSize) / 2;
+          const y = dockY + 10 - bump * 7 - (size - iconSize) / 2;
+
+          context.save();
+          if (bump > 0) {
+            context.shadowColor = "rgba(140, 207, 227, 0.28)";
+            context.shadowBlur = 13 * bump;
+            context.shadowOffsetY = 3 * bump;
+          }
+          addRoundedRect(context, x, y, size, size, 12 * scale);
+          context.fillStyle = bump > 0
+            ? `rgba(255, 255, 255, ${0.045 + bump * 0.055})`
+            : "rgba(255, 255, 255, 0.045)";
+          context.fill();
+          drawIcon(app, x, y, size, true);
+          context.restore();
+        });
+      };
+
+      const drawToast = () => {
+        if (toastIndex < 0 || toastOpacity <= 0) return;
+
+        const { dockX, dockY, dockPadding, dockWidth, iconGap, iconSize } = getDockLayout(width, height);
+        const label = "Imagine.";
+        const toastHeight = 38;
+        const horizontalPadding = 17;
+        const iconCenter = dockX + dockPadding + toastIndex * (iconSize + iconGap) + iconSize / 2;
+
+        context.save();
+        context.globalAlpha = toastOpacity;
+        context.font = "500 16px ui-monospace, SFMono-Regular, Menlo, monospace";
+        context.textAlign = "center";
+        context.textBaseline = "middle";
+        const toastWidth = Math.ceil(context.measureText(label).width + horizontalPadding * 2);
+        const toastX = MathUtils.clamp(iconCenter - toastWidth / 2, dockX + 8, dockX + dockWidth - toastWidth - 8);
+        const toastY = dockY - 48;
+
+        context.shadowColor = "rgba(0, 0, 0, 0.34)";
+        context.shadowBlur = 18;
+        context.shadowOffsetY = 8;
+        addRoundedRect(context, toastX, toastY, toastWidth, toastHeight, 13);
+        context.fillStyle = "rgba(8, 10, 9, 0.94)";
+        context.fill();
+        context.shadowColor = "transparent";
+        context.strokeStyle = "rgba(232, 231, 225, 0.2)";
+        context.lineWidth = 1;
+        context.stroke();
+        context.fillStyle = "rgba(232, 231, 225, 0.9)";
+        context.fillText(label, toastX + toastWidth / 2, toastY + toastHeight / 2 + 0.5);
+        context.restore();
+      };
+
       const drawStaticHomeScreen = () => {
         context.clearRect(0, 0, width, height);
         drawWallpaper();
 
-        const dockApps = screenApps;
-        const { dockHeight, dockWidth, dockX, dockY, dockPadding, iconGap, iconSize } = getDockLayout(width, height);
+        const { dockHeight, dockWidth, dockX, dockY } = getDockLayout(width, height);
         addRoundedRect(context, dockX, dockY, dockWidth, dockHeight, 22);
         context.fillStyle = "rgba(20, 24, 20, 0.84)";
         context.fill();
         context.strokeStyle = "rgba(255, 255, 255, 0.15)";
         context.lineWidth = 1.5;
         context.stroke();
-
-        dockApps.forEach((app, index) => {
-          const size = iconSize;
-          const x = dockX + dockPadding + index * (iconSize + iconGap);
-          const y = dockY + 10;
-          addRoundedRect(context, x, y, size, size, 12);
-          context.fillStyle = "rgba(255, 255, 255, 0.045)";
-          context.fill();
-          drawIcon(app, x, y, size, true);
-        });
       };
 
       const drawScreenFrame = () => {
         context.clearRect(0, 0, width, height);
         drawCanvasAtLogicalSize(context, staticScreenCanvas);
+        drawDockIcons();
+        drawToast();
+      };
+
+      const repaintInteraction = () => {
+        drawScreenFrame();
+        texture.needsUpdate = true;
+        requestRender();
+      };
+
+      const setHovered = (index) => {
+        if (index === hoveredIndex) return;
+        window.clearTimeout(hoverSettleTimer);
+        hoveredIndex = index;
+        hoverBump = index >= 0 ? (reducedMotion ? 0.58 : 1) : 0;
+        repaintInteraction();
+
+        if (index >= 0 && !reducedMotion) {
+          hoverSettleTimer = window.setTimeout(() => {
+            if (hoveredIndex !== index) return;
+            hoverBump = 0.58;
+            repaintInteraction();
+          }, 95);
+        }
+      };
+
+      const showToast = (index) => {
+        toastTimers.forEach((timer) => window.clearTimeout(timer));
+        toastTimers = [];
+        toastIndex = index;
+        toastOpacity = reducedMotion ? 1 : 0.35;
+        repaintInteraction();
+
+        if (!reducedMotion) {
+          toastTimers.push(window.setTimeout(() => {
+            toastOpacity = 1;
+            repaintInteraction();
+          }, 45));
+          toastTimers.push(window.setTimeout(() => {
+            toastOpacity = 0.45;
+            repaintInteraction();
+          }, 1120));
+        }
+        toastTimers.push(window.setTimeout(() => {
+          toastOpacity = 0;
+          toastIndex = -1;
+          repaintInteraction();
+        }, 1260));
+      };
+
+      const getDockIndexAtUv = (uv) => {
+        if (!uv) return -1;
+        const x = uv.x * width;
+        const y = uv.y * height;
+        const { dockX, dockY, dockPadding, iconGap, iconSize } = getDockLayout(width, height);
+
+        return screenApps.findIndex((app, index) => {
+          const iconX = dockX + dockPadding + index * (iconSize + iconGap);
+          return x >= iconX - 8 && x <= iconX + iconSize + 8 && y >= dockY + 2 && y <= dockY + iconSize + 18;
+        });
       };
 
       const cacheStaticScreen = () => {
@@ -724,8 +846,67 @@ if (heroModelCanvas) {
         requestRender();
       });
 
-      return texture;
+      return { getDockIndexAtUv, setHovered, showToast, texture };
     };
+
+    const pointerIsOverForegroundContent = (clientX, clientY) => {
+      const foreground = document.elementFromPoint(clientX, clientY);
+      return Boolean(foreground?.closest(".site-header, .hero__side-rail, .hero__title, .hero__role, .hero__intro, .eyebrow, .cta"));
+    };
+
+    const getDockIndexAtPoint = (clientX, clientY) => {
+      if (!screenMesh || !screenController || !modelReady || !heroIsVisible || pointerIsOverForegroundContent(clientX, clientY)) return -1;
+
+      const bounds = heroModelCanvas.getBoundingClientRect();
+      if (
+        clientX < bounds.left || clientX > bounds.right
+        || clientY < bounds.top || clientY > bounds.bottom
+        || bounds.width <= 0 || bounds.height <= 0
+      ) return -1;
+
+      dockPointer.set(
+        ((clientX - bounds.left) / bounds.width) * 2 - 1,
+        -((clientY - bounds.top) / bounds.height) * 2 + 1,
+      );
+      camera.updateMatrixWorld();
+      screenMesh.updateWorldMatrix(true, false);
+      dockRaycaster.setFromCamera(dockPointer, camera);
+      const hit = dockRaycaster.intersectObject(screenMesh, false)[0];
+      return screenController.getDockIndexAtUv(hit?.uv);
+    };
+
+    const setDockHover = (index) => {
+      if (index === hoveredDockIndex) return;
+      hoveredDockIndex = index;
+      screenController?.setHovered(index);
+      document.documentElement.classList.toggle("is-laptop-dock-hovered", index >= 0);
+    };
+
+    const updateDockHover = () => {
+      dockPointerFrame = undefined;
+      if (!latestDockPointer) return;
+      setDockHover(getDockIndexAtPoint(latestDockPointer.x, latestDockPointer.y));
+    };
+
+    window.addEventListener("pointermove", (event) => {
+      if (coarsePointerQuery.matches) return;
+      latestDockPointer = { x: event.clientX, y: event.clientY };
+      if (!dockPointerFrame) dockPointerFrame = window.requestAnimationFrame(updateDockHover);
+    }, { passive: true });
+
+    window.addEventListener("pointerleave", () => {
+      latestDockPointer = undefined;
+      setDockHover(-1);
+    });
+
+    window.addEventListener("click", (event) => {
+      const dockIndex = getDockIndexAtPoint(event.clientX, event.clientY);
+      if (dockIndex < 0) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      setDockHover(dockIndex);
+      screenController.showToast(dockIndex);
+    }, true);
 
     const resize = () => {
       const width = modelHost.offsetWidth;
@@ -811,13 +992,14 @@ if (heroModelCanvas) {
       loadedScene.position.set(0, -3.4, 0);
       loadedScene.position.z = -10;
 
-      const screenTexture = createLaptopScreenTexture();
+      screenController = createLaptopScreenTexture();
       const screenGeometry = new PlaneGeometry(29.4, 20);
-      const screen = new Mesh(screenGeometry, new MeshBasicMaterial({ color: 0xffffff, map: screenTexture, side: BackSide, toneMapped: false }));
+      const screen = new Mesh(screenGeometry, new MeshBasicMaterial({ color: 0xffffff, map: screenController.texture, side: BackSide, toneMapped: false }));
       screen.position.set(0, 10.5, -0.11);
       screen.rotation.set(Math.PI, 0, 0);
       screen.renderOrder = 1;
       loadedScene.add(screen);
+      screenMesh = screen;
 
       const portraitTexture = createPortraitOverlayTexture();
       const portraitOverlay = new Mesh(screenGeometry, new MeshBasicMaterial({
@@ -939,6 +1121,7 @@ if (heroModelCanvas) {
     window.addEventListener("resize", () => { resize(); updateScroll(); requestRender(); });
     window.addEventListener("scroll", () => {
       if (!heroIsVisible && !capabilitiesAreVisible) return;
+      setDockHover(-1);
       heroScrollDirty = true;
       requestRender();
     }, { passive: true });
