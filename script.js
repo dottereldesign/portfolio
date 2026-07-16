@@ -278,14 +278,14 @@ if (heroModelCanvas) {
     ];
 
     const lidStickerSpecs = [
-      { label: "JavaScript", short: "JS", icon: "https://api.iconify.design/logos/javascript.svg", color: "#f7df1e", x: -8.9, y: 15.7, width: 4.3, height: 4.3, rotation: -0.12, shape: "rounded" },
-      { label: "CSS", short: "CSS", icon: "https://api.iconify.design/logos/css-3.svg", color: "#1572b6", x: 7.8, y: 15.4, width: 3.9, height: 4.4, rotation: 0.11, shape: "shield" },
+      { label: "JavaScript", short: "JS", icon: "https://api.iconify.design/logos/javascript.svg", color: "#f7df1e", x: -11.8, y: 15.7, width: 4.3, height: 4.3, rotation: -0.12, shape: "rounded" },
+      { label: "CSS", short: "CSS", icon: "https://api.iconify.design/logos/css-3.svg", color: "#1572b6", x: 11.5, y: 15.4, width: 3.9, height: 4.4, rotation: 0.11, shape: "shield" },
       { label: "HTML", short: "HTML", icon: "https://api.iconify.design/logos/html-5.svg", color: "#e34f26", x: -9.8, y: 8.8, width: 3.8, height: 4.3, rotation: 0.1, shape: "shield" },
       { label: "PHP", short: "PHP", icon: "https://api.iconify.design/logos/php.svg", color: "#777bb4", x: 8.5, y: 9.1, width: 5.7, height: 3.6, rotation: -0.1, shape: "pill" },
       { label: "Git", short: "GIT", icon: "https://api.iconify.design/logos/git-icon.svg", color: "#f05032", x: -5.1, y: 4.5, width: 3.8, height: 3.8, rotation: -0.17, shape: "diamond" },
       { label: "Vite", short: "V", icon: "https://api.iconify.design/logos/vitejs.svg", color: "#646cff", x: 4.5, y: 4.2, width: 3.9, height: 4.1, rotation: 0.13, shape: "rounded" },
       { label: "WordPress", short: "W", icon: "https://api.iconify.design/logos/wordpress-icon.svg", color: "#21759b", x: 12.1, y: 4.9, width: 3.5, height: 3.5, rotation: -0.06, shape: "circle" },
-      { label: "Binary: it's as easy as 01.10.11", x: 0, y: 14.1, width: 8.8, height: 3.2, rotation: -0.04, shape: "binary" },
+      { label: "Binary: it's as easy as 01.10.11", x: 0, y: 16.8, width: 12.4, height: 4.5, rotation: -0.04, shape: "binary" },
     ];
 
     const getDockLayout = (width, height) => {
