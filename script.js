@@ -355,9 +355,8 @@ if (heroModelCanvas) {
     const modelHost = heroModelCanvas.parentElement;
     const hero = document.querySelector(".hero");
     const capabilitiesSection = document.querySelector(".capabilities");
-    const capabilitiesIntro = capabilitiesSection?.querySelector(".capabilities__intro");
 
-    if (!hero || !capabilitiesSection || !capabilitiesIntro) throw new Error("Laptop stage is incomplete");
+    if (!hero || !capabilitiesSection) throw new Error("Laptop stage is incomplete");
 
     const scene = new Scene();
     const stackedHeroQuery = window.matchMedia("(max-width: 800px), (max-width: 1024px) and (max-aspect-ratio: 1/1)");
@@ -390,10 +389,13 @@ if (heroModelCanvas) {
     let currentHostY = 0;
     let currentHostScale = 1;
     let stickerTimeline = 0;
-    let modelIsDocked = false;
     let heroScrollDirty = false;
     let frame;
     const stickerMeshes = [];
+
+    const moveModelToPageOverlay = () => {
+      if (hero.nextElementSibling !== modelHost) hero.insertAdjacentElement("afterend", modelHost);
+    };
 
     scene.add(new AmbientLight(0xe8e7e1, 2.2));
 
@@ -1046,10 +1048,9 @@ if (heroModelCanvas) {
       const bounds = hero.getBoundingClientRect();
       const progress = MathUtils.clamp(-bounds.top / Math.max(1, bounds.height), 0, 1);
       const smoothProgress = progress * progress * (3 - 2 * progress);
+      moveModelToPageOverlay();
 
       if (reducedMotion) {
-        if (modelHost.parentElement !== hero) hero.appendChild(modelHost);
-        modelIsDocked = false;
         targetRotation = -0.45;
         targetRotationX = 0;
         targetRotationZ = -0.05;
@@ -1062,8 +1063,6 @@ if (heroModelCanvas) {
       }
 
       if (usesStackedHeroLayout()) {
-        if (modelHost.parentElement !== hero) hero.appendChild(modelHost);
-        modelIsDocked = false;
         targetRotation = -0.45 + progress * Math.PI * 0.95;
         targetRotationX = 0;
         targetRotationZ = -0.05;
@@ -1092,16 +1091,6 @@ if (heroModelCanvas) {
       targetHostY = targetCenterY - viewportHeight * 0.55;
       targetHostScale = MathUtils.lerp(1, 0.5, settleEase);
       stickerTimeline = settleEase;
-
-      if (!modelIsDocked && progress > 0.58) {
-        capabilitiesSection.insertBefore(modelHost, capabilitiesIntro);
-        modelIsDocked = true;
-      } else if (modelIsDocked && progress < 0.52) {
-        hero.appendChild(modelHost);
-        modelIsDocked = false;
-      } else if (!modelIsDocked && modelHost.parentElement !== hero) {
-        hero.appendChild(modelHost);
-      }
     };
 
     new GLTFLoader().load("assets/macbook.glb", ({ scene: loadedScene }) => {
