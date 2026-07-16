@@ -177,7 +177,7 @@ html[data-theme="dark"] .theme-switcher-grid[data-theme-toggle] .star-4 { transf
 .social-rail a:hover { color: var(--accent); transform: translateX(0.15rem); }
 
 .hero__content { position: relative; z-index: 3; grid-column: 2; grid-row: 2; align-self: center; width: min(100%, 78rem); margin: 0; padding: clamp(2rem, 6vh, 5rem) clamp(1.5rem, 4vw, 4.5rem); }
-.hero__model { --hero-model-opacity: 1; --model-shift-x: 0px; --model-shift-y: 0px; --model-scale: 1; position: fixed; z-index: 2; top: 55%; right: clamp(-18rem, -15vw, -8rem); width: min(78vw, 78rem); height: min(86vh, 56rem); visibility: hidden; opacity: 0; pointer-events: none; transform: translate3d(var(--model-shift-x), calc(-50% + var(--model-shift-y)), 0) scale(var(--model-scale)); transform-origin: center; transition: opacity 320ms var(--hero-ease); will-change: transform; }
+.hero__model { --hero-model-opacity: 1; --model-shift-x: 0px; --model-shift-y: 0px; --model-scale: 1; position: fixed; z-index: 2; top: 55%; right: clamp(-28rem, -26vw, -14rem); width: min(100vw, 100rem); height: min(110vh, 72rem); visibility: hidden; opacity: 0; pointer-events: none; transform: translate3d(var(--model-shift-x), calc(-50% + var(--model-shift-y)), 0) scale(var(--model-scale)); transform-origin: center; transition: opacity 320ms var(--hero-ease); will-change: transform; }
 .hero__model.hero__model--ready { visibility: visible; opacity: var(--hero-model-opacity); }
 .hero__model-canvas { position: absolute; inset: 0; width: 100%; height: 100%; background: transparent; }
 .eyebrow { display: flex; align-items: center; gap: 0.7rem; margin: 0 0 1.7rem; color: var(--accent-secondary); font-family: "DM Mono", monospace; font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; }
@@ -533,7 +533,7 @@ html[data-theme="light"] .hero__model {
 
 @media (min-width: 801px) and (max-width: 1100px) {
   .hero__content { width: min(68%, 46rem); padding: clamp(3rem, 8vh, 6rem) clamp(1.5rem, 3vw, 2.5rem); }
-  .hero__model { --hero-model-opacity: 0.92; top: 50%; right: -32vw; width: 92vw; height: min(72vh, 46rem); }
+  .hero__model { --hero-model-opacity: 0.92; top: 50%; right: -45vw; width: 118vw; height: min(94vh, 60rem); }
   .hero__title { font-size: clamp(4.6rem, 9.2vw, 6.4rem); }
   .hero__role { max-width: 36rem; font-size: clamp(0.95rem, 1.8vw, 1.15rem); line-height: 1.7; }
   .hero__intro { max-width: 31rem; }

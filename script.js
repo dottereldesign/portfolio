@@ -285,6 +285,7 @@ if (heroModelCanvas) {
       { label: "Git", short: "GIT", icon: "https://api.iconify.design/logos/git-icon.svg", color: "#f05032", x: -5.1, y: 4.5, width: 3.8, height: 3.8, rotation: -0.17, shape: "diamond" },
       { label: "Vite", short: "V", icon: "https://api.iconify.design/logos/vitejs.svg", color: "#646cff", x: 4.5, y: 4.2, width: 3.9, height: 4.1, rotation: 0.13, shape: "rounded" },
       { label: "WordPress", short: "W", icon: "https://api.iconify.design/logos/wordpress-icon.svg", color: "#21759b", x: 12.1, y: 4.9, width: 3.5, height: 3.5, rotation: -0.06, shape: "circle" },
+      { label: "Binary: it's as easy as 01.10.11", x: 0, y: 14.1, width: 8.8, height: 3.2, rotation: -0.04, shape: "binary" },
     ];
 
     const getDockLayout = (width, height) => {
@@ -337,7 +338,81 @@ if (heroModelCanvas) {
       return image;
     };
 
+    const createBinaryStickerTexture = () => {
+      const stickerCanvas = document.createElement("canvas");
+      const context = stickerCanvas.getContext("2d");
+      const width = 768;
+      const height = 320;
+      const cardX = 34;
+      const cardY = 34;
+      const cardWidth = width - cardX * 2;
+      const cardHeight = height - cardY * 2;
+      stickerCanvas.width = width;
+      stickerCanvas.height = height;
+      context.imageSmoothingEnabled = true;
+      context.imageSmoothingQuality = "high";
+
+      context.save();
+      context.shadowColor = "rgba(0, 0, 0, 0.5)";
+      context.shadowBlur = 24;
+      context.shadowOffsetY = 12;
+      addRoundedRect(context, cardX, cardY, cardWidth, cardHeight, 24);
+      context.fillStyle = "#0d0e0e";
+      context.fill();
+      context.restore();
+
+      const backing = context.createLinearGradient(cardX, cardY, width - cardX, height - cardY);
+      backing.addColorStop(0, "#181a1a");
+      backing.addColorStop(0.62, "#0d0e0e");
+      backing.addColorStop(1, "#202222");
+      addRoundedRect(context, cardX, cardY, cardWidth, cardHeight, 24);
+      context.fillStyle = backing;
+      context.fill();
+      context.lineWidth = 7;
+      context.strokeStyle = "rgba(239, 240, 232, 0.86)";
+      context.stroke();
+
+      context.save();
+      addRoundedRect(context, cardX, cardY, cardWidth, cardHeight, 24);
+      context.clip();
+      context.globalAlpha = 0.11;
+      for (let index = 0; index < 90; index += 1) {
+        const px = cardX + ((index * 137) % cardWidth);
+        const py = cardY + ((index * 83) % cardHeight);
+        context.fillStyle = index % 4 ? "#ffffff" : "#0a0a0a";
+        context.fillRect(px, py, 2 + index % 4, 1 + index % 2);
+      }
+      context.restore();
+
+      context.fillStyle = "#f2f1eb";
+      context.font = '700 49px "Arial Narrow", Arial, sans-serif';
+      context.textAlign = "center";
+      context.textBaseline = "middle";
+      context.fillText("BINARY: IT'S AS EASY AS", width / 2, 104);
+
+      context.save();
+      context.translate(width / 2, 201);
+      context.rotate(-0.014);
+      addRoundedRect(context, -242, -47, 484, 94, 10);
+      context.fillStyle = "#78d8ec";
+      context.fill();
+      context.lineWidth = 5;
+      context.strokeStyle = "#b9f3ff";
+      context.stroke();
+      context.fillStyle = "#101516";
+      context.font = '800 66px "Courier New", monospace';
+      context.fillText("{01.10.11}", 0, 4);
+      context.restore();
+
+      const texture = new CanvasTexture(stickerCanvas);
+      texture.colorSpace = SRGBColorSpace;
+      texture.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+      return texture;
+    };
+
     const createStickerTexture = (spec) => {
+      if (spec.shape === "binary") return createBinaryStickerTexture();
+
       const stickerCanvas = document.createElement("canvas");
       const context = stickerCanvas.getContext("2d");
       const size = 384;
@@ -1093,10 +1168,10 @@ if (heroModelCanvas) {
       renderer.setPixelRatio(dpr);
       renderer.setSize(width, height, false);
       const aspect = width / height;
-      const portraitCameraZ = 78 + Math.max(0, 1.1 - aspect) * 80;
-      const compactCameraZ = usesStackedHeroLayout() ? 85 : 78;
+      const portraitCameraZ = (usesStackedHeroLayout() ? 78 : 100) + Math.max(0, 1.1 - aspect) * 80;
+      const compactCameraZ = usesStackedHeroLayout() ? 85 : 100;
       camera.aspect = aspect;
-      camera.position.z = MathUtils.clamp(Math.max(compactCameraZ, portraitCameraZ), 78, 108);
+      camera.position.z = MathUtils.clamp(Math.max(compactCameraZ, portraitCameraZ), 78, 130);
       camera.updateProjectionMatrix();
     };
 
@@ -1138,6 +1213,9 @@ if (heroModelCanvas) {
       const scaleEase = scaleProgress * scaleProgress * (3 - 2 * scaleProgress);
       const viewportHeight = window.innerHeight;
       const viewportWidth = window.innerWidth;
+      const landingShiftX = viewportWidth <= 1100
+        ? -viewportWidth * 0.06
+        : Math.min(72, viewportWidth * 0.05);
       const arcCenterY = viewportHeight * (0.55 - smoothProgress * 0.1)
         + Math.sin(progress * Math.PI) * viewportHeight * 0.08;
       const landingCenterY = capabilitiesBounds.top + Math.min(245, viewportHeight * 0.28);
@@ -1147,7 +1225,7 @@ if (heroModelCanvas) {
       targetRotationX = MathUtils.lerp(0, -0.12, settleEase);
       targetRotationZ = MathUtils.lerp(-0.05, 0.035, settleEase);
       targetLift = MathUtils.lerp(0, -4, smoothProgress);
-      targetHostX = viewportWidth * 0.07 * settleEase;
+      targetHostX = landingShiftX * settleEase;
       targetHostY = targetCenterY - viewportHeight * 0.55;
       targetHostScale = MathUtils.lerp(1, 0.44, scaleEase);
       stickerTimeline = settleEase;
@@ -1237,17 +1315,15 @@ if (heroModelCanvas) {
         updateScroll();
         heroScrollDirty = false;
       }
-      const motionEase = usesCompactRendering() ? 0.16 : 0.075;
+      const motionEase = usesCompactRendering() ? 0.16 : 0.1;
       laptop.rotation.y = reducedMotion ? targetRotation : MathUtils.lerp(laptop.rotation.y, targetRotation, motionEase);
       laptop.rotation.x = reducedMotion ? targetRotationX : MathUtils.lerp(laptop.rotation.x, targetRotationX, motionEase);
       laptop.position.y = reducedMotion ? targetLift : MathUtils.lerp(laptop.position.y, targetLift, motionEase);
       laptop.rotation.z = reducedMotion ? targetRotationZ : MathUtils.lerp(laptop.rotation.z, targetRotationZ, motionEase);
 
-      const hostMotionEase = usesCompactRendering() ? motionEase : 0.12;
-      const hostScaleEase = usesCompactRendering() ? motionEase : 0.15;
-      currentHostX = reducedMotion ? targetHostX : MathUtils.lerp(currentHostX, targetHostX, hostMotionEase);
-      currentHostY = reducedMotion ? targetHostY : MathUtils.lerp(currentHostY, targetHostY, hostMotionEase);
-      currentHostScale = reducedMotion ? targetHostScale : MathUtils.lerp(currentHostScale, targetHostScale, hostScaleEase);
+      currentHostX = reducedMotion ? targetHostX : MathUtils.lerp(currentHostX, targetHostX, motionEase);
+      currentHostY = reducedMotion ? targetHostY : MathUtils.lerp(currentHostY, targetHostY, motionEase);
+      currentHostScale = reducedMotion ? targetHostScale : MathUtils.lerp(currentHostScale, targetHostScale, motionEase);
       modelHost.style.setProperty("--model-shift-x", `${currentHostX.toFixed(2)}px`);
       modelHost.style.setProperty("--model-shift-y", `${currentHostY.toFixed(2)}px`);
       modelHost.style.setProperty("--model-scale", currentHostScale.toFixed(4));
@@ -1263,10 +1339,9 @@ if (heroModelCanvas) {
           : MathUtils.lerp(sticker.userData.currentReveal, easedReveal, 0.18);
 
         const reveal = sticker.userData.currentReveal;
-        const slap = Math.sin(MathUtils.clamp(reveal, 0, 1) * Math.PI) * 0.08;
         sticker.visible = reveal > 0.005;
         sticker.material.opacity = MathUtils.clamp(reveal * 1.35, 0, 1);
-        sticker.scale.setScalar(0.68 + reveal * 0.32 + slap);
+        sticker.scale.setScalar(0.68 + reveal * 0.32);
         sticker.position.z = sticker.userData.baseZ - (1 - reveal) * 0.35;
         sticker.rotation.z = sticker.userData.baseRotation + (1 - reveal) * 0.28 * sticker.userData.revealDirection;
         stickersAreMoving ||= Math.abs(reveal - easedReveal) > 0.002;
@@ -1316,7 +1391,7 @@ if (heroModelCanvas) {
       modelVisibility.observe(capabilitiesSection);
     }
 
-    camera.position.set(0, 0.1, 78);
+    camera.position.set(0, 0.1, usesStackedHeroLayout() ? 85 : 100);
     resize();
     updateScroll();
     window.addEventListener("resize", () => { resize(); updateScroll(); requestRender(); });
