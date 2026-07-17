@@ -162,6 +162,8 @@ if (timeline) {
   let timelineIsNearby = false;
   let scrollFrame;
 
+  timeline.classList.add("timeline--reveal-ready");
+
   const updateTimeline = () => {
     const bounds = timeline.getBoundingClientRect();
     const travel = Math.max(1, bounds.height);
@@ -171,20 +173,27 @@ if (timeline) {
     scrollFrame = undefined;
   };
 
-  const revealEvents = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) entry.target.classList.add("is-visible");
-    });
-  }, { threshold: 0.25, rootMargin: "0px 0px -8% 0px" });
+  if ("IntersectionObserver" in window) {
+    const revealEvents = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add("is-visible");
+        revealEvents.unobserve(entry.target);
+      });
+    }, { threshold: 0.22, rootMargin: "0px 0px -8% 0px" });
 
-  events.forEach((event) => revealEvents.observe(event));
+    events.forEach((event) => revealEvents.observe(event));
 
-  const timelineVisibility = new IntersectionObserver(([entry]) => {
-    timelineIsNearby = entry.isIntersecting;
-    if (timelineIsNearby) updateTimeline();
-  }, { rootMargin: "100% 0px" });
+    const timelineVisibility = new IntersectionObserver(([entry]) => {
+      timelineIsNearby = entry.isIntersecting;
+      if (timelineIsNearby) updateTimeline();
+    }, { rootMargin: "100% 0px" });
 
-  timelineVisibility.observe(timeline);
+    timelineVisibility.observe(timeline);
+  } else {
+    timelineIsNearby = true;
+    events.forEach((event) => event.classList.add("is-visible"));
+  }
 
   const onScroll = () => {
     if (!timelineIsNearby) return;
@@ -200,17 +209,81 @@ const capabilities = document.querySelector("[data-capabilities-reveal]");
 
 if (capabilities) {
   capabilities.classList.add("capabilities--reveal-ready");
+  const capabilitiesIntro = capabilities.querySelector(".capabilities__intro");
+  const capabilitiesFlow = capabilities.querySelector(".capabilities__flow");
 
-  const revealCapabilities = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
+  if ("IntersectionObserver" in window) {
+    const revealCapabilitiesIntro = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      capabilities.classList.add("is-visible");
+      revealCapabilitiesIntro.disconnect();
+    }, { threshold: 0.25, rootMargin: "0px 0px -6% 0px" });
+
+    const revealCapabilitiesFlow = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      capabilities.classList.add("is-flow-visible");
+      revealCapabilitiesFlow.disconnect();
+    }, { threshold: 0.16, rootMargin: "0px 0px -6% 0px" });
+
+    if (capabilitiesIntro) revealCapabilitiesIntro.observe(capabilitiesIntro);
+    if (capabilitiesFlow) revealCapabilitiesFlow.observe(capabilitiesFlow);
+  } else {
+    capabilities.classList.add("is-visible", "is-flow-visible");
+  }
+}
+
+const workSection = document.querySelector("#work[data-section-reveal]");
+
+if (workSection) {
+  const workHeading = workSection.querySelector(".work-heading");
+  const projectCards = [...workSection.querySelectorAll(".project-card")];
+
+  workSection.classList.add("work--reveal-ready");
+  projectCards.forEach((card, index) => {
+    card.classList.add("project-card--reveal-ready");
+    card.style.setProperty("--project-reveal-delay", `${(index % 3) * 110}ms`);
+  });
+
+  if ("IntersectionObserver" in window) {
+    const revealWorkHeading = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      workSection.classList.add("is-visible");
+      revealWorkHeading.disconnect();
+    }, { threshold: 0.3, rootMargin: "0px 0px -8% 0px" });
+
+    const revealProjects = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
         entry.target.classList.add("is-visible");
-        revealCapabilities.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.2, rootMargin: "0px 0px -8% 0px" });
+        revealProjects.unobserve(entry.target);
+      });
+    }, { threshold: 0.18, rootMargin: "0px 0px -7% 0px" });
 
-  revealCapabilities.observe(capabilities);
+    if (workHeading) revealWorkHeading.observe(workHeading);
+    projectCards.forEach((card) => revealProjects.observe(card));
+  } else {
+    workSection.classList.add("is-visible");
+    projectCards.forEach((card) => card.classList.add("is-visible"));
+  }
+}
+
+const journeySection = document.querySelector("#journey[data-section-reveal]");
+
+if (journeySection) {
+  const journeyIntro = journeySection.querySelector(".journey__intro");
+  journeySection.classList.add("journey--reveal-ready");
+
+  if ("IntersectionObserver" in window && journeyIntro) {
+    const revealJourneyIntro = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      journeySection.classList.add("is-visible");
+      revealJourneyIntro.disconnect();
+    }, { threshold: 0.3, rootMargin: "0px 0px -8% 0px" });
+
+    revealJourneyIntro.observe(journeyIntro);
+  } else {
+    journeySection.classList.add("is-visible");
+  }
 }
 
 const study = document.querySelector("[data-study-reveal]");
