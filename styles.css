@@ -914,10 +914,10 @@ html[data-theme="light"] body::before {
 
 html[data-theme="light"] .hero {
   background:
-    radial-gradient(ellipse 60% 72% at 82% 47%, rgba(255, 101, 42, 0.3) 0%, rgba(232, 102, 54, 0.18) 34%, transparent 72%),
-    radial-gradient(ellipse 48% 26% at 75% 77%, rgba(255, 137, 76, 0.23) 0%, rgba(214, 83, 35, 0.08) 48%, transparent 76%),
-    radial-gradient(ellipse 34% 44% at 96% 17%, rgba(224, 92, 45, 0.16) 0%, transparent 72%),
-    linear-gradient(112deg, #f5f1e7 0%, #f2eee4 43%, #f3dfd3 72%, #f5f0e7 100%);
+    radial-gradient(ellipse 60% 72% at 82% 47%, rgba(15, 17, 16, 0.24) 0%, rgba(39, 41, 39, 0.15) 34%, rgba(66, 67, 64, 0.05) 58%, transparent 72%),
+    radial-gradient(ellipse 48% 26% at 75% 77%, rgba(10, 12, 11, 0.17) 0%, rgba(42, 44, 42, 0.07) 48%, transparent 76%),
+    radial-gradient(ellipse 34% 44% at 96% 17%, rgba(23, 25, 24, 0.13) 0%, transparent 72%),
+    linear-gradient(112deg, #f5f1e7 0%, #f2eee4 43%, #e4e1d9 72%, #f5f0e7 100%);
   background-blend-mode: normal, normal, normal, normal;
   background-repeat: no-repeat, no-repeat, no-repeat, no-repeat;
   background-size: auto, auto, auto, auto;
@@ -925,18 +925,18 @@ html[data-theme="light"] .hero {
 
 html[data-theme="light"] .hero::before {
   background:
-    radial-gradient(ellipse 27% 58% at 76% 47%, rgba(255, 96, 35, 0.28) 0%, rgba(236, 83, 30, 0.12) 36%, transparent 72%),
-    radial-gradient(ellipse 52% 18% at 74% 67%, rgba(255, 112, 53, 0.2) 0%, rgba(218, 91, 41, 0.08) 48%, transparent 76%),
-    radial-gradient(ellipse 17% 38% at 94% 42%, rgba(255, 147, 83, 0.18) 0%, transparent 72%);
+    radial-gradient(ellipse 27% 58% at 76% 47%, rgba(5, 7, 6, 0.3) 0%, rgba(25, 27, 26, 0.13) 36%, transparent 72%),
+    radial-gradient(ellipse 52% 18% at 74% 67%, rgba(8, 10, 9, 0.19) 0%, rgba(38, 40, 38, 0.07) 48%, transparent 76%),
+    radial-gradient(ellipse 17% 38% at 94% 42%, rgba(18, 20, 19, 0.14) 0%, transparent 72%);
   background-blend-mode: multiply, multiply, multiply;
-  opacity: 0.72;
+  opacity: 0.78;
 }
 
 html[data-theme="light"] .hero::after {
   background:
     linear-gradient(180deg, rgba(247, 243, 234, 0.32) 0%, transparent 24% 57%, rgba(247, 243, 234, 0.08) 70%, rgba(247, 243, 234, 0.6) 89%, #f7f3ea 100%),
     linear-gradient(90deg, rgba(247, 243, 234, 0.96) 0%, rgba(247, 243, 234, 0.82) 27%, rgba(247, 243, 234, 0.34) 49%, transparent 70%),
-    radial-gradient(ellipse 58% 76% at 76% 50%, transparent 30%, rgba(117, 61, 35, 0.05) 72%, rgba(101, 55, 32, 0.12) 100%);
+    radial-gradient(ellipse 58% 76% at 76% 50%, transparent 30%, rgba(24, 27, 25, 0.06) 72%, rgba(8, 10, 9, 0.15) 100%);
 }
 
 html[data-theme="light"] .hero__title {
