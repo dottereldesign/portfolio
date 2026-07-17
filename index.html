@@ -15,6 +15,7 @@
     </script>
     <script>
       (() => {
+        document.documentElement.classList.add("js");
         let theme = "dark";
         try {
           const savedTheme = window.localStorage.getItem("jw-theme");
@@ -24,7 +25,8 @@
         document.documentElement.style.colorScheme = theme;
       })();
     </script>
-    <link rel="stylesheet" href="styles.css?v=20260717-19" />
+    <link rel="stylesheet" href="styles.css?v=20260717-20" />
+    <noscript><style>.hero__title > span { visibility: visible !important; }</style></noscript>
   </head>
   <body>
     <header class="site-header">
@@ -447,6 +449,6 @@
       </footer>
     </section>
 
-    <script src="script.js?v=20260717-19"></script>
+    <script src="script.js?v=20260717-20"></script>
   </body>
 </html>

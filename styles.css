@@ -191,6 +191,7 @@ html[data-theme="dark"] .theme-switcher-grid[data-theme-toggle] .star-4 { transf
 .status-dot { width: 0.5rem; height: 0.5rem; border-radius: 50%; background: var(--accent-secondary); box-shadow: 0 0 1rem var(--accent-secondary); animation: pulse 2s ease-in-out infinite; }
 .hero__title { z-index: 50; max-width: none; margin: 0; color: var(--ink); font-size: clamp(4.2rem, 9.5vw, 9.5rem); font-weight: 600; letter-spacing: -0.09em; line-height: 0.86; white-space: nowrap; }
 .hero__title span { display: inline-block; }
+html.js .hero__title > span:not(.is-scramble-ready) { visibility: hidden; }
 .hero__title .scramble-character { position: relative; min-width: 0; overflow: visible; box-sizing: border-box; color: var(--accent); opacity: 0.85; transition: color 180ms ease, opacity 180ms ease; }
 .hero__title .scramble-character:not(.is-resolved) { font-family: "DM Mono", monospace; font-size: 0.72em; letter-spacing: 0; }
 .hero__title .scramble-character.is-resolved { color: var(--ink); opacity: 1; }

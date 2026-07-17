@@ -64,8 +64,12 @@ const randomBetween = (min, max) => Math.floor(Math.random() * (max - min + 1)) 
 
 function scrambleText(element) {
   const text = element.textContent.trim();
+  element.classList.remove("is-scramble-ready");
 
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    element.classList.add("is-scramble-ready");
+    return;
+  }
 
   element.textContent = "";
 
@@ -103,6 +107,8 @@ function scrambleText(element) {
 
     return state;
   });
+
+  element.classList.add("is-scramble-ready");
 
   const frameDelay = 42;
   let currentChange = 0;
