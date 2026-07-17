@@ -286,6 +286,29 @@ if (journeySection) {
   }
 }
 
+const cvSection = document.querySelector("#cv[data-cv-reveal]");
+
+if (cvSection) {
+  const cvRevealItems = [...cvSection.querySelectorAll("[data-cv-reveal-item]")];
+  cvSection.classList.add("cv--reveal-ready");
+
+  if ("IntersectionObserver" in window) {
+    const revealCVItems = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add("is-visible");
+        revealCVItems.unobserve(entry.target);
+      });
+    }, { threshold: 0.08, rootMargin: "0px 0px -7% 0px" });
+
+    window.requestAnimationFrame(() => {
+      cvRevealItems.forEach((item) => revealCVItems.observe(item));
+    });
+  } else {
+    cvRevealItems.forEach((item) => item.classList.add("is-visible"));
+  }
+}
+
 const study = document.querySelector("[data-study-reveal]");
 
 if (study) {
