@@ -403,6 +403,7 @@ if (heroModelCanvas) {
       { label: "Git", short: "GIT", icon: "https://api.iconify.design/logos/git-icon.svg", color: "#f05032", x: -5.1, y: 4.5, width: 3.8, height: 3.8, rotation: -0.17, shape: "diamond" },
       { label: "Vite", short: "V", icon: "https://api.iconify.design/logos/vitejs.svg", color: "#646cff", x: 4.5, y: 4.2, width: 3.9, height: 4.1, rotation: 0.13, shape: "rounded" },
       { label: "WordPress", short: "W", icon: "https://api.iconify.design/logos/wordpress-icon.svg", color: "#21759b", x: 12.1, y: 4.9, width: 3.5, height: 3.5, rotation: -0.06, shape: "circle" },
+      { label: "Kiwi bird", x: -12.1, y: 4.1, width: 6.1, height: 4.25, rotation: -0.08, shape: "kiwi" },
       { label: "Binary: it's as easy as 01.10.11", x: 0, y: 16.8, width: 12.4, height: 4.5, rotation: -0.04, shape: "binary" },
     ];
 
@@ -528,8 +529,120 @@ if (heroModelCanvas) {
       return texture;
     };
 
+    const createKiwiStickerTexture = () => {
+      const stickerCanvas = document.createElement("canvas");
+      const context = stickerCanvas.getContext("2d");
+      const width = 720;
+      const height = 500;
+      stickerCanvas.width = width;
+      stickerCanvas.height = height;
+      context.imageSmoothingEnabled = true;
+      context.imageSmoothingQuality = "high";
+
+      context.save();
+      context.lineCap = "round";
+      context.lineJoin = "round";
+      context.shadowColor = "rgba(0, 0, 0, 0.42)";
+      context.shadowBlur = 20;
+      context.shadowOffsetY = 12;
+
+      context.strokeStyle = "#b58455";
+      context.lineWidth = 16;
+      context.beginPath();
+      context.moveTo(424, 348);
+      context.quadraticCurveTo(410, 405, 382, 438);
+      context.moveTo(500, 344);
+      context.quadraticCurveTo(505, 401, 530, 430);
+      context.stroke();
+
+      context.lineWidth = 11;
+      context.beginPath();
+      context.moveTo(382, 438);
+      context.lineTo(342, 447);
+      context.moveTo(382, 438);
+      context.lineTo(390, 458);
+      context.moveTo(530, 430);
+      context.lineTo(497, 451);
+      context.moveTo(530, 430);
+      context.lineTo(567, 441);
+      context.stroke();
+
+      const bodyGradient = context.createRadialGradient(418, 214, 18, 470, 270, 225);
+      bodyGradient.addColorStop(0, "#c39769");
+      bodyGradient.addColorStop(0.46, "#9d704a");
+      bodyGradient.addColorStop(1, "#5f412f");
+      context.beginPath();
+      context.moveTo(260, 218);
+      context.bezierCurveTo(306, 116, 503, 91, 619, 206);
+      context.bezierCurveTo(695, 282, 637, 391, 489, 407);
+      context.bezierCurveTo(347, 423, 244, 350, 237, 271);
+      context.bezierCurveTo(234, 246, 242, 226, 260, 218);
+      context.closePath();
+      context.fillStyle = bodyGradient;
+      context.fill();
+      context.lineWidth = 8;
+      context.strokeStyle = "rgba(58, 37, 27, 0.72)";
+      context.stroke();
+
+      const headGradient = context.createRadialGradient(234, 190, 10, 255, 218, 92);
+      headGradient.addColorStop(0, "#b8895f");
+      headGradient.addColorStop(1, "#664532");
+      context.beginPath();
+      context.ellipse(246, 211, 75, 70, -0.14, 0, Math.PI * 2);
+      context.fillStyle = headGradient;
+      context.fill();
+      context.lineWidth = 7;
+      context.strokeStyle = "rgba(58, 37, 27, 0.7)";
+      context.stroke();
+
+      const beakGradient = context.createLinearGradient(40, 205, 194, 214);
+      beakGradient.addColorStop(0, "#d7b98c");
+      beakGradient.addColorStop(0.72, "#b48a58");
+      beakGradient.addColorStop(1, "#7a583c");
+      context.beginPath();
+      context.moveTo(193, 196);
+      context.bezierCurveTo(151, 199, 92, 207, 27, 230);
+      context.bezierCurveTo(88, 228, 151, 224, 203, 219);
+      context.closePath();
+      context.fillStyle = beakGradient;
+      context.fill();
+      context.lineWidth = 5;
+      context.strokeStyle = "rgba(72, 48, 31, 0.62)";
+      context.stroke();
+
+      context.save();
+      context.globalAlpha = 0.34;
+      context.strokeStyle = "#ead1ad";
+      context.lineWidth = 5;
+      for (let index = 0; index < 14; index += 1) {
+        const startX = 308 + (index % 7) * 43;
+        const startY = 185 + Math.floor(index / 7) * 88 + (index % 2) * 12;
+        context.beginPath();
+        context.moveTo(startX, startY);
+        context.quadraticCurveTo(startX + 23, startY - 13, startX + 48, startY + 5);
+        context.stroke();
+      }
+      context.restore();
+
+      context.beginPath();
+      context.arc(218, 189, 10, 0, Math.PI * 2);
+      context.fillStyle = "#14110f";
+      context.fill();
+      context.beginPath();
+      context.arc(215, 186, 3.2, 0, Math.PI * 2);
+      context.fillStyle = "#fff7e9";
+      context.fill();
+      context.restore();
+
+      const texture = new CanvasTexture(stickerCanvas);
+      texture.colorSpace = SRGBColorSpace;
+      texture.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+      return texture;
+    };
+
     const createStickerTexture = (spec) => {
       if (spec.shape === "binary") return createBinaryStickerTexture();
+      if (spec.shape === "kiwi") return createKiwiStickerTexture();
 
       const stickerCanvas = document.createElement("canvas");
       const context = stickerCanvas.getContext("2d");
@@ -1459,8 +1572,9 @@ if (heroModelCanvas) {
 
       let stickersAreMoving = false;
       stickerMeshes.forEach((sticker, index) => {
-        const start = index * 0.105;
-        const end = start + 0.26;
+        const stagger = stickerMeshes.length > 1 ? 0.72 / (stickerMeshes.length - 1) : 0;
+        const start = index * stagger;
+        const end = start + 0.28;
         const targetReveal = MathUtils.clamp((stickerTimeline - start) / (end - start), 0, 1);
         const easedReveal = 1 - Math.pow(1 - targetReveal, 3);
         sticker.userData.currentReveal = reducedMotion
