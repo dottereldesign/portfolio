@@ -355,6 +355,8 @@ if (heroModelCanvas) {
     let currentHostScale = 1;
     let stickerTimeline = 0;
     let laptopHasSettled = false;
+    let laptopLandingLocked = false;
+    let lastMotionFrameTime;
     let heroScrollDirty = false;
     let frame;
     let screenMesh;
@@ -1418,6 +1420,7 @@ if (heroModelCanvas) {
 
       if (reducedMotion) {
         laptopHasSettled = false;
+        laptopLandingLocked = false;
         targetRotation = -0.45;
         targetRotationX = 0;
         targetRotationZ = -0.05;
@@ -1432,6 +1435,7 @@ if (heroModelCanvas) {
 
       if (usesStackedHeroLayout()) {
         laptopHasSettled = false;
+        laptopLandingLocked = false;
         targetRotation = MathUtils.lerp(-0.45, -0.45 + Math.PI * 0.95, sweepProgress);
         targetRotationX = 0;
         targetRotationZ = -0.05;
@@ -1446,7 +1450,10 @@ if (heroModelCanvas) {
 
       const capabilitiesBounds = capabilitiesSection.getBoundingClientRect();
       if (sweepProgress >= 0.9995) laptopHasSettled = true;
-      else if (sweepProgress <= 0.995) laptopHasSettled = false;
+      else if (sweepProgress <= 0.995) {
+        laptopHasSettled = false;
+        laptopLandingLocked = false;
+      }
       const viewportHeight = window.innerHeight;
       const viewportWidth = window.innerWidth;
       const isWideDesktop = viewportWidth >= 1101;
@@ -1556,8 +1563,14 @@ if (heroModelCanvas) {
         updateScroll();
         heroScrollDirty = false;
       }
-      const motionEase = usesCompactRendering() ? 0.16 : 0.1;
-      const shouldLockToLanding = reducedMotion || laptopHasSettled;
+      const now = performance.now();
+      const elapsedSeconds = lastMotionFrameTime === undefined
+        ? 1 / 60
+        : MathUtils.clamp((now - lastMotionFrameTime) / 1000, 1 / 240, 1 / 20);
+      const motionResponse = usesCompactRendering() ? 10.5 : 6.35;
+      const motionEase = 1 - Math.exp(-motionResponse * elapsedSeconds);
+      lastMotionFrameTime = now;
+      const shouldLockToLanding = reducedMotion || laptopLandingLocked;
       laptop.rotation.y = shouldLockToLanding ? targetRotation : MathUtils.lerp(laptop.rotation.y, targetRotation, motionEase);
       laptop.rotation.x = shouldLockToLanding ? targetRotationX : MathUtils.lerp(laptop.rotation.x, targetRotationX, motionEase);
       laptop.position.y = shouldLockToLanding ? targetLift : MathUtils.lerp(laptop.position.y, targetLift, motionEase);
@@ -1566,6 +1579,24 @@ if (heroModelCanvas) {
       currentHostX = shouldLockToLanding ? targetHostX : MathUtils.lerp(currentHostX, targetHostX, motionEase);
       currentHostY = shouldLockToLanding ? targetHostY : MathUtils.lerp(currentHostY, targetHostY, motionEase);
       currentHostScale = shouldLockToLanding ? targetHostScale : MathUtils.lerp(currentHostScale, targetHostScale, motionEase);
+
+      const landingHasConverged = Math.abs(laptop.rotation.y - targetRotation) < 0.00025
+        && Math.abs(laptop.rotation.x - targetRotationX) < 0.00025
+        && Math.abs(laptop.rotation.z - targetRotationZ) < 0.00025
+        && Math.abs(laptop.position.y - targetLift) < 0.003
+        && Math.abs(currentHostX - targetHostX) < 0.03
+        && Math.abs(currentHostY - targetHostY) < 0.03
+        && Math.abs(currentHostScale - targetHostScale) < 0.00008;
+
+      if (laptopHasSettled && !laptopLandingLocked && landingHasConverged) {
+        laptop.rotation.set(targetRotationX, targetRotation, targetRotationZ);
+        laptop.position.y = targetLift;
+        currentHostX = targetHostX;
+        currentHostY = targetHostY;
+        currentHostScale = targetHostScale;
+        laptopLandingLocked = true;
+      }
+
       modelHost.style.setProperty("--model-shift-x", `${currentHostX.toFixed(2)}px`);
       modelHost.style.setProperty("--model-shift-y", `${currentHostY.toFixed(2)}px`);
       modelHost.style.setProperty("--model-scale", currentHostScale.toFixed(4));
@@ -1590,7 +1621,7 @@ if (heroModelCanvas) {
         stickersAreMoving ||= Math.abs(reveal - easedReveal) > 0.002;
       });
 
-      const dockIsAnimating = screenController?.update(performance.now()) ?? false;
+      const dockIsAnimating = screenController?.update(now) ?? false;
       renderer.render(scene, camera);
 
       if (!modelHasPainted) {
@@ -1606,6 +1637,7 @@ if (heroModelCanvas) {
         || Math.abs(currentHostX - targetHostX) > 0.1
         || Math.abs(currentHostY - targetHostY) > 0.1
         || Math.abs(currentHostScale - targetHostScale) > 0.001
+        || (laptopHasSettled && !laptopLandingLocked)
         || stickersAreMoving
         || dockIsAnimating
       )) {
