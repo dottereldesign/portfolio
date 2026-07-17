@@ -95,7 +95,13 @@ a { color: inherit; text-decoration: none; }
 .logo { font-family: "Space Grotesk", sans-serif; font-size: 1.35rem; font-weight: 700; letter-spacing: -0.1em; text-transform: none; animation: hero-header-in 720ms var(--hero-ease) 100ms backwards; }
 .logo span { color: var(--accent); }
 .slash { color: var(--accent-secondary); }
-.header-link { color: var(--muted); animation: hero-header-in 720ms var(--hero-ease) 180ms backwards; transition: color 180ms ease; }
+.cv-download { display: inline-flex; align-items: center; gap: 0.4rem; color: var(--muted); white-space: nowrap; animation: hero-header-in 720ms var(--hero-ease) 180ms backwards; transition: color 180ms ease, transform 180ms var(--hero-ease); }
+.cv-download__compact { display: none; }
+.cv-download__arrow { color: var(--accent-secondary); font-size: 0.9rem; line-height: 1; transition: transform 180ms var(--hero-ease); }
+.cv-download:hover { color: var(--ink); transform: translateY(-1px); }
+.cv-download:hover .cv-download__arrow { transform: translateY(0.12rem); }
+.cv-download:focus-visible { border-radius: 2px; outline: 2px solid var(--accent-secondary); outline-offset: 0.3rem; }
+.header-link { color: var(--muted); animation: hero-header-in 720ms var(--hero-ease) 220ms backwards; transition: color 180ms ease; }
 .header-link span { color: var(--accent); font-size: 1rem; }
 .header-link:hover { color: var(--ink); }
 
@@ -828,6 +834,9 @@ html[data-theme="light"] .hero__study-item--gold { --study-metal: #8a6700; }
   :root { --page-frame-inset: 0.45rem; }
   .hero { min-height: max(48rem, 100svh); padding: var(--hero-frame-inset); }
   .site-header { padding: 0 0.9rem; }
+  .site-header__actions { gap: 0.65rem; }
+  .cv-download__full { display: none; }
+  .cv-download__compact { display: inline; }
   .hero__content { padding: clamp(17rem, 43svh, 25rem) 1rem clamp(2.5rem, 5vh, 3.5rem); }
   .hero__model { --hero-model-opacity: 0.9; top: 4.75rem; right: -46vw; width: 190vw; height: clamp(26rem, 64svh, 38rem); }
   .hero__title { font-size: clamp(3.75rem, 16vw, 5.4rem); }
