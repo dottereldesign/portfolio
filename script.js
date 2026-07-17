@@ -1449,6 +1449,8 @@ if (heroModelCanvas) {
       return progress * progress * progress * (progress * (progress * 6 - 15) + 10);
     };
 
+    const HERO_LANDING_SYNC_START = 0.58;
+    const HERO_LANDING_SYNC_END = 0.65;
     const progressBetween = (value, start, end) => quinticEase((value - start) / Math.max(1, end - start));
 
     const getDocumentBounds = (element) => {
@@ -1470,10 +1472,13 @@ if (heroModelCanvas) {
       const viewportWidth = window.innerWidth;
       const heroFlightEnd = heroBounds.bottom;
       const workTop = workBounds.top;
-      const exitStart = Math.max(heroFlightEnd + viewportHeight * 0.18, workTop - viewportHeight * 0.98);
-      const exitEnd = Math.max(exitStart + viewportHeight * 0.22, workTop - viewportHeight * 0.7);
-      const workEnterStart = exitEnd + viewportHeight * 0.04;
-      const workEnterEnd = Math.max(workEnterStart + viewportHeight * 0.36, workTop - viewportHeight * 0.16);
+      // Let the capabilities laptop leave with its section before introducing
+      // the project laptop as a separate, straight slide from the right.
+      const workEnterStart = Math.max(
+        heroFlightEnd + viewportHeight * 0.44,
+        workTop - viewportHeight * 0.5,
+      );
+      const workEnterEnd = Math.max(workEnterStart + viewportHeight * 0.36, workTop - viewportHeight * 0.14);
       const capabilitiesLandingCenter = MathUtils.clamp(
         capabilitiesIntroBounds.top + capabilitiesIntroBounds.height * 0.52 - heroFlightEnd,
         viewportHeight * 0.3,
@@ -1488,8 +1493,6 @@ if (heroModelCanvas) {
         capabilitiesTop: capabilitiesBounds.top,
         capabilitiesBottom: capabilitiesBounds.bottom,
         capabilitiesLandingCenter,
-        exitStart,
-        exitEnd,
         workEnterStart,
         workEnterEnd,
         workPinEnd: workEnterEnd + viewportHeight * 0.28,
@@ -1499,20 +1502,39 @@ if (heroModelCanvas) {
       };
     };
 
-    const resolveLaptopMotion = (scrollPosition) => {
+    const resolveLaptopMotion = (smoothedScrollPosition, pageScrollPosition = smoothedScrollPosition) => {
       if (!motionMetrics) refreshMotionMetrics();
 
       const metrics = motionMetrics;
       const viewportHeight = metrics.viewportHeight;
       const viewportWidth = metrics.viewportWidth;
       const initialDesktopOffset = viewportWidth >= 1101 ? Math.min(112, viewportHeight * 0.085) : 0;
-      const heroProgress = progressBetween(scrollPosition, metrics.heroFlightStart, metrics.heroFlightEnd);
+      const heroFlightDistance = Math.max(1, metrics.heroFlightEnd - metrics.heroFlightStart);
+      const pageHeroProgress = MathUtils.clamp(
+        (pageScrollPosition - metrics.heroFlightStart) / heroFlightDistance,
+        0,
+        1,
+      );
+      // The opening sweep keeps its soft response. Before the laptop reaches the
+      // capabilities section, control passes progressively to the browser's real
+      // scroll position. This prevents the fixed WebGL layer from hovering while
+      // its destination section has already moved underneath it.
+      const landingScrollSync = quinticEase(
+        (pageHeroProgress - HERO_LANDING_SYNC_START)
+          / (HERO_LANDING_SYNC_END - HERO_LANDING_SYNC_START),
+      );
+      const heroScrollPosition = MathUtils.lerp(
+        smoothedScrollPosition,
+        pageScrollPosition,
+        landingScrollSync,
+      );
+      const heroProgress = progressBetween(heroScrollPosition, metrics.heroFlightStart, metrics.heroFlightEnd);
 
       if (reducedMotion) {
         return {
           phase: "reduced-motion",
           hostX: 0,
-          hostY: -scrollPosition + initialDesktopOffset,
+          hostY: -pageScrollPosition + initialDesktopOffset,
           hostScale: 1,
           rotationX: 0,
           rotationY: -0.45,
@@ -1527,7 +1549,7 @@ if (heroModelCanvas) {
         return {
           phase: heroProgress < 1 ? "mobile-hero-flight" : "mobile-hero-exit",
           hostX: 0,
-          hostY: -scrollPosition,
+          hostY: -pageScrollPosition,
           hostScale: 1,
           rotationX: 0,
           rotationY: MathUtils.lerp(-0.45, -0.45 + Math.PI * 0.95, heroProgress),
@@ -1550,7 +1572,7 @@ if (heroModelCanvas) {
       // Give both poses enough room to clear the viewport without turning edge-on.
       const offscreenHostX = Math.max(capabilitiesHostX, workHostX) + viewportWidth * 0.72;
 
-      if (scrollPosition <= metrics.heroFlightEnd) {
+      if (pageScrollPosition <= metrics.heroFlightEnd) {
         const flightArc = Math.sin(heroProgress * Math.PI) * viewportHeight * 0.08;
         return {
           phase: heroProgress < 0.999 ? "hero-to-capabilities" : "capabilities-landed",
@@ -1563,14 +1585,15 @@ if (heroModelCanvas) {
           lift: MathUtils.lerp(0, -4, heroProgress),
           lidRotation: 0,
           stickerTimeline: heroProgress,
+          landingScrollSync,
         };
       }
 
-      if (scrollPosition < metrics.exitStart) {
+      if (pageScrollPosition < metrics.workEnterStart) {
         return {
-          phase: "capabilities-hold",
+          phase: "capabilities-track-with-section",
           hostX: capabilitiesHostX,
-          hostY: capabilitiesHostY,
+          hostY: capabilitiesHostY - (pageScrollPosition - metrics.heroFlightEnd),
           hostScale: capabilitiesScale,
           rotationX: -0.12,
           rotationY: capabilitiesRotationY,
@@ -1578,42 +1601,12 @@ if (heroModelCanvas) {
           lift: -4,
           lidRotation: 0,
           stickerTimeline: 1,
+          landingScrollSync: 1,
         };
       }
 
-      if (scrollPosition <= metrics.exitEnd) {
-        const exitProgress = progressBetween(scrollPosition, metrics.exitStart, metrics.exitEnd);
-        return {
-          phase: "capabilities-slide-out",
-          hostX: MathUtils.lerp(capabilitiesHostX, offscreenHostX, exitProgress),
-          hostY: capabilitiesHostY,
-          hostScale: capabilitiesScale,
-          rotationX: -0.12,
-          rotationY: capabilitiesRotationY,
-          rotationZ: 0.035,
-          lift: -4,
-          lidRotation: 0,
-          stickerTimeline: 1,
-        };
-      }
-
-      if (scrollPosition < metrics.workEnterStart) {
-        return {
-          phase: "between-sections",
-          hostX: offscreenHostX,
-          hostY: workHostY,
-          hostScale: workScale,
-          rotationX: -0.08,
-          rotationY: workRotationY,
-          rotationZ: 0.018,
-          lift: -3,
-          lidRotation: 0,
-          stickerTimeline: 1,
-        };
-      }
-
-      if (scrollPosition <= metrics.workEnterEnd) {
-        const enterProgress = progressBetween(scrollPosition, metrics.workEnterStart, metrics.workEnterEnd);
+      if (pageScrollPosition <= metrics.workEnterEnd) {
+        const enterProgress = progressBetween(pageScrollPosition, metrics.workEnterStart, metrics.workEnterEnd);
         return {
           phase: "work-slide-in",
           hostX: MathUtils.lerp(offscreenHostX, workHostX, enterProgress),
@@ -1625,13 +1618,14 @@ if (heroModelCanvas) {
           lift: -3,
           lidRotation: 0,
           stickerTimeline: 1,
+          landingScrollSync: 1,
         };
       }
 
       return {
-        phase: scrollPosition <= metrics.workPinEnd ? "work-hold" : "work-track-out",
+        phase: pageScrollPosition <= metrics.workPinEnd ? "work-hold" : "work-track-out",
         hostX: workHostX,
-        hostY: workHostY - Math.max(0, scrollPosition - metrics.workPinEnd),
+        hostY: workHostY - Math.max(0, pageScrollPosition - metrics.workPinEnd),
         hostScale: workScale,
         rotationX: -0.08,
         rotationY: workRotationY,
@@ -1639,11 +1633,12 @@ if (heroModelCanvas) {
         lift: -3,
         lidRotation: 0,
         stickerTimeline: 1,
+        landingScrollSync: 1,
       };
     };
 
-    const applyLaptopMotion = (scrollPosition) => {
-      motionState = resolveLaptopMotion(scrollPosition);
+    const applyLaptopMotion = (smoothedScrollPosition, pageScrollPosition = smoothedScrollPosition) => {
+      motionState = resolveLaptopMotion(smoothedScrollPosition, pageScrollPosition);
       laptop.rotation.set(motionState.rotationX, motionState.rotationY, motionState.rotationZ);
       laptop.position.y = motionState.lift;
       if (lidGroup) lidGroup.rotation.x = lidOpenRotationX + motionState.lidRotation;
@@ -1655,7 +1650,8 @@ if (heroModelCanvas) {
 
     // Regression note: a78bc97 added a second per-channel convergence/lock after the
     // scroll timeline. That made a moving viewport-relative target bounce and snap.
-    // Keep one smoothed scroll scalar and derive every transform from it together.
+    // Keep one smoothed scalar for the opening sweep, then synchronize the landing
+    // to the real page scroll so the laptop behaves like part of its section.
     modelHost.__getLaptopMotionState = () => ({
       ...motionState,
       currentScroll: currentMotionScroll,
@@ -1768,11 +1764,18 @@ if (heroModelCanvas) {
       const motionEase = 1 - Math.exp(-motionResponse * elapsedSeconds);
       lastMotionFrameTime = now;
       const scrollDifference = targetMotionScroll - currentMotionScroll;
-      if (reducedMotion || usesStackedHeroLayout()) currentMotionScroll = targetMotionScroll;
+      const pageHeroProgress = motionMetrics
+        ? (targetMotionScroll - motionMetrics.heroFlightStart)
+          / Math.max(1, motionMetrics.heroFlightEnd - motionMetrics.heroFlightStart)
+        : 0;
+      const landingTracksPageDirectly = pageHeroProgress >= HERO_LANDING_SYNC_END;
+      if (reducedMotion || usesStackedHeroLayout() || landingTracksPageDirectly) {
+        currentMotionScroll = targetMotionScroll;
+      }
       else if (Math.abs(scrollDifference) <= 0.01) currentMotionScroll = targetMotionScroll;
       else currentMotionScroll += scrollDifference * motionEase;
 
-      applyLaptopMotion(currentMotionScroll);
+      applyLaptopMotion(currentMotionScroll, targetMotionScroll);
 
       stickerMeshes.forEach((sticker, index) => {
         const stagger = stickerMeshes.length > 1 ? 0.72 / (stickerMeshes.length - 1) : 0;
@@ -1839,7 +1842,10 @@ if (heroModelCanvas) {
     });
     window.addEventListener("scroll", () => {
       setDockHover(-1);
-      heroScrollDirty = true;
+      // Capture the browser's scroll position in the scroll event itself. The
+      // following animation frame can then place the landed laptop before paint,
+      // instead of displaying one stale frame and correcting it afterward.
+      targetMotionScroll = window.scrollY;
       requestRender();
     }, { passive: true });
     requestRender();
