@@ -1450,6 +1450,7 @@ if (heroModelCanvas) {
     };
 
     const progressBetween = (value, start, end) => quinticEase((value - start) / Math.max(1, end - start));
+    const timelineProgress = (value, start, end) => MathUtils.clamp((value - start) / Math.max(1, end - start), 0, 1);
 
     const getDocumentBounds = (element) => {
       const bounds = element.getBoundingClientRect();
@@ -1582,7 +1583,11 @@ if (heroModelCanvas) {
       }
 
       if (scrollPosition <= metrics.exitEnd) {
-        const exitProgress = progressBetween(scrollPosition, metrics.exitStart, metrics.exitEnd);
+        const exitTimeline = timelineProgress(scrollPosition, metrics.exitStart, metrics.exitEnd);
+        // Let the hinge action read clearly before the laptop turns edge-on.
+        // Travel overlaps the final part of the close so the sequence remains one sweep.
+        const closeProgress = quinticEase(exitTimeline / 0.46);
+        const exitProgress = quinticEase((exitTimeline - 0.24) / 0.76);
         return {
           phase: "capabilities-close-and-exit",
           hostX: MathUtils.lerp(capabilitiesHostX, offscreenHostX, exitProgress),
@@ -1592,7 +1597,7 @@ if (heroModelCanvas) {
           rotationY: MathUtils.lerp(capabilitiesRotationY, workRotationY, exitProgress),
           rotationZ: MathUtils.lerp(0.035, -0.02, exitProgress),
           lift: MathUtils.lerp(-4, -1, exitProgress),
-          lidRotation: MathUtils.lerp(0, closedLidRotation, exitProgress),
+          lidRotation: MathUtils.lerp(0, closedLidRotation, closeProgress),
           stickerTimeline: 1,
         };
       }
@@ -1613,7 +1618,10 @@ if (heroModelCanvas) {
       }
 
       if (scrollPosition <= metrics.workEnterEnd) {
-        const enterProgress = progressBetween(scrollPosition, metrics.workEnterStart, metrics.workEnterEnd);
+        const enterTimeline = timelineProgress(scrollPosition, metrics.workEnterStart, metrics.workEnterEnd);
+        const enterProgress = quinticEase(enterTimeline);
+        // Bring the closed silhouette fully back into view before opening it.
+        const openProgress = quinticEase((enterTimeline - 0.34) / 0.66);
         return {
           phase: "work-enter-and-open",
           hostX: MathUtils.lerp(offscreenHostX, workHostX, enterProgress),
@@ -1624,7 +1632,7 @@ if (heroModelCanvas) {
           rotationY: workRotationY,
           rotationZ: MathUtils.lerp(-0.02, 0.018, enterProgress),
           lift: MathUtils.lerp(-1, -3, enterProgress),
-          lidRotation: MathUtils.lerp(closedLidRotation, 0, enterProgress),
+          lidRotation: MathUtils.lerp(closedLidRotation, 0, openProgress),
           stickerTimeline: 1,
         };
       }
