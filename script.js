@@ -414,7 +414,9 @@ if (heroModelCanvas) {
     keyLight.position.set(4, 5, 6);
     scene.add(keyLight);
 
-    const fillLight = new DirectionalLight(0x9fa8ff, 1.5);
+    // Keep the cool side definition without letting the lid flash white as its
+    // broad face crosses the light during the hero-to-capabilities turn.
+    const fillLight = new DirectionalLight(0x8791d8, 0.68);
     fillLight.position.set(-5, 2, 3);
     scene.add(fillLight);
     scene.add(laptop);
@@ -1665,7 +1667,7 @@ if (heroModelCanvas) {
     };
 
     new GLTFLoader().load("assets/macbook.glb", ({ scene: loadedScene }) => {
-      const baseMetal = new MeshStandardMaterial({ color: 0x9da1a5, metalness: 0.82, roughness: 0.3 });
+      const baseMetal = new MeshStandardMaterial({ color: 0x73777d, metalness: 0.7, roughness: 0.52 });
       const darkPlastic = new MeshStandardMaterial({ color: 0x080909, metalness: 0.35, roughness: 0.72 });
       const logo = new MeshBasicMaterial({ color: 0xff5a24 });
       const webcam = loadedScene.getObjectByName("camera");
