@@ -1223,9 +1223,10 @@ if (heroModelCanvas) {
     const updateScroll = () => {
       const bounds = hero.getBoundingClientRect();
       const progress = MathUtils.clamp(-bounds.top / Math.max(1, bounds.height), 0, 1);
-      const smoothProgress = progress * progress * (3 - 2 * progress);
+      // One shared, zero-velocity curve keeps the flight, turn and scale in phase.
+      const sweepProgress = progress * progress * progress * (progress * (progress * 6 - 15) + 10);
       const initialDesktopOffset = window.innerWidth >= 1101
-        ? Math.min(112, window.innerHeight * 0.085) * (1 - smoothProgress)
+        ? Math.min(112, window.innerHeight * 0.085)
         : 0;
       moveModelToPageOverlay();
 
@@ -1245,10 +1246,10 @@ if (heroModelCanvas) {
 
       if (usesStackedHeroLayout()) {
         laptopHasSettled = false;
-        targetRotation = -0.45 + progress * Math.PI * 0.95;
+        targetRotation = MathUtils.lerp(-0.45, -0.45 + Math.PI * 0.95, sweepProgress);
         targetRotationX = 0;
         targetRotationZ = -0.05;
-        targetLift = progress * 5;
+        targetLift = MathUtils.lerp(0, 5, sweepProgress);
         targetHostX = 0;
         targetHostY = bounds.top;
         currentHostY = targetHostY;
@@ -1258,12 +1259,8 @@ if (heroModelCanvas) {
       }
 
       const capabilitiesBounds = capabilitiesSection.getBoundingClientRect();
-      const settleProgress = MathUtils.clamp((progress - 0.42) / 0.58, 0, 1);
-      const settleEase = settleProgress * settleProgress * (3 - 2 * settleProgress);
-      if (settleProgress >= 0.995) laptopHasSettled = true;
-      else if (settleProgress <= 0.97) laptopHasSettled = false;
-      const scaleProgress = MathUtils.clamp((progress - 0.03) / 0.52, 0, 1);
-      const scaleEase = scaleProgress * scaleProgress * (3 - 2 * scaleProgress);
+      if (sweepProgress >= 0.9995) laptopHasSettled = true;
+      else if (sweepProgress <= 0.995) laptopHasSettled = false;
       const viewportHeight = window.innerHeight;
       const viewportWidth = window.innerWidth;
       const isWideDesktop = viewportWidth >= 1101;
@@ -1271,22 +1268,22 @@ if (heroModelCanvas) {
       const landingShiftX = viewportWidth <= 1100
         ? -viewportWidth * 0.06
         : Math.min(40, viewportWidth * 0.03);
-      const arcCenterY = viewportHeight * (0.55 - smoothProgress * 0.1)
-        + Math.sin(progress * Math.PI) * viewportHeight * 0.08;
+      const startingCenterY = viewportHeight * 0.55 + initialDesktopOffset;
       const landingCenterY = isWideDesktop && capabilitiesIntroBounds
         ? capabilitiesIntroBounds.top + capabilitiesIntroBounds.height * 0.52
         : capabilitiesBounds.top + Math.min(245, viewportHeight * 0.28);
-      const targetCenterY = MathUtils.lerp(arcCenterY, landingCenterY, settleEase);
+      const flightArc = Math.sin(sweepProgress * Math.PI) * viewportHeight * 0.08;
+      const targetCenterY = MathUtils.lerp(startingCenterY, landingCenterY, sweepProgress) + flightArc;
 
-      targetRotation = MathUtils.lerp(-0.45, Math.PI - 0.35, smoothProgress);
-      targetRotationX = MathUtils.lerp(0, -0.12, settleEase);
-      targetRotationZ = MathUtils.lerp(-0.05, 0.035, settleEase);
-      targetLift = MathUtils.lerp(0, -4, smoothProgress);
-      targetHostX = landingShiftX * settleEase;
-      targetHostY = targetCenterY - viewportHeight * 0.55 + initialDesktopOffset;
+      targetRotation = MathUtils.lerp(-0.45, Math.PI - 0.35, sweepProgress);
+      targetRotationX = MathUtils.lerp(0, -0.12, sweepProgress);
+      targetRotationZ = MathUtils.lerp(-0.05, 0.035, sweepProgress);
+      targetLift = MathUtils.lerp(0, -4, sweepProgress);
+      targetHostX = MathUtils.lerp(0, landingShiftX, sweepProgress);
+      targetHostY = targetCenterY - viewportHeight * 0.55;
       if (!modelReady) currentHostY = targetHostY;
-      targetHostScale = MathUtils.lerp(1, isWideDesktop ? 0.6 : 0.44, scaleEase);
-      stickerTimeline = settleEase;
+      targetHostScale = MathUtils.lerp(1, isWideDesktop ? 0.6 : 0.44, sweepProgress);
+      stickerTimeline = sweepProgress;
     };
 
     new GLTFLoader().load("assets/macbook.glb", ({ scene: loadedScene }) => {
