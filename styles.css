@@ -187,8 +187,10 @@ html[data-theme="dark"] .theme-switcher-grid[data-theme-toggle] .star-4 { transf
 .hero__model.hero__model--ready { visibility: visible; opacity: var(--hero-model-opacity); }
 .hero__model-canvas { position: absolute; inset: 0; width: 100%; height: 100%; background: transparent; }
 .eyebrow { display: flex; align-items: center; gap: 0.7rem; margin: 0 0 1.7rem; color: var(--accent-secondary); font-family: "DM Mono", monospace; font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; }
+.eyebrow--status { color: var(--accent); }
 .hero__content > .eyebrow { z-index: 50; animation: hero-kicker-in 760ms var(--hero-ease) 320ms backwards; }
 .status-dot { width: 0.5rem; height: 0.5rem; border-radius: 50%; background: var(--accent-secondary); box-shadow: 0 0 1rem var(--accent-secondary); animation: pulse 2s ease-in-out infinite; }
+.eyebrow--status .status-dot { background: var(--accent); box-shadow: 0 0 1rem var(--accent); }
 .hero__title { z-index: 50; max-width: none; margin: 0; color: var(--ink); font-size: clamp(4.2rem, 9.5vw, 9.5rem); font-weight: 600; letter-spacing: -0.09em; line-height: 0.86; white-space: nowrap; }
 .hero__title span { display: inline-block; }
 html.js .hero__title > span:not(.is-scramble-ready) { visibility: hidden; }
@@ -444,7 +446,7 @@ html.js .hero__title > span:not(.is-scramble-ready) { visibility: hidden; }
 
 .journey { position: relative; overflow: hidden; margin-top: -1px; padding: 0 var(--page-section-inline) clamp(8rem, 14vw, 14rem); padding-left: var(--page-section-left); background: #10110f; color: var(--ink); }
 .journey__intro { position: relative; z-index: 1; width: 100%; max-width: 76rem; margin: 0 auto clamp(6rem, 12vw, 12rem); text-align: center; }
-.journey .eyebrow { justify-content: center; color: var(--accent-secondary); }
+.journey .eyebrow { justify-content: center; color: var(--accent); }
 .journey h2 { margin: 0; font-size: clamp(3.3rem, 8vw, 8rem); letter-spacing: -0.09em; line-height: 0.88; }
 .journey h2 span,
 .journey h2 em { white-space: nowrap; }
