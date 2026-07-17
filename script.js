@@ -343,8 +343,10 @@ if (heroModelCanvas) {
     const hero = document.querySelector(".hero");
     const capabilitiesSection = document.querySelector(".capabilities");
     const capabilitiesIntro = capabilitiesSection?.querySelector(".capabilities__intro");
+    const workSection = document.querySelector("#work");
+    const workHeading = workSection?.querySelector(".work-heading");
 
-    if (!hero || !capabilitiesSection) throw new Error("Laptop stage is incomplete");
+    if (!hero || !capabilitiesSection || !workSection || !workHeading) throw new Error("Laptop stage is incomplete");
 
     const scene = new Scene();
     const stackedHeroQuery = window.matchMedia("(max-width: 800px), (max-width: 1024px) and (max-aspect-ratio: 1/1)");
@@ -366,24 +368,29 @@ if (heroModelCanvas) {
     let modelHasPainted = false;
     let heroIsVisible = true;
     let capabilitiesAreVisible = false;
-    let targetRotation = -0.45;
-    let targetRotationX = 0;
-    let targetRotationZ = -0.05;
-    let targetLift = 0;
-    let targetHostX = 0;
-    let targetHostY = 0;
-    let targetHostScale = 1;
-    let currentHostX = 0;
-    let currentHostY = 0;
-    let currentHostScale = 1;
-    let stickerTimeline = 0;
-    let laptopHasSettled = false;
-    let laptopLandingLocked = false;
+    let workIsVisible = false;
+    let targetMotionScroll = window.scrollY;
+    let currentMotionScroll = window.scrollY;
     let lastMotionFrameTime;
+    let motionMetrics;
+    let motionState = {
+      phase: "hero",
+      hostX: 0,
+      hostY: 0,
+      hostScale: 1,
+      rotationX: 0,
+      rotationY: -0.45,
+      rotationZ: -0.05,
+      lift: 0,
+      lidRotation: 0,
+      stickerTimeline: 0,
+    };
     let heroScrollDirty = false;
     let frame;
     let screenMesh;
     let screenController;
+    let lidGroup;
+    let lidOpenRotationX = 0;
     const stickerMeshes = [];
     const dockRaycaster = new Raycaster();
     const dockPointer = new Vector2();
@@ -798,7 +805,7 @@ if (heroModelCanvas) {
 
     const createPortraitOverlayTexture = () => {
       const portraitCanvas = document.createElement("canvas");
-      const portraitContext = portraitCanvas.getContext("2d");
+      const portraitContext = portraitCanvas.getContext("2d", { willReadFrequently: true });
       const portraitSourceCanvas = document.createElement("canvas");
       const portraitSourceContext = portraitSourceCanvas.getContext("2d", { willReadFrequently: true });
       const portraitImage = new Image();
@@ -1431,75 +1438,229 @@ if (heroModelCanvas) {
       camera.updateProjectionMatrix();
     };
 
-    const updateScroll = () => {
-      const bounds = hero.getBoundingClientRect();
-      const progress = MathUtils.clamp(-bounds.top / Math.max(1, bounds.height), 0, 1);
-      // One shared, zero-velocity curve keeps the flight, turn and scale in phase.
-      const sweepProgress = progress * progress * progress * (progress * (progress * 6 - 15) + 10);
-      const initialDesktopOffset = window.innerWidth >= 1101
-        ? Math.min(112, window.innerHeight * 0.085)
-        : 0;
-      moveModelToPageOverlay();
+    const quinticEase = (value) => {
+      const progress = MathUtils.clamp(value, 0, 1);
+      return progress * progress * progress * (progress * (progress * 6 - 15) + 10);
+    };
+
+    const progressBetween = (value, start, end) => quinticEase((value - start) / Math.max(1, end - start));
+
+    const getDocumentBounds = (element) => {
+      const bounds = element.getBoundingClientRect();
+      return {
+        top: bounds.top + window.scrollY,
+        bottom: bounds.bottom + window.scrollY,
+        height: bounds.height,
+      };
+    };
+
+    const refreshMotionMetrics = () => {
+      const heroBounds = getDocumentBounds(hero);
+      const capabilitiesBounds = getDocumentBounds(capabilitiesSection);
+      const capabilitiesIntroBounds = getDocumentBounds(capabilitiesIntro || capabilitiesSection);
+      const workBounds = getDocumentBounds(workSection);
+      const workHeadingBounds = getDocumentBounds(workHeading);
+      const viewportHeight = window.innerHeight;
+      const viewportWidth = window.innerWidth;
+      const heroFlightEnd = heroBounds.bottom;
+      const workTop = workBounds.top;
+      const exitStart = Math.max(heroFlightEnd + viewportHeight * 0.18, workTop - viewportHeight * 0.98);
+      const exitEnd = Math.max(exitStart + viewportHeight * 0.22, workTop - viewportHeight * 0.7);
+      const workEnterStart = exitEnd + viewportHeight * 0.04;
+      const workEnterEnd = Math.max(workEnterStart + viewportHeight * 0.36, workTop - viewportHeight * 0.16);
+      const capabilitiesLandingCenter = MathUtils.clamp(
+        capabilitiesIntroBounds.top + capabilitiesIntroBounds.height * 0.52 - heroFlightEnd,
+        viewportHeight * 0.3,
+        viewportHeight * 0.47,
+      );
+
+      motionMetrics = {
+        viewportHeight,
+        viewportWidth,
+        heroFlightStart: heroBounds.top,
+        heroFlightEnd,
+        capabilitiesTop: capabilitiesBounds.top,
+        capabilitiesBottom: capabilitiesBounds.bottom,
+        capabilitiesLandingCenter,
+        exitStart,
+        exitEnd,
+        workEnterStart,
+        workEnterEnd,
+        workPinEnd: workEnterEnd + viewportHeight * 0.28,
+        workTop,
+        workBottom: workBounds.bottom,
+        workHeadingBottom: workHeadingBounds.bottom,
+      };
+    };
+
+    const resolveLaptopMotion = (scrollPosition) => {
+      if (!motionMetrics) refreshMotionMetrics();
+
+      const metrics = motionMetrics;
+      const viewportHeight = metrics.viewportHeight;
+      const viewportWidth = metrics.viewportWidth;
+      const initialDesktopOffset = viewportWidth >= 1101 ? Math.min(112, viewportHeight * 0.085) : 0;
+      const heroProgress = progressBetween(scrollPosition, metrics.heroFlightStart, metrics.heroFlightEnd);
 
       if (reducedMotion) {
-        laptopHasSettled = false;
-        laptopLandingLocked = false;
-        targetRotation = -0.45;
-        targetRotationX = 0;
-        targetRotationZ = -0.05;
-        targetLift = 0;
-        targetHostX = 0;
-        targetHostY = bounds.top + initialDesktopOffset;
-        if (!modelReady) currentHostY = targetHostY;
-        targetHostScale = 1;
-        stickerTimeline = 0;
-        return;
+        return {
+          phase: "reduced-motion",
+          hostX: 0,
+          hostY: -scrollPosition + initialDesktopOffset,
+          hostScale: 1,
+          rotationX: 0,
+          rotationY: -0.45,
+          rotationZ: -0.05,
+          lift: 0,
+          lidRotation: 0,
+          stickerTimeline: 0,
+        };
       }
 
       if (usesStackedHeroLayout()) {
-        laptopHasSettled = false;
-        laptopLandingLocked = false;
-        targetRotation = MathUtils.lerp(-0.45, -0.45 + Math.PI * 0.95, sweepProgress);
-        targetRotationX = 0;
-        targetRotationZ = -0.05;
-        targetLift = MathUtils.lerp(0, 5, sweepProgress);
-        targetHostX = 0;
-        targetHostY = bounds.top;
-        currentHostY = targetHostY;
-        targetHostScale = 1;
-        stickerTimeline = 0;
-        return;
+        return {
+          phase: heroProgress < 1 ? "mobile-hero-flight" : "mobile-hero-exit",
+          hostX: 0,
+          hostY: -scrollPosition,
+          hostScale: 1,
+          rotationX: 0,
+          rotationY: MathUtils.lerp(-0.45, -0.45 + Math.PI * 0.95, heroProgress),
+          rotationZ: -0.05,
+          lift: MathUtils.lerp(0, 5, heroProgress),
+          lidRotation: 0,
+          stickerTimeline: 0,
+        };
       }
 
-      const capabilitiesBounds = capabilitiesSection.getBoundingClientRect();
-      if (sweepProgress >= 0.9995) laptopHasSettled = true;
-      else if (sweepProgress <= 0.995) {
-        laptopHasSettled = false;
-        laptopLandingLocked = false;
-      }
-      const viewportHeight = window.innerHeight;
-      const viewportWidth = window.innerWidth;
       const isWideDesktop = viewportWidth >= 1101;
-      const capabilitiesIntroBounds = capabilitiesIntro?.getBoundingClientRect();
-      const landingShiftX = viewportWidth <= 1100
-        ? -viewportWidth * 0.06
-        : Math.min(40, viewportWidth * 0.03);
-      const startingCenterY = viewportHeight * 0.55 + initialDesktopOffset;
-      const landingCenterY = isWideDesktop && capabilitiesIntroBounds
-        ? capabilitiesIntroBounds.top + capabilitiesIntroBounds.height * 0.52
-        : capabilitiesBounds.top + Math.min(245, viewportHeight * 0.28);
-      const flightArc = Math.sin(sweepProgress * Math.PI) * viewportHeight * 0.08;
-      const targetCenterY = MathUtils.lerp(startingCenterY, landingCenterY, sweepProgress) + flightArc;
+      const capabilitiesHostX = viewportWidth <= 1100 ? -viewportWidth * 0.06 : Math.min(40, viewportWidth * 0.03);
+      const capabilitiesHostY = metrics.capabilitiesLandingCenter - viewportHeight * 0.55;
+      const capabilitiesScale = isWideDesktop ? 0.6 : 0.44;
+      const capabilitiesRotationY = Math.PI - 0.35;
+      const workHostX = isWideDesktop ? viewportWidth * 0.02 : viewportWidth * 0.01;
+      const workHostY = viewportHeight * 0.5 - viewportHeight * 0.55;
+      const workScale = isWideDesktop ? 0.82 : 0.58;
+      const workRotationY = Math.PI * 0.5;
+      const closedLidRotation = -1.075;
+      const offscreenHostX = capabilitiesHostX + viewportWidth * 0.38;
 
-      targetRotation = MathUtils.lerp(-0.45, Math.PI - 0.35, sweepProgress);
-      targetRotationX = MathUtils.lerp(0, -0.12, sweepProgress);
-      targetRotationZ = MathUtils.lerp(-0.05, 0.035, sweepProgress);
-      targetLift = MathUtils.lerp(0, -4, sweepProgress);
-      targetHostX = MathUtils.lerp(0, landingShiftX, sweepProgress);
-      targetHostY = targetCenterY - viewportHeight * 0.55;
-      if (!modelReady) currentHostY = targetHostY;
-      targetHostScale = MathUtils.lerp(1, isWideDesktop ? 0.6 : 0.44, sweepProgress);
-      stickerTimeline = sweepProgress;
+      if (scrollPosition <= metrics.heroFlightEnd) {
+        const flightArc = Math.sin(heroProgress * Math.PI) * viewportHeight * 0.08;
+        return {
+          phase: heroProgress < 0.999 ? "hero-to-capabilities" : "capabilities-landed",
+          hostX: MathUtils.lerp(0, capabilitiesHostX, heroProgress),
+          hostY: MathUtils.lerp(initialDesktopOffset, capabilitiesHostY, heroProgress) + flightArc,
+          hostScale: MathUtils.lerp(1, capabilitiesScale, heroProgress),
+          rotationX: MathUtils.lerp(0, -0.12, heroProgress),
+          rotationY: MathUtils.lerp(-0.45, capabilitiesRotationY, heroProgress),
+          rotationZ: MathUtils.lerp(-0.05, 0.035, heroProgress),
+          lift: MathUtils.lerp(0, -4, heroProgress),
+          lidRotation: 0,
+          stickerTimeline: heroProgress,
+        };
+      }
+
+      if (scrollPosition < metrics.exitStart) {
+        return {
+          phase: "capabilities-hold",
+          hostX: capabilitiesHostX,
+          hostY: capabilitiesHostY,
+          hostScale: capabilitiesScale,
+          rotationX: -0.12,
+          rotationY: capabilitiesRotationY,
+          rotationZ: 0.035,
+          lift: -4,
+          lidRotation: 0,
+          stickerTimeline: 1,
+        };
+      }
+
+      if (scrollPosition <= metrics.exitEnd) {
+        const exitProgress = progressBetween(scrollPosition, metrics.exitStart, metrics.exitEnd);
+        return {
+          phase: "capabilities-close-and-exit",
+          hostX: MathUtils.lerp(capabilitiesHostX, offscreenHostX, exitProgress),
+          hostY: capabilitiesHostY - Math.sin(exitProgress * Math.PI) * viewportHeight * 0.035,
+          hostScale: MathUtils.lerp(capabilitiesScale, capabilitiesScale * 0.86, exitProgress),
+          rotationX: MathUtils.lerp(-0.12, -0.05, exitProgress),
+          rotationY: MathUtils.lerp(capabilitiesRotationY, workRotationY, exitProgress),
+          rotationZ: MathUtils.lerp(0.035, -0.02, exitProgress),
+          lift: MathUtils.lerp(-4, -1, exitProgress),
+          lidRotation: MathUtils.lerp(0, closedLidRotation, exitProgress),
+          stickerTimeline: 1,
+        };
+      }
+
+      if (scrollPosition < metrics.workEnterStart) {
+        return {
+          phase: "between-sections",
+          hostX: offscreenHostX,
+          hostY: capabilitiesHostY,
+          hostScale: capabilitiesScale * 0.86,
+          rotationX: -0.05,
+          rotationY: workRotationY,
+          rotationZ: -0.02,
+          lift: -1,
+          lidRotation: closedLidRotation,
+          stickerTimeline: 1,
+        };
+      }
+
+      if (scrollPosition <= metrics.workEnterEnd) {
+        const enterProgress = progressBetween(scrollPosition, metrics.workEnterStart, metrics.workEnterEnd);
+        return {
+          phase: "work-enter-and-open",
+          hostX: MathUtils.lerp(offscreenHostX, workHostX, enterProgress),
+          hostY: MathUtils.lerp(capabilitiesHostY, workHostY, enterProgress)
+            - Math.sin(enterProgress * Math.PI) * viewportHeight * 0.025,
+          hostScale: MathUtils.lerp(capabilitiesScale * 0.86, workScale, enterProgress),
+          rotationX: MathUtils.lerp(-0.05, -0.08, enterProgress),
+          rotationY: workRotationY,
+          rotationZ: MathUtils.lerp(-0.02, 0.018, enterProgress),
+          lift: MathUtils.lerp(-1, -3, enterProgress),
+          lidRotation: MathUtils.lerp(closedLidRotation, 0, enterProgress),
+          stickerTimeline: 1,
+        };
+      }
+
+      return {
+        phase: scrollPosition <= metrics.workPinEnd ? "work-hold" : "work-track-out",
+        hostX: workHostX,
+        hostY: workHostY - Math.max(0, scrollPosition - metrics.workPinEnd),
+        hostScale: workScale,
+        rotationX: -0.08,
+        rotationY: workRotationY,
+        rotationZ: 0.018,
+        lift: -3,
+        lidRotation: 0,
+        stickerTimeline: 1,
+      };
+    };
+
+    const applyLaptopMotion = (scrollPosition) => {
+      motionState = resolveLaptopMotion(scrollPosition);
+      laptop.rotation.set(motionState.rotationX, motionState.rotationY, motionState.rotationZ);
+      laptop.position.y = motionState.lift;
+      if (lidGroup) lidGroup.rotation.x = lidOpenRotationX + motionState.lidRotation;
+      modelHost.style.setProperty("--model-shift-x", `${motionState.hostX.toFixed(2)}px`);
+      modelHost.style.setProperty("--model-shift-y", `${motionState.hostY.toFixed(2)}px`);
+      modelHost.style.setProperty("--model-scale", motionState.hostScale.toFixed(4));
+      modelHost.dataset.motionPhase = motionState.phase;
+    };
+
+    // Regression note: a78bc97 added a second per-channel convergence/lock after the
+    // scroll timeline. That made a moving viewport-relative target bounce and snap.
+    // Keep one smoothed scroll scalar and derive every transform from it together.
+    modelHost.__getLaptopMotionState = () => ({
+      ...motionState,
+      currentScroll: currentMotionScroll,
+      targetScroll: targetMotionScroll,
+      metrics: motionMetrics ? { ...motionMetrics } : null,
+    });
+
+    const updateScroll = () => {
+      targetMotionScroll = window.scrollY;
+      moveModelToPageOverlay();
     };
 
     new GLTFLoader().load("assets/macbook.glb", ({ scene: loadedScene }) => {
@@ -1574,6 +1735,14 @@ if (heroModelCanvas) {
       });
       loadedScene.add(stickerGroup);
 
+      lidGroup = loadedScene.getObjectByName("_top");
+      if (lidGroup) {
+        lidOpenRotationX = lidGroup.rotation.x;
+        loadedScene.updateMatrixWorld(true);
+        [screen, portraitOverlay, screenGlass, stickerGroup].forEach((lidLayer) => lidGroup.attach(lidLayer));
+        loadedScene.updateMatrixWorld(true);
+      }
+
       laptop.add(loadedScene);
       modelReady = true;
       requestRender();
@@ -1590,58 +1759,28 @@ if (heroModelCanvas) {
       const elapsedSeconds = lastMotionFrameTime === undefined
         ? 1 / 60
         : MathUtils.clamp((now - lastMotionFrameTime) / 1000, 1 / 240, 1 / 20);
-      const motionResponse = usesCompactRendering() ? 10.5 : 6.35;
+      const motionResponse = 9.5;
       const motionEase = 1 - Math.exp(-motionResponse * elapsedSeconds);
       lastMotionFrameTime = now;
-      const shouldLockToLanding = reducedMotion || laptopLandingLocked;
-      laptop.rotation.y = shouldLockToLanding ? targetRotation : MathUtils.lerp(laptop.rotation.y, targetRotation, motionEase);
-      laptop.rotation.x = shouldLockToLanding ? targetRotationX : MathUtils.lerp(laptop.rotation.x, targetRotationX, motionEase);
-      laptop.position.y = shouldLockToLanding ? targetLift : MathUtils.lerp(laptop.position.y, targetLift, motionEase);
-      laptop.rotation.z = shouldLockToLanding ? targetRotationZ : MathUtils.lerp(laptop.rotation.z, targetRotationZ, motionEase);
+      const scrollDifference = targetMotionScroll - currentMotionScroll;
+      if (reducedMotion || usesStackedHeroLayout()) currentMotionScroll = targetMotionScroll;
+      else if (Math.abs(scrollDifference) <= 0.01) currentMotionScroll = targetMotionScroll;
+      else currentMotionScroll += scrollDifference * motionEase;
 
-      currentHostX = shouldLockToLanding ? targetHostX : MathUtils.lerp(currentHostX, targetHostX, motionEase);
-      currentHostY = shouldLockToLanding ? targetHostY : MathUtils.lerp(currentHostY, targetHostY, motionEase);
-      currentHostScale = shouldLockToLanding ? targetHostScale : MathUtils.lerp(currentHostScale, targetHostScale, motionEase);
+      applyLaptopMotion(currentMotionScroll);
 
-      const landingHasConverged = Math.abs(laptop.rotation.y - targetRotation) < 0.00025
-        && Math.abs(laptop.rotation.x - targetRotationX) < 0.00025
-        && Math.abs(laptop.rotation.z - targetRotationZ) < 0.00025
-        && Math.abs(laptop.position.y - targetLift) < 0.003
-        && Math.abs(currentHostX - targetHostX) < 0.03
-        && Math.abs(currentHostY - targetHostY) < 0.03
-        && Math.abs(currentHostScale - targetHostScale) < 0.00008;
-
-      if (laptopHasSettled && !laptopLandingLocked && landingHasConverged) {
-        laptop.rotation.set(targetRotationX, targetRotation, targetRotationZ);
-        laptop.position.y = targetLift;
-        currentHostX = targetHostX;
-        currentHostY = targetHostY;
-        currentHostScale = targetHostScale;
-        laptopLandingLocked = true;
-      }
-
-      modelHost.style.setProperty("--model-shift-x", `${currentHostX.toFixed(2)}px`);
-      modelHost.style.setProperty("--model-shift-y", `${currentHostY.toFixed(2)}px`);
-      modelHost.style.setProperty("--model-scale", currentHostScale.toFixed(4));
-
-      let stickersAreMoving = false;
       stickerMeshes.forEach((sticker, index) => {
         const stagger = stickerMeshes.length > 1 ? 0.72 / (stickerMeshes.length - 1) : 0;
         const start = index * stagger;
         const end = start + 0.28;
-        const targetReveal = MathUtils.clamp((stickerTimeline - start) / (end - start), 0, 1);
-        const easedReveal = 1 - Math.pow(1 - targetReveal, 3);
-        sticker.userData.currentReveal = reducedMotion
-          ? easedReveal
-          : MathUtils.lerp(sticker.userData.currentReveal, easedReveal, 0.18);
-
-        const reveal = sticker.userData.currentReveal;
+        const targetReveal = MathUtils.clamp((motionState.stickerTimeline - start) / (end - start), 0, 1);
+        const reveal = 1 - Math.pow(1 - targetReveal, 3);
+        sticker.userData.currentReveal = reveal;
         sticker.visible = reveal > 0.005;
         sticker.material.opacity = MathUtils.clamp(reveal * 1.35, 0, 1);
         sticker.scale.setScalar(0.68 + reveal * 0.32);
         sticker.position.z = sticker.userData.baseZ - (1 - reveal) * 0.35;
         sticker.rotation.z = sticker.userData.baseRotation + (1 - reveal) * 0.28 * sticker.userData.revealDirection;
-        stickersAreMoving ||= Math.abs(reveal - easedReveal) > 0.002;
       });
 
       const dockIsAnimating = screenController?.update(now) ?? false;
@@ -1652,18 +1791,7 @@ if (heroModelCanvas) {
         modelHost.classList.add("hero__model--ready");
       }
 
-      if (!reducedMotion && (
-        Math.abs(laptop.rotation.y - targetRotation) > 0.001
-        || Math.abs(laptop.rotation.x - targetRotationX) > 0.001
-        || Math.abs(laptop.rotation.z - targetRotationZ) > 0.001
-        || Math.abs(laptop.position.y - targetLift) > 0.001
-        || Math.abs(currentHostX - targetHostX) > 0.1
-        || Math.abs(currentHostY - targetHostY) > 0.1
-        || Math.abs(currentHostScale - targetHostScale) > 0.001
-        || (laptopHasSettled && !laptopLandingLocked)
-        || stickersAreMoving
-        || dockIsAnimating
-      )) {
+      if (Math.abs(targetMotionScroll - currentMotionScroll) > 0.01 || dockIsAnimating) {
         requestRender();
       }
     };
@@ -1677,9 +1805,10 @@ if (heroModelCanvas) {
         entries.forEach((entry) => {
           if (entry.target === hero) heroIsVisible = entry.isIntersecting;
           if (entry.target === capabilitiesSection) capabilitiesAreVisible = entry.isIntersecting;
+          if (entry.target === workSection) workIsVisible = entry.isIntersecting;
         });
 
-        if (heroIsVisible || capabilitiesAreVisible) {
+        if (heroIsVisible || capabilitiesAreVisible || workIsVisible) {
           heroScrollDirty = true;
           requestRender();
         }
@@ -1687,14 +1816,23 @@ if (heroModelCanvas) {
 
       modelVisibility.observe(hero);
       modelVisibility.observe(capabilitiesSection);
+      modelVisibility.observe(workSection);
     }
 
     camera.position.set(0, 0.1, usesStackedHeroLayout() ? 85 : 100);
     resize();
+    refreshMotionMetrics();
     updateScroll();
-    window.addEventListener("resize", () => { resize(); updateScroll(); requestRender(); });
+    currentMotionScroll = targetMotionScroll;
+    window.addEventListener("resize", () => {
+      resize();
+      motionMetrics = undefined;
+      refreshMotionMetrics();
+      updateScroll();
+      currentMotionScroll = targetMotionScroll;
+      requestRender();
+    });
     window.addEventListener("scroll", () => {
-      if (!heroIsVisible && !capabilitiesAreVisible) return;
       setDockHover(-1);
       heroScrollDirty = true;
       requestRender();
