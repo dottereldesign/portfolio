@@ -30,6 +30,23 @@ try {
 
 applyTheme(root.dataset.theme, { persist: false });
 
+const siteHeader = document.querySelector(".site-header");
+
+if (siteHeader) {
+  let headerScrollFrame;
+
+  const updateHeaderDock = () => {
+    siteHeader.classList.toggle("site-header--docked", window.scrollY > 8);
+    headerScrollFrame = undefined;
+  };
+
+  window.addEventListener("scroll", () => {
+    if (!headerScrollFrame) headerScrollFrame = window.requestAnimationFrame(updateHeaderDock);
+  }, { passive: true });
+
+  updateHeaderDock();
+}
+
 themeToggle?.addEventListener("click", () => {
   const nextTheme = root.dataset.theme === "dark" ? "light" : "dark";
   const updateTheme = () => applyTheme(nextTheme);
