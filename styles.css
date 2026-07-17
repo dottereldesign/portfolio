@@ -249,8 +249,6 @@ html.js .hero__title > span:not(.is-scramble-ready) { visibility: hidden; }
 .capability-card__visual { position: relative; grid-column: 2; grid-row: 1 / 4; align-self: stretch; min-height: 0; overflow: visible; margin: 0; border: 0; background: transparent; }
 .capability-card__visual-index { display: none; }
 .capability-card__image { position: absolute; inset: 4% 0; width: 100%; height: 92%; object-fit: contain; opacity: 0.92; transition: opacity 300ms ease, transform 400ms cubic-bezier(0.2, 0.8, 0.2, 1); }
-.capability-card:hover .capability-card__image { opacity: 1; }
-.capability-card:hover .capability-card__image { transform: translateY(-0.18rem); }
 .capability-card__index { display: flex; grid-column: 1; grid-row: 1; flex-direction: column; gap: 0.7rem; margin: 0; font-family: "DM Mono", monospace; font-size: 0.64rem; letter-spacing: 0.12em; text-transform: uppercase; }
 .capability-card__index span:first-child { color: var(--accent-secondary); }
 .capability-card__index span:last-child { color: var(--muted); }
@@ -355,7 +353,7 @@ html.js .hero__title > span:not(.is-scramble-ready) { visibility: hidden; }
 .capabilities--reveal-ready.is-flow-visible .capabilities__flow::after { transform: scaleX(1); }
 .capabilities--reveal-ready.is-flow-visible .capabilities__flow::after { transition-delay: 160ms; }
 .capabilities--reveal-ready.is-flow-visible .capability-card + .capability-card::before { transform: scaleY(1); transition-delay: 250ms; }
-.capabilities--reveal-ready.is-flow-visible .capability-card__image { opacity: 0.92; filter: blur(0); transform: translateY(0) scale(1) rotate(0); transition-delay: var(--capability-reveal-delay); }
+.capabilities--reveal-ready.is-flow-visible .capability-card .capability-card__image { opacity: 0.92; filter: blur(0); transform: translateY(0) scale(1) rotate(0); transition-delay: var(--capability-reveal-delay); }
 .capabilities--reveal-ready.is-flow-visible .capability-card__index span,
 .capabilities--reveal-ready.is-flow-visible .capability-card h3,
 .capabilities--reveal-ready.is-flow-visible .capability-card__description { opacity: 1; transform: translateY(0); }
@@ -363,7 +361,6 @@ html.js .hero__title > span:not(.is-scramble-ready) { visibility: hidden; }
 .capabilities--reveal-ready.is-flow-visible .capability-card__index span:last-child { transition-delay: calc(var(--capability-reveal-delay) + 180ms); }
 .capabilities--reveal-ready.is-flow-visible .capability-card h3 { transition-delay: calc(var(--capability-reveal-delay) + 250ms); }
 .capabilities--reveal-ready.is-flow-visible .capability-card__description { transition-delay: calc(var(--capability-reveal-delay) + 340ms); }
-.capabilities--reveal-ready.is-flow-visible .capability-card:hover .capability-card__image { opacity: 1; transform: translateY(-0.18rem) scale(1.015); }
 .work-placeholder { position: relative; min-height: 80vh; overflow: hidden; margin-top: -1px; padding: 0 var(--page-section-inline) clamp(5rem, 10vw, 10rem); padding-left: var(--page-section-left); background: #0A0A0A; color: var(--ink); }
 .work-placeholder .eyebrow { color: var(--accent-secondary); }
 .work-heading { position: relative; z-index: 1; display: flex; align-items: end; justify-content: space-between; gap: 3rem; padding-right: clamp(18rem, 31vw, 30rem); }
