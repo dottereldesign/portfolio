@@ -2,6 +2,7 @@ const root = document.documentElement;
 const themeToggle = document.querySelector("[data-theme-toggle]");
 const themeColorMeta = document.querySelector('meta[name="theme-color"]');
 const themeMotionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
+const themeViewTransitionPreference = window.matchMedia("(min-width: 801px) and (pointer: fine)");
 const themeStorageKey = "jw-theme";
 
 const storeValue = (key, value) => {
@@ -33,7 +34,7 @@ themeToggle?.addEventListener("click", () => {
   const nextTheme = root.dataset.theme === "dark" ? "light" : "dark";
   const updateTheme = () => applyTheme(nextTheme);
 
-  if (document.startViewTransition && !themeMotionPreference.matches) {
+  if (document.startViewTransition && !themeMotionPreference.matches && themeViewTransitionPreference.matches) {
     document.startViewTransition(updateTheme);
   } else {
     updateTheme();
