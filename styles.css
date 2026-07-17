@@ -952,6 +952,11 @@ html[data-theme="light"] .hero__title .scramble-character.is-resolved {
   color: inherit;
 }
 
+html[data-theme="light"] .hero__title .scramble-character:not(.is-resolved) {
+  color: var(--accent);
+  -webkit-text-fill-color: var(--accent);
+}
+
 html[data-theme="light"] .site-header {
   background: linear-gradient(90deg, rgba(248, 245, 238, 0.92), rgba(246, 240, 231, 0.87) 70%, rgba(246, 224, 211, 0.82));
   box-shadow: 0 0.75rem 2.5rem rgba(83, 54, 38, 0.1);
