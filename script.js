@@ -1567,7 +1567,7 @@ if (heroModelCanvas) {
       const capabilitiesScale = isWideDesktop ? 0.6 : 0.44;
       const capabilitiesRotationY = Math.PI - 0.35;
       // Give both poses enough room to clear the viewport without turning edge-on.
-      const offscreenHostX = Math.max(capabilitiesHostX, workHostX) + viewportWidth * 0.72;
+      const offscreenHostX = capabilitiesHostX + viewportWidth * 0.72;
 
       if (pageScrollPosition <= metrics.heroFlightEnd) {
         const flightArc = Math.sin(heroProgress * Math.PI) * viewportHeight * 0.08;
