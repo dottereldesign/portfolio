@@ -21,10 +21,7 @@
   --cloud-color: #fffdf2;
   --toggle-border-day: #1c2135;
   --toggle-border-night: #f0f0e8;
-  --blend-hero-capabilities: rgba(8, 11, 20, 0.78);
-  --blend-capabilities-work: rgba(13, 9, 16, 0.82);
-  --blend-work-journey: rgba(7, 17, 14, 0.82);
-  --blend-journey-cv: rgba(7, 17, 14, 0.82);
+  --section-blend-height: clamp(6rem, 11vw, 10rem);
   --page-frame-inset: clamp(0.75rem, 1.15vw, 1.25rem);
   --page-rail-width: clamp(3.4rem, 4.8vw, 4.75rem);
   --page-section-inline: clamp(1.5rem, 5vw, 5rem);
@@ -239,7 +236,6 @@ html.js .hero__title > span:not(.is-scramble-ready) { visibility: hidden; }
 .hero__study--reveal-ready.is-visible .hero__study-item h3 { transition-delay: calc(var(--study-reveal-delay) + var(--study-item-delay) + 70ms); }
 .capabilities { position: relative; overflow: hidden; margin-top: -1px; padding: clamp(5.5rem, 7vw, 7rem) var(--page-section-inline) clamp(4.5rem, 7vw, 7rem); padding-left: var(--page-section-left); background: radial-gradient(ellipse 58% 70% at 80% 34%, rgba(74, 92, 214, 0.18) 0%, rgba(29, 36, 100, 0.13) 38%, transparent 72%), radial-gradient(ellipse 48% 30% at 16% 78%, rgba(99, 58, 158, 0.11) 0%, transparent 70%), radial-gradient(ellipse 28% 46% at 98% 84%, rgba(45, 120, 177, 0.09) 0%, transparent 72%), linear-gradient(118deg, #08090d 0%, #090b14 42%, #101229 74%, #08090d 100%); background-blend-mode: normal; background-repeat: no-repeat; color: var(--ink); }
 .capabilities::after { position: absolute; z-index: 0; top: 0; right: 0; left: 0; height: clamp(8rem, 14vw, 13rem); pointer-events: none; background: linear-gradient(180deg, #0A0A0A 0%, rgba(10, 10, 12, 0.94) 14%, rgba(9, 10, 18, 0.7) 42%, rgba(9, 11, 20, 0.28) 74%, transparent 100%); content: ""; }
-.capabilities::before { position: absolute; z-index: 0; right: 0; bottom: 0; left: 0; height: clamp(6rem, 11vw, 10rem); pointer-events: none; background: linear-gradient(180deg, transparent 0%, var(--blend-capabilities-work) 100%); content: ""; }
 .capabilities__grain { position: absolute; z-index: 1; inset: 0; background: var(--grain-texture) repeat; background-size: 144px 144px; mix-blend-mode: soft-light; pointer-events: none; }
 .capabilities__intro { position: relative; z-index: 3; display: flex; min-height: clamp(24rem, 34vw, 29rem); max-width: min(47%, 41rem); flex-direction: column; align-items: flex-start; justify-content: center; margin: 0 0 clamp(3.5rem, 5vw, 5rem); text-align: left; }
 .capabilities__intro .eyebrow { justify-content: flex-start; }
@@ -372,11 +368,9 @@ html.js .hero__title > span:not(.is-scramble-ready) { visibility: hidden; }
 .capabilities--reveal-ready.is-flow-visible .capability-card__index span:last-child { transition-delay: calc(var(--capability-reveal-delay) + 180ms); }
 .capabilities--reveal-ready.is-flow-visible .capability-card h3 { transition-delay: calc(var(--capability-reveal-delay) + 250ms); }
 .capabilities--reveal-ready.is-flow-visible .capability-card__description { transition-delay: calc(var(--capability-reveal-delay) + 340ms); }
-.work-placeholder { position: relative; min-height: 80vh; overflow: hidden; margin-top: -1px; padding: 0 var(--page-section-inline) clamp(5rem, 10vw, 10rem); padding-left: var(--page-section-left); background: var(--grain-texture), radial-gradient(ellipse 56% 58% at 82% 14%, rgba(150, 40, 106, 0.16) 0%, rgba(76, 17, 59, 0.11) 42%, transparent 72%), radial-gradient(ellipse 48% 34% at 16% 62%, rgba(91, 43, 128, 0.12) 0%, transparent 70%), radial-gradient(ellipse 32% 50% at 100% 88%, rgba(202, 63, 111, 0.08) 0%, transparent 72%), linear-gradient(122deg, #08090d 0%, #0d0910 28%, #170a16 58%, #10090e 100%); background-blend-mode: soft-light, normal, normal, normal, normal; background-repeat: repeat, no-repeat, no-repeat, no-repeat, no-repeat; background-size: 144px 144px, auto, auto, auto, auto; color: var(--ink); }
+.work-placeholder { position: relative; min-height: 80vh; overflow: visible; margin-top: -1px; padding: 0 var(--page-section-inline) clamp(5rem, 10vw, 10rem); padding-left: var(--page-section-left); background: var(--grain-texture), radial-gradient(ellipse 56% 58% at 82% 14%, rgba(150, 40, 106, 0.16) 0%, rgba(76, 17, 59, 0.11) 42%, transparent 72%), radial-gradient(ellipse 48% 34% at 16% 62%, rgba(91, 43, 128, 0.12) 0%, transparent 70%), radial-gradient(ellipse 32% 50% at 100% 88%, rgba(202, 63, 111, 0.08) 0%, transparent 72%), linear-gradient(122deg, #08090d 0%, #0d0910 28%, #170a16 58%, #10090e 100%); background-blend-mode: soft-light, normal, normal, normal, normal; background-repeat: repeat, no-repeat, no-repeat, no-repeat, no-repeat; background-size: 144px 144px, auto, auto, auto, auto; color: var(--ink); }
 .work-placeholder::before,
-.work-placeholder::after { position: absolute; z-index: 0; right: 0; left: 0; height: clamp(6rem, 11vw, 10rem); pointer-events: none; content: ""; }
-.work-placeholder::before { top: 0; background: linear-gradient(180deg, var(--blend-hero-capabilities) 0%, transparent 100%); }
-.work-placeholder::after { bottom: 0; background: linear-gradient(180deg, transparent 0%, var(--blend-work-journey) 100%); }
+.work-placeholder::before { position: absolute; z-index: 0; top: calc(-1 * var(--section-blend-height)); right: 0; left: 0; height: var(--section-blend-height); pointer-events: none; background: linear-gradient(180deg, transparent 0%, #08090d 100%); content: ""; }
 .work-placeholder .eyebrow { color: var(--accent-secondary); }
 .work-heading { position: relative; z-index: 1; display: flex; align-items: end; justify-content: space-between; gap: 3rem; padding-right: clamp(18rem, 31vw, 30rem); }
 .work-placeholder h2 { max-width: 8ch; margin: 0; letter-spacing: -0.08em; line-height: 0.9; }
@@ -457,11 +451,8 @@ html.js .hero__title > span:not(.is-scramble-ready) { visibility: hidden; }
   a.project-card:active { transform: translate3d(0, -0.2rem, 0) scale(0.998); transition-duration: 180ms; }
 }
 
-.journey { position: relative; overflow: hidden; margin-top: -1px; padding: 0 var(--page-section-inline) clamp(8rem, 14vw, 14rem); padding-left: var(--page-section-left); background: #07110e; color: var(--ink); }
-.journey::before,
-.journey::after { position: absolute; z-index: 0; right: 0; left: 0; height: clamp(6rem, 11vw, 10rem); pointer-events: none; content: ""; }
-.journey::before { top: 0; background: linear-gradient(180deg, var(--blend-capabilities-work) 0%, transparent 100%); }
-.journey::after { bottom: 0; background: linear-gradient(180deg, transparent 0%, var(--blend-journey-cv) 100%); }
+.journey { position: relative; overflow: visible; margin-top: -1px; padding: 0 var(--page-section-inline) clamp(8rem, 14vw, 14rem); padding-left: var(--page-section-left); background: #07110e; color: var(--ink); }
+.journey::before { position: absolute; z-index: 0; top: calc(-1 * var(--section-blend-height)); right: 0; left: 0; height: var(--section-blend-height); pointer-events: none; background: linear-gradient(180deg, transparent 0%, #10090e 100%); content: ""; }
 .journey__intro { position: relative; z-index: 1; width: 100%; max-width: 76rem; margin: 0 auto clamp(6rem, 12vw, 12rem); text-align: center; }
 .journey .eyebrow { justify-content: center; color: var(--accent); }
 .journey h2 { margin: 0; letter-spacing: -0.09em; line-height: 0.88; }
@@ -562,7 +553,7 @@ html.js .hero__title > span:not(.is-scramble-ready) { visibility: hidden; }
 
 .cv-section {
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   margin-top: -1px;
   padding: clamp(6rem, 10vw, 10rem) var(--page-section-inline) clamp(4rem, 7vw, 7rem);
   padding-left: var(--page-section-left);
@@ -579,7 +570,7 @@ html.js .hero__title > span:not(.is-scramble-ready) { visibility: hidden; }
   scroll-margin-top: calc(var(--site-header-height) + 1.5rem);
 }
 
-.cv-section::before { position: absolute; z-index: 0; top: 0; right: 0; left: 0; height: clamp(6rem, 11vw, 10rem); pointer-events: none; background: linear-gradient(180deg, var(--blend-journey-cv) 0%, transparent 100%); content: ""; }
+.cv-section::before { position: absolute; z-index: 0; top: calc(-1 * var(--section-blend-height)); right: 0; left: 0; height: var(--section-blend-height); pointer-events: none; background: linear-gradient(180deg, transparent 0%, #07110e 100%); content: ""; }
 
 .cv-section__ambient {
   position: absolute;
@@ -887,10 +878,6 @@ html[data-theme="light"] {
   --surface-alt: #efebe2;
   --surface-raised: #e5e0d5;
   --on-accent: #fffdf7;
-  --blend-hero-capabilities: rgba(238, 240, 245, 0.82);
-  --blend-capabilities-work: rgba(240, 234, 237, 0.82);
-  --blend-work-journey: rgba(239, 235, 226, 0.82);
-  --blend-journey-cv: rgba(239, 235, 226, 0.82);
 }
 
 @media (min-width: 801px) and (pointer: fine) {
