@@ -343,7 +343,7 @@ if (study) {
 const heroModelCanvas = document.querySelector(".hero__model-canvas");
 
 if (heroModelCanvas) {
-  import("three").then(async ({ Scene, PerspectiveCamera, WebGLRenderer, AmbientLight, DirectionalLight, Group, MathUtils, MeshStandardMaterial, MeshBasicMaterial, PlaneGeometry, Mesh, BackSide, DoubleSide, CanvasTexture, LinearFilter, SRGBColorSpace, Raycaster, Vector2 }) => {
+  import("three").then(async ({ Scene, PerspectiveCamera, WebGLRenderer, AmbientLight, DirectionalLight, Group, MathUtils, MeshStandardMaterial, MeshBasicMaterial, PlaneGeometry, Mesh, BackSide, DoubleSide, CanvasTexture, LinearFilter, SRGBColorSpace, Raycaster, Vector2, Color }) => {
     const { GLTFLoader } = await import("https://unpkg.com/three@0.181.2/examples/jsm/loaders/GLTFLoader.js");
     const modelHost = heroModelCanvas.parentElement;
     const hero = document.querySelector(".hero");
@@ -410,7 +410,9 @@ if (heroModelCanvas) {
 
     scene.add(new AmbientLight(0xe8e7e1, 2.2));
 
-    const keyLight = new DirectionalLight(0xff5a24, 2.4);
+    const heroGlowColor = new Color(0xff5a24);
+    const capabilitiesGlowColor = new Color(0x5d61d8);
+    const keyLight = new DirectionalLight(heroGlowColor, 2.4);
     keyLight.position.set(4, 5, 6);
     scene.add(keyLight);
 
@@ -1636,6 +1638,15 @@ if (heroModelCanvas) {
 
     const applyLaptopMotion = (smoothedScrollPosition, pageScrollPosition = smoothedScrollPosition) => {
       motionState = resolveLaptopMotion(smoothedScrollPosition, pageScrollPosition);
+      const capabilitiesGlowProgress = motionMetrics
+        ? MathUtils.clamp(
+          (pageScrollPosition - motionMetrics.heroFlightStart)
+            / Math.max(1, motionMetrics.heroFlightEnd - motionMetrics.heroFlightStart),
+          0,
+          1,
+        )
+        : 0;
+      keyLight.color.copy(heroGlowColor).lerp(capabilitiesGlowColor, capabilitiesGlowProgress);
       laptop.rotation.set(motionState.rotationX, motionState.rotationY, motionState.rotationZ);
       laptop.position.y = motionState.lift;
       if (lidGroup) lidGroup.rotation.x = lidOpenRotationX + motionState.lidRotation;
