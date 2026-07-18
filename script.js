@@ -1474,8 +1474,8 @@ if (heroModelCanvas) {
       const viewportWidth = window.innerWidth;
       const heroFlightEnd = heroBounds.bottom;
       const workTop = workBounds.top;
-      // Let the capabilities laptop leave with its section before introducing
-      // the project laptop as a separate, straight slide from the right.
+      // Let the capabilities laptop leave with its section before the Made by me
+      // grid arrives. The laptop is not reused as a project-section visual.
       const workEnterStart = Math.max(
         heroFlightEnd + viewportHeight * 0.44,
         workTop - viewportHeight * 0.5,
@@ -1497,7 +1497,6 @@ if (heroModelCanvas) {
         capabilitiesLandingCenter,
         workEnterStart,
         workEnterEnd,
-        workPinEnd: workEnterEnd + viewportHeight * 0.28,
         workTop,
         workBottom: workBounds.bottom,
         workHeadingBottom: workHeadingBounds.bottom,
@@ -1567,10 +1566,6 @@ if (heroModelCanvas) {
       const capabilitiesHostY = metrics.capabilitiesLandingCenter - viewportHeight * 0.55;
       const capabilitiesScale = isWideDesktop ? 0.6 : 0.44;
       const capabilitiesRotationY = Math.PI - 0.35;
-      const workHostX = isWideDesktop ? viewportWidth * 0.02 : viewportWidth * 0.01;
-      const workHostY = viewportHeight * 0.5 - viewportHeight * 0.55;
-      const workScale = isWideDesktop ? 0.82 : 0.58;
-      const workRotationY = Math.PI * 0.5;
       // Give both poses enough room to clear the viewport without turning edge-on.
       const offscreenHostX = Math.max(capabilitiesHostX, workHostX) + viewportWidth * 0.72;
 
@@ -1608,15 +1603,15 @@ if (heroModelCanvas) {
       }
 
       if (pageScrollPosition <= metrics.workEnterEnd) {
-        const enterProgress = progressBetween(pageScrollPosition, metrics.workEnterStart, metrics.workEnterEnd);
+        const exitProgress = progressBetween(pageScrollPosition, metrics.workEnterStart, metrics.workEnterEnd);
         return {
-          phase: "work-slide-in",
-          hostX: MathUtils.lerp(offscreenHostX, workHostX, enterProgress),
-          hostY: workHostY,
-          hostScale: workScale,
-          rotationX: -0.08,
-          rotationY: workRotationY,
-          rotationZ: 0.018,
+          phase: "work-slide-out",
+          hostX: MathUtils.lerp(capabilitiesHostX, offscreenHostX, exitProgress),
+          hostY: capabilitiesHostY - (pageScrollPosition - metrics.heroFlightEnd),
+          hostScale: capabilitiesScale,
+          rotationX: -0.12,
+          rotationY: capabilitiesRotationY,
+          rotationZ: 0.035,
           lift: -3,
           lidRotation: 0,
           stickerTimeline: 1,
@@ -1625,13 +1620,13 @@ if (heroModelCanvas) {
       }
 
       return {
-        phase: pageScrollPosition <= metrics.workPinEnd ? "work-hold" : "work-track-out",
-        hostX: workHostX,
-        hostY: workHostY - Math.max(0, pageScrollPosition - metrics.workPinEnd),
-        hostScale: workScale,
-        rotationX: -0.08,
-        rotationY: workRotationY,
-        rotationZ: 0.018,
+        phase: "work-offscreen",
+        hostX: offscreenHostX,
+        hostY: capabilitiesHostY - (pageScrollPosition - metrics.heroFlightEnd),
+        hostScale: capabilitiesScale,
+        rotationX: -0.12,
+        rotationY: capabilitiesRotationY,
+        rotationZ: 0.035,
         lift: -3,
         lidRotation: 0,
         stickerTimeline: 1,
