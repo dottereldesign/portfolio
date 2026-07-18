@@ -238,7 +238,11 @@ html.js .hero__title > span:not(.is-scramble-ready) { visibility: hidden; }
 .capabilities__grain { position: absolute; z-index: 1; inset: 0; background: var(--grain-texture) repeat; background-size: 144px 144px; mix-blend-mode: soft-light; pointer-events: none; }
 .capabilities__intro { position: relative; z-index: 3; display: flex; min-height: clamp(24rem, 34vw, 29rem); max-width: min(47%, 41rem); flex-direction: column; align-items: flex-start; justify-content: center; margin: 0 0 clamp(3.5rem, 5vw, 5rem); text-align: left; }
 .capabilities__intro .eyebrow { justify-content: flex-start; }
-.capabilities h2 { margin: 0; font-size: clamp(3.35rem, 5.5vw, 6.2rem); font-weight: 500; letter-spacing: -0.09em; line-height: 0.88; }
+.capabilities h2,
+.work-placeholder h2,
+.journey h2,
+.cv-section__title h2 { font-size: clamp(3.35rem, 5.5vw, 6.2rem); }
+.capabilities h2 { margin: 0; font-weight: 500; letter-spacing: -0.09em; line-height: 0.88; }
 .capabilities h2 em { color: var(--accent-secondary); font-family: "Cormorant Garamond", Georgia, serif; font-size: 1.12em; font-style: italic; font-weight: 500; letter-spacing: -0.05em; }
 .capabilities__lede { max-width: 36rem; margin: 1.75rem 0 0; color: var(--supporting-copy); font-size: 17px; line-height: 22px; }
 .capabilities__cta { position: relative; display: inline-flex; align-items: center; gap: 1rem; margin-top: 2rem; padding-bottom: 0.55rem; color: var(--ink); font-family: "DM Mono", monospace; font-size: 0.72rem; letter-spacing: 0.13em; text-transform: uppercase; transition: gap 180ms ease, color 180ms ease; }
@@ -366,7 +370,7 @@ html.js .hero__title > span:not(.is-scramble-ready) { visibility: hidden; }
 .work-placeholder { position: relative; min-height: 80vh; overflow: hidden; margin-top: -1px; padding: 0 var(--page-section-inline) clamp(5rem, 10vw, 10rem); padding-left: var(--page-section-left); background: var(--grain-texture), radial-gradient(ellipse 56% 58% at 82% 14%, rgba(150, 40, 106, 0.16) 0%, rgba(76, 17, 59, 0.11) 42%, transparent 72%), radial-gradient(ellipse 48% 34% at 16% 62%, rgba(91, 43, 128, 0.12) 0%, transparent 70%), radial-gradient(ellipse 32% 50% at 100% 88%, rgba(202, 63, 111, 0.08) 0%, transparent 72%), linear-gradient(122deg, #08090d 0%, #0d0910 28%, #170a16 58%, #10090e 100%); background-blend-mode: soft-light, normal, normal, normal, normal; background-repeat: repeat, no-repeat, no-repeat, no-repeat, no-repeat; background-size: 144px 144px, auto, auto, auto, auto; color: var(--ink); }
 .work-placeholder .eyebrow { color: var(--accent-secondary); }
 .work-heading { position: relative; z-index: 1; display: flex; align-items: end; justify-content: space-between; gap: 3rem; padding-right: clamp(18rem, 31vw, 30rem); }
-.work-placeholder h2 { max-width: 8ch; margin: 0; font-size: clamp(3rem, 8vw, 8rem); letter-spacing: -0.08em; line-height: 0.9; }
+.work-placeholder h2 { max-width: 8ch; margin: 0; letter-spacing: -0.08em; line-height: 0.9; }
 .work-placeholder h2 em { color: var(--accent-secondary); font-family: "Cormorant Garamond", Georgia, serif; font-size: 1.12em; font-style: italic; font-weight: 500; letter-spacing: -0.05em; }
 .work-heading__note { max-width: 34rem; margin: 0 0 0.5rem; color: var(--supporting-copy); font-size: 17px; line-height: 22px; }
 .project-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: clamp(4rem, 8vw, 8rem); }
@@ -447,7 +451,7 @@ html.js .hero__title > span:not(.is-scramble-ready) { visibility: hidden; }
 .journey { position: relative; overflow: hidden; margin-top: -1px; padding: 0 var(--page-section-inline) clamp(8rem, 14vw, 14rem); padding-left: var(--page-section-left); background: #07110e; color: var(--ink); }
 .journey__intro { position: relative; z-index: 1; width: 100%; max-width: 76rem; margin: 0 auto clamp(6rem, 12vw, 12rem); text-align: center; }
 .journey .eyebrow { justify-content: center; color: var(--accent); }
-.journey h2 { margin: 0; font-size: clamp(3.3rem, 8vw, 8rem); letter-spacing: -0.09em; line-height: 0.88; }
+.journey h2 { margin: 0; letter-spacing: -0.09em; line-height: 0.88; }
 .journey h2 span,
 .journey h2 em { white-space: nowrap; }
 .journey h2 em { color: var(--accent-secondary); font-family: "Cormorant Garamond", Georgia, serif; font-size: 1.12em; font-style: italic; font-weight: 500; letter-spacing: -0.05em; }
@@ -594,7 +598,6 @@ html.js .hero__title > span:not(.is-scramble-ready) { visibility: hidden; }
 
 .cv-section__title h2 {
   margin: 0;
-  font-size: clamp(4rem, 7.8vw, 8.4rem);
   font-weight: 500;
   letter-spacing: -0.085em;
   line-height: 0.82;
@@ -1116,7 +1119,10 @@ html[data-theme="light"] .hero__study-item--gold { --study-metal: #8a6700; }
   .hero__role { max-width: 36rem; font-size: clamp(0.95rem, 1.8vw, 1.15rem); line-height: 1.7; }
   .hero__intro { max-width: 31rem; }
   .capabilities__intro { max-width: 52%; }
-  .capabilities h2 { font-size: clamp(3rem, 5vw, 4.25rem); }
+  .capabilities h2,
+  .work-placeholder h2,
+  .journey h2,
+  .cv-section__title h2 { font-size: clamp(3rem, 5vw, 4.25rem); }
   .capability-card { grid-template-columns: minmax(0, 0.9fr) minmax(6.5rem, 1.1fr); padding-inline: clamp(1rem, 1.8vw, 1.4rem); }
   .cv-section__intro { grid-template-columns: minmax(0, 1fr) minmax(18rem, 0.8fr); gap: 3rem; }
   .cv-role--current .cv-role__body ul { grid-template-columns: 1fr; }
@@ -1143,7 +1149,10 @@ html[data-theme="light"] .hero__study-item--gold { --study-metal: #8a6700; }
 @media (max-width: 800px) {
   .capabilities { padding-top: 6rem; }
   .capabilities__intro { min-height: 0; max-width: 38rem; margin-bottom: 4rem; }
-  .capabilities h2 { font-size: clamp(3.2rem, 11vw, 5.4rem); }
+  .capabilities h2,
+  .work-placeholder h2,
+  .journey h2,
+  .cv-section__title h2 { font-size: clamp(3.2rem, 11vw, 5.4rem); }
   .capabilities__flow { grid-template-columns: 1fr; gap: 0; }
   .capability-card { min-height: 16rem; grid-template-columns: minmax(0, 1fr) minmax(10rem, 0.9fr); }
   .capability-card + .capability-card { border-top: 1px solid var(--hero-frame-line); border-left: 0; }
@@ -1206,7 +1215,6 @@ html[data-theme="light"] .hero__study-item--gold { --study-metal: #8a6700; }
   .hero__intro { margin: 0.8rem 0 1.6rem; }
   .hero__side-rail { top: calc(var(--page-frame-inset) + var(--site-header-height) + 0.35rem); right: 1.1rem; }
   .cv-section { padding-top: 5rem; }
-  .cv-section__title h2 { font-size: clamp(3.25rem, 15vw, 5rem); }
   .cv-quickfacts { grid-template-columns: 1fr; }
   .cv-quickfacts > div,
   .cv-quickfacts > div:first-child,
