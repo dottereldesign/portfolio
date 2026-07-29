@@ -1,0 +1,12 @@
+{
+  "name": "jamie-wilson-portfolio",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:laptop-runtime": "esbuild src/laptop-runtime.js --bundle --format=esm --target=es2020 --minify --legal-comments=eof --outfile=assets/vendor/laptop-runtime.min.js"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.1",
+    "three": "0.181.2"
+  }
+}

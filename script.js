@@ -343,8 +343,7 @@ if (study) {
 const heroModelCanvas = document.querySelector(".hero__model-canvas");
 
 if (heroModelCanvas) {
-  import("three").then(async ({ Scene, PerspectiveCamera, WebGLRenderer, AmbientLight, DirectionalLight, Group, MathUtils, MeshStandardMaterial, MeshBasicMaterial, PlaneGeometry, Mesh, BackSide, DoubleSide, CanvasTexture, LinearFilter, SRGBColorSpace, Raycaster, Vector2, Color }) => {
-    const { GLTFLoader } = await import("https://unpkg.com/three@0.181.2/examples/jsm/loaders/GLTFLoader.js");
+  import("./assets/vendor/laptop-runtime.min.js?v=20260729-1").then(({ Scene, PerspectiveCamera, WebGLRenderer, AmbientLight, DirectionalLight, Group, MathUtils, MeshStandardMaterial, MeshBasicMaterial, PlaneGeometry, Mesh, BackSide, DoubleSide, CanvasTexture, LinearFilter, SRGBColorSpace, Raycaster, Vector2, Color, GLTFLoader }) => {
     const modelHost = heroModelCanvas.parentElement;
     const hero = document.querySelector(".hero");
     const capabilitiesSection = document.querySelector(".capabilities");
@@ -1672,7 +1671,41 @@ if (heroModelCanvas) {
       moveModelToPageOverlay();
     };
 
-    new GLTFLoader().load("assets/macbook.glb", ({ scene: loadedScene }) => {
+    const laptopModelUrl = new URL("assets/macbook.glb", document.baseURI);
+    const laptopLoadTimeoutMs = 12000;
+    const fetchLaptopModel = async (retry = false) => {
+      const requestUrl = new URL(laptopModelUrl);
+      if (retry) requestUrl.searchParams.set("retry", Date.now().toString());
+
+      const controller = new AbortController();
+      const timeout = window.setTimeout(() => controller.abort(), laptopLoadTimeoutMs);
+
+      try {
+        const response = await fetch(requestUrl, {
+          cache: retry ? "reload" : "default",
+          signal: controller.signal,
+        });
+        if (!response.ok) throw new Error(`Laptop model request failed with ${response.status}`);
+
+        const modelData = await response.arrayBuffer();
+        const resourcePath = new URL(".", laptopModelUrl).href;
+        return await new Promise((resolve, reject) => {
+          new GLTFLoader().parse(modelData, resourcePath, resolve, reject);
+        });
+      } finally {
+        window.clearTimeout(timeout);
+      }
+    };
+
+    const loadLaptopModel = async () => {
+      try {
+        return await fetchLaptopModel();
+      } catch {
+        return fetchLaptopModel(true);
+      }
+    };
+
+    loadLaptopModel().then(({ scene: loadedScene }) => {
       const baseMetal = new MeshStandardMaterial({ color: 0x73777d, metalness: 0.7, roughness: 0.52 });
       const darkPlastic = new MeshStandardMaterial({ color: 0x080909, metalness: 0.35, roughness: 0.72 });
       const logo = new MeshBasicMaterial({ color: 0xff5a24 });
@@ -1755,6 +1788,8 @@ if (heroModelCanvas) {
       laptop.add(loadedScene);
       modelReady = true;
       requestRender();
+    }).catch(() => {
+      modelHost.classList.add("hero__model--unavailable");
     });
 
     const render = () => {
