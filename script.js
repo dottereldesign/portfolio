@@ -1079,8 +1079,12 @@ if (heroModelCanvas) {
       const width = 1470;
       const height = 1000;
       let hoverTargetIndex = -1;
-      let animatedHoverIndex = -1;
-      let hoverLift = 0;
+      const hoverLifts = screenApps.map(() => 0);
+      const dockRevealProgresses = screenApps.map(() => reducedMotion ? 1 : 0);
+      const dockRevealStaggerMs = 65;
+      const dockIconRevealDurationMs = 340;
+      let dockRevealStartedAt;
+      let dockRevealComplete = reducedMotion;
       let lastHoverFrameTime = performance.now();
       let toastIndex = -1;
       let toastOpacity = 0;
@@ -1187,14 +1191,19 @@ if (heroModelCanvas) {
         const { dockX, dockY, dockPadding, iconGap, iconSize } = getDockLayout(width, height);
 
         screenApps.forEach((app, index) => {
-          const lift = index === animatedHoverIndex ? hoverLift : 0;
-          const scale = 1 + lift * 0.045;
+          const lift = hoverLifts[index];
+          const reveal = dockRevealProgresses[index];
+          if (reveal <= 0.001) return;
+
+          const revealEase = 1 - Math.pow(1 - reveal, 3);
+          const scale = (0.76 + revealEase * 0.24) * (1 + lift * 0.045);
           const size = iconSize * scale;
           const baseX = dockX + dockPadding + index * (iconSize + iconGap);
           const x = baseX - (size - iconSize) / 2;
           const y = dockY + 10 - lift * 22 - (size - iconSize) / 2;
 
           context.save();
+          context.globalAlpha = revealEase;
           if (lift > 0) {
             context.shadowColor = "rgba(140, 207, 227, 0.16)";
             context.shadowBlur = 9 * lift;
@@ -1273,12 +1282,10 @@ if (heroModelCanvas) {
         if (index === hoverTargetIndex) return;
         hoverTargetIndex = index;
 
-        if (index >= 0) {
-          animatedHoverIndex = index;
-          hoverLift = reducedMotion ? 1 : Math.min(hoverLift, 0.08);
-        } else if (reducedMotion) {
-          animatedHoverIndex = -1;
-          hoverLift = 0;
+        if (reducedMotion) {
+          hoverLifts.forEach((_, iconIndex) => {
+            hoverLifts[iconIndex] = iconIndex === index ? 1 : 0;
+          });
         }
 
         lastHoverFrameTime = performance.now();
@@ -1289,12 +1296,36 @@ if (heroModelCanvas) {
       const update = (now) => {
         if (reducedMotion) return false;
 
-        const targetLift = hoverTargetIndex >= 0 ? 1 : 0;
         const delta = Math.min(0.05, Math.max(0.001, (now - lastHoverFrameTime) / 1000));
-        const easing = 1 - Math.exp(-(targetLift > hoverLift ? 15 : 20) * delta);
-        const nextLift = MathUtils.lerp(hoverLift, targetLift, easing);
-        const changed = Math.abs(nextLift - hoverLift) > 0.001;
-        hoverLift = Math.abs(nextLift - targetLift) < 0.004 ? targetLift : nextLift;
+        let changed = false;
+        let isAnimating = false;
+
+        hoverLifts.forEach((lift, index) => {
+          const targetLift = index === hoverTargetIndex ? 1 : 0;
+          const response = targetLift > lift ? 28 : 34;
+          const easing = 1 - Math.exp(-response * delta);
+          const nextLift = MathUtils.lerp(lift, targetLift, easing);
+          const settledLift = Math.abs(nextLift - targetLift) < 0.004 ? targetLift : nextLift;
+          if (Math.abs(settledLift - lift) > 0.001) changed = true;
+          if (settledLift !== targetLift) isAnimating = true;
+          hoverLifts[index] = settledLift;
+        });
+
+        if (dockRevealStartedAt !== undefined && !dockRevealComplete) {
+          dockRevealProgresses.forEach((progress, index) => {
+            const iconStart = dockRevealStartedAt + index * dockRevealStaggerMs;
+            const nextProgress = MathUtils.clamp(
+              (now - iconStart) / dockIconRevealDurationMs,
+              0,
+              1,
+            );
+            if (Math.abs(nextProgress - progress) > 0.001) changed = true;
+            dockRevealProgresses[index] = nextProgress;
+          });
+          dockRevealComplete = dockRevealProgresses.every((progress) => progress >= 1);
+          if (!dockRevealComplete) isAnimating = true;
+        }
+
         lastHoverFrameTime = now;
 
         if (changed) {
@@ -1302,8 +1333,14 @@ if (heroModelCanvas) {
           texture.needsUpdate = true;
         }
 
-        if (targetLift === 0 && hoverLift === 0) animatedHoverIndex = -1;
-        return Math.abs(hoverLift - targetLift) > 0.004;
+        return isAnimating;
+      };
+
+      const startDockReveal = (now) => {
+        if (dockRevealComplete || dockRevealStartedAt !== undefined) return;
+        dockRevealStartedAt = now;
+        lastHoverFrameTime = now;
+        requestRender();
       };
 
       const showToast = (index) => {
@@ -1346,7 +1383,8 @@ if (heroModelCanvas) {
           || y > dockY + dockHeight + 28
         ) return -1;
 
-        return MathUtils.clamp(Math.round((x - firstCenter) / iconStep), 0, screenApps.length - 1);
+        const index = MathUtils.clamp(Math.round((x - firstCenter) / iconStep), 0, screenApps.length - 1);
+        return dockRevealProgresses[index] >= 0.55 ? index : -1;
       };
 
       const cacheStaticScreen = () => {
@@ -1374,7 +1412,7 @@ if (heroModelCanvas) {
         requestRender();
       });
 
-      return { getDockIndexAtUv, setHovered, showToast, texture, update };
+      return { getDockIndexAtUv, setHovered, showToast, startDockReveal, texture, update };
     };
 
     const pointerIsOverForegroundContent = (clientX, clientY) => {
@@ -1858,6 +1896,7 @@ if (heroModelCanvas) {
         sticker.rotation.z = sticker.userData.baseRotation + (1 - reveal) * 0.28 * sticker.userData.revealDirection;
       });
 
+      if (laptopEntranceProgress >= 1) screenController?.startDockReveal(now);
       const dockIsAnimating = screenController?.update(now) ?? false;
       renderer.render(scene, camera);
 
