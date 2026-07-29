@@ -1146,11 +1146,6 @@ if (heroModelCanvas) {
 
         context.fillStyle = "rgba(3, 4, 3, 0.76)";
         context.fillRect(0, 0, width, 58);
-        context.strokeStyle = "rgba(255, 255, 255, 0.08)";
-        context.beginPath();
-        context.moveTo(0, 58.5);
-        context.lineTo(width, 58.5);
-        context.stroke();
 
         context.textBaseline = "middle";
         context.font = "500 14px ui-monospace, SFMono-Regular, Menlo, monospace";
