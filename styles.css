@@ -200,6 +200,7 @@ html.js .hero__title > span:not(.is-scramble-ready) { visibility: hidden; }
 .hero__title .scramble-space { color: transparent; }
 .hero__title .scramble-glyph { display: inline-block; transform-origin: left center; }
 .hero__role { margin: 2rem 0 0; color: var(--ink); font-family: "DM Mono", monospace; font-size: clamp(1rem, 2vw, 1.35rem); letter-spacing: 0.08em; text-transform: uppercase; animation: hero-copy-wipe 880ms var(--hero-ease) 920ms backwards; }
+.hero__content > .hero__role { z-index: 50; }
 .hero__role .slash { display: inline-block; animation: hero-accent-mark-in 420ms var(--hero-ease) backwards; }
 .hero__role .slash:nth-of-type(1) { animation-delay: 1120ms; }
 .hero__role .slash:nth-of-type(2) { animation-delay: 1300ms; }
