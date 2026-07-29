@@ -369,6 +369,10 @@ if (heroModelCanvas) {
     renderer.setClearColor(0x000000, 0);
     const laptop = new Group();
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const laptopEntranceDurationMs = 1250;
+    const laptopEntranceDelayMs = 100;
+    let laptopEntranceStartedAt;
+    let laptopEntranceProgress = reducedMotion ? 1 : 0;
     let modelReady = false;
     let modelHasPainted = false;
     let heroIsVisible = true;
@@ -1649,7 +1653,12 @@ if (heroModelCanvas) {
       laptop.rotation.set(motionState.rotationX, motionState.rotationY, motionState.rotationZ);
       laptop.position.y = motionState.lift;
       if (lidGroup) lidGroup.rotation.x = lidOpenRotationX + motionState.lidRotation;
-      modelHost.style.setProperty("--model-shift-x", `${motionState.hostX.toFixed(2)}px`);
+      const entranceOffset = motionMetrics
+        ? (1 - quinticEase(laptopEntranceProgress))
+          * motionMetrics.viewportWidth
+          * (usesStackedHeroLayout() ? 1 : 0.78)
+        : 0;
+      modelHost.style.setProperty("--model-shift-x", `${(motionState.hostX + entranceOffset).toFixed(2)}px`);
       modelHost.style.setProperty("--model-shift-y", `${motionState.hostY.toFixed(2)}px`);
       modelHost.style.setProperty("--model-scale", motionState.hostScale.toFixed(4));
       modelHost.dataset.motionPhase = motionState.phase;
@@ -1663,6 +1672,7 @@ if (heroModelCanvas) {
       ...motionState,
       currentScroll: currentMotionScroll,
       targetScroll: targetMotionScroll,
+      entranceProgress: laptopEntranceProgress,
       metrics: motionMetrics ? { ...motionMetrics } : null,
     });
 
@@ -1806,6 +1816,20 @@ if (heroModelCanvas) {
       const motionResponse = 9.5;
       const motionEase = 1 - Math.exp(-motionResponse * elapsedSeconds);
       lastMotionFrameTime = now;
+      if (laptopEntranceProgress < 1) {
+        if (laptopEntranceStartedAt === undefined) {
+          if (targetMotionScroll > 10) laptopEntranceProgress = 1;
+          else laptopEntranceStartedAt = now + laptopEntranceDelayMs;
+        }
+
+        if (laptopEntranceStartedAt !== undefined) {
+          laptopEntranceProgress = MathUtils.clamp(
+            (now - laptopEntranceStartedAt) / laptopEntranceDurationMs,
+            0,
+            1,
+          );
+        }
+      }
       const scrollDifference = targetMotionScroll - currentMotionScroll;
       const pageHeroProgress = motionMetrics
         ? (targetMotionScroll - motionMetrics.heroFlightStart)
@@ -1842,7 +1866,11 @@ if (heroModelCanvas) {
         modelHost.classList.add("hero__model--ready");
       }
 
-      if (Math.abs(targetMotionScroll - currentMotionScroll) > 0.01 || dockIsAnimating) {
+      if (
+        Math.abs(targetMotionScroll - currentMotionScroll) > 0.01
+        || dockIsAnimating
+        || laptopEntranceProgress < 1
+      ) {
         requestRender();
       }
     };
