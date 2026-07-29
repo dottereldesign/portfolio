@@ -619,11 +619,21 @@ html.js .hero__title > span:not(.is-scramble-ready) { visibility: hidden; }
   margin: 0;
   font-weight: 500;
   letter-spacing: -0.085em;
-  line-height: 0.82;
+  line-height: 0.9;
+  white-space: nowrap;
 }
 
 .cv-section__title h2 span,
 .cv-section__title h2 em { display: inline-block; }
+
+.cv-section__title h2 span {
+  color: #ddb95f;
+  background: linear-gradient(105deg, #ad7a30 0%, #f1dc8e 46%, #c18d38 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  text-shadow: 0 0 2rem rgba(221, 185, 95, 0.16);
+  -webkit-text-fill-color: transparent;
+}
 
 .cv-section__title h2 em {
   color: var(--accent-secondary);
@@ -1102,6 +1112,11 @@ html[data-theme="light"] .hero__study {
 html[data-theme="light"] .hero__study-item--bronze { --study-metal: #8f4f2c; }
 html[data-theme="light"] .hero__study-item--silver { --study-metal: #68727c; }
 html[data-theme="light"] .hero__study-item--gold { --study-metal: #8a6700; }
+html[data-theme="light"] .cv-section__title h2 span {
+  color: #7d5704;
+  background-image: linear-gradient(105deg, #694500 0%, #a87812 48%, #704a00 100%);
+  text-shadow: none;
+}
 
 ::view-transition-old(root),
 ::view-transition-new(root) {
@@ -1162,6 +1177,7 @@ html[data-theme="light"] .hero__study-item--gold { --study-metal: #8a6700; }
   .work-placeholder h2,
   .journey h2,
   .cv-section__title h2 { font-size: clamp(3.2rem, 11vw, 5.4rem); }
+  .cv-section__title h2 { font-size: clamp(2.65rem, 11vw, 5.4rem); }
   .capabilities__flow { grid-template-columns: 1fr; gap: 0; }
   .capability-card { min-height: 16rem; grid-template-columns: minmax(0, 1fr) minmax(10rem, 0.9fr); }
   .capability-card + .capability-card { border-top: 1px solid var(--hero-frame-line); border-left: 0; }
