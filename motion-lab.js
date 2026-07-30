@@ -412,7 +412,7 @@ if (motionStudy) {
   });
   resizeObserver.observe(canvasDemo);
   resizeObserver.observe(threeDemo);
-  resizeObserver.observe(designBoardDemo);
+  if (designBoardDemo) resizeObserver.observe(designBoardDemo);
   resizeObserver.observe(developAssemblyDemo);
   resizeObserver.observe(laptopThreeDemo);
 
@@ -607,18 +607,19 @@ if (motionStudy) {
       return texture;
     };
 
-    designRenderer = new WebGLRenderer({
+    if (designBoardDemo) {
+      designRenderer = new WebGLRenderer({
       alpha: true,
       antialias: true,
       canvas: designBoardDemo,
       powerPreference: "high-performance",
-    });
-    designRenderer.setClearColor(0x000000, 0);
-    designRenderer.outputColorSpace = SRGBColorSpace;
+      });
+      designRenderer.setClearColor(0x000000, 0);
+      designRenderer.outputColorSpace = SRGBColorSpace;
 
-    designScene = new Scene();
-    designCamera = new OrthographicCamera(-2, 2, 1.3, -1.3, 0.1, 10);
-    designCamera.position.z = 5;
+      designScene = new Scene();
+      designCamera = new OrthographicCamera(-2, 2, 1.3, -1.3, 0.1, 10);
+      designCamera.position.z = 5;
 
     const designBoardFrame = new Mesh(
       new BoxGeometry(3.55, 2.1, 0.14),
@@ -728,7 +729,8 @@ if (motionStudy) {
     const designWarmLight = new DirectionalLight(0xff7a45, 0.7);
     designKeyLight.position.set(-2, 3, 5);
     designWarmLight.position.set(4, -1, 3);
-    designScene.add(designAmbientLight, designKeyLight, designWarmLight);
+      designScene.add(designAmbientLight, designKeyLight, designWarmLight);
+    }
 
     developRenderer = new WebGLRenderer({
       alpha: true,
@@ -1078,7 +1080,7 @@ if (motionStudy) {
   }).catch((error) => {
     console.error("Capability motion scenes failed to initialise.", error);
     threeDemo.classList.add("is-unavailable");
-    designBoardDemo.classList.add("is-unavailable");
+    designBoardDemo?.classList.add("is-unavailable");
     developAssemblyDemo.classList.add("is-unavailable");
     laptopThreeDemo.classList.add("is-unavailable");
   });
