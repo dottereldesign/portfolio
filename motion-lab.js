@@ -96,6 +96,7 @@ if (motionStudy) {
   };
 
   const resizeCanvasDemo = () => {
+    if (!canvasDemo) return;
     const bounds = canvasDemo.getBoundingClientRect();
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     canvasWidth = Math.max(1, bounds.width);
@@ -162,6 +163,7 @@ if (motionStudy) {
   };
 
   const renderCanvasDemo = (phase) => {
+    if (!canvasDemo) return;
     const context = canvasDemo.getContext("2d");
     context.clearRect(0, 0, canvasWidth, canvasHeight);
     drawCanvasTrack(context);
@@ -420,8 +422,8 @@ if (motionStudy) {
     resizeThreeDemos();
     requestMotionFrame();
   });
-  resizeObserver.observe(canvasDemo);
-  resizeObserver.observe(threeDemo);
+  if (canvasDemo) resizeObserver.observe(canvasDemo);
+  if (threeDemo) resizeObserver.observe(threeDemo);
   if (designBoardDemo) resizeObserver.observe(designBoardDemo);
   resizeObserver.observe(developAssemblyDemo);
   resizeObserver.observe(laptopThreeDemo);
@@ -469,6 +471,17 @@ if (motionStudy) {
     Vector3,
     WebGLRenderer,
   }) => {
+    const curvePoints = [];
+    for (let index = 0; index < 256; index += 1) {
+      const angle = (index / 256) * Math.PI * 2;
+      curvePoints.push(new Vector3(
+        Math.sin(angle) * 1.7,
+        Math.sin(angle * 2) * 0.78,
+        Math.cos(angle) * 0.13,
+      ));
+    }
+
+    if (threeDemo) {
     threeRenderer = new WebGLRenderer({
       alpha: true,
       antialias: true,
@@ -482,15 +495,6 @@ if (motionStudy) {
     threeCamera = new OrthographicCamera(-2, 2, 1.3, -1.3, 0.1, 10);
     threeCamera.position.z = 5;
 
-    const curvePoints = [];
-    for (let index = 0; index < 256; index += 1) {
-      const angle = (index / 256) * Math.PI * 2;
-      curvePoints.push(new Vector3(
-        Math.sin(angle) * 1.7,
-        Math.sin(angle * 2) * 0.78,
-        Math.cos(angle) * 0.13,
-      ));
-    }
     threeCurve = new CatmullRomCurve3(curvePoints, true, "centripetal");
 
     const trackShadow = new Mesh(
@@ -528,6 +532,7 @@ if (motionStudy) {
     );
     threeBallLight = new PointLight(0xffcc85, 5.5, 1.65);
     threeScene.add(threeBall, threeBallLight);
+    }
 
     const createNoteTexture = ({
       background,
@@ -1090,7 +1095,7 @@ if (motionStudy) {
     requestMotionFrame();
   }).catch((error) => {
     console.error("Capability motion scenes failed to initialise.", error);
-    threeDemo.classList.add("is-unavailable");
+    threeDemo?.classList.add("is-unavailable");
     designBoardDemo?.classList.add("is-unavailable");
     developAssemblyDemo.classList.add("is-unavailable");
     laptopThreeDemo.classList.add("is-unavailable");

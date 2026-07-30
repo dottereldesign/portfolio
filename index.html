@@ -24,7 +24,7 @@
         document.documentElement.style.colorScheme = theme;
       })();
     </script>
-    <link rel="stylesheet" href="styles.css?v=20260731-5" />
+    <link rel="stylesheet" href="styles.css?v=20260731-6" />
     <noscript><style>.hero__title > span { visibility: visible !important; }</style></noscript>
   </head>
   <body>
@@ -188,75 +188,6 @@
         </article>
       </div>
 
-      <section class="capability-motion-study" aria-labelledby="motion-study-title">
-        <header class="capability-motion-study__intro">
-          <div>
-            <p class="eyebrow">Motion study</p>
-            <h3 id="motion-study-title">Code-native loop prototypes</h3>
-          </div>
-          <p>Every ball is locked to the same geometry that draws its track.</p>
-        </header>
-
-        <div class="capability-motion-grid">
-          <article class="motion-approach motion-approach--svg">
-            <div class="motion-approach__stage">
-              <svg class="motion-approach__overlay motion-approach__overlay--svg" viewBox="0 0 600 400" aria-hidden="true" data-track-svg>
-                <defs>
-                  <path id="svg-loop-path" d="M 300 200 C 215 92 85 88 72 196 C 60 305 205 315 300 200 C 395 85 540 95 528 204 C 516 312 385 308 300 200" />
-                  <linearGradient id="svg-track-metal" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0" stop-color="#c4b8a8" />
-                    <stop offset="0.38" stop-color="#625b53" />
-                    <stop offset="0.62" stop-color="#302e2b" />
-                    <stop offset="1" stop-color="#9b8f80" />
-                  </linearGradient>
-                  <radialGradient id="svg-ball-fill" cx="35%" cy="30%" r="70%">
-                    <stop offset="0" stop-color="#ffffff" />
-                    <stop offset="0.54" stop-color="#fff7df" />
-                    <stop offset="1" stop-color="#d7b36b" />
-                  </radialGradient>
-                  <filter id="svg-ball-glow" x="-100%" y="-100%" width="300%" height="300%">
-                    <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#ffd992" flood-opacity="0.46" />
-                  </filter>
-                </defs>
-                <use href="#svg-loop-path" fill="none" stroke="#070807" stroke-width="58" stroke-linecap="round" stroke-linejoin="round" opacity="0.9" />
-                <use href="#svg-loop-path" fill="none" stroke="url(#svg-track-metal)" stroke-width="42" stroke-linecap="round" stroke-linejoin="round" />
-                <use href="#svg-loop-path" fill="none" stroke="#151717" stroke-width="24" stroke-linecap="round" stroke-linejoin="round" />
-                <use href="#svg-loop-path" fill="none" stroke="#d8844c" stroke-width="2" stroke-linecap="round" opacity="0.65" />
-                <circle r="18" fill="url(#svg-ball-fill)" stroke="#fff9e8" stroke-width="2" filter="url(#svg-ball-glow)">
-                  <animateMotion dur="5.8s" repeatCount="indefinite">
-                    <mpath href="#svg-loop-path" />
-                  </animateMotion>
-                </circle>
-              </svg>
-            </div>
-            <div class="motion-approach__meta">
-              <p><span>01</span><span>/ SVG rails</span></p>
-              <span>Exact native path animation</span>
-            </div>
-          </article>
-
-          <article class="motion-approach motion-approach--canvas">
-            <div class="motion-approach__stage">
-              <canvas class="motion-approach__overlay" aria-hidden="true" data-track-canvas></canvas>
-            </div>
-            <div class="motion-approach__meta">
-              <p><span>02</span><span>/ Canvas glow</span></p>
-              <span>Parametric light trail</span>
-            </div>
-          </article>
-
-          <article class="motion-approach motion-approach--three">
-            <div class="motion-approach__stage">
-              <canvas class="motion-approach__overlay" aria-hidden="true" data-track-three></canvas>
-            </div>
-            <div class="motion-approach__meta">
-              <p><span>03</span><span>/ Three.js tube</span></p>
-              <span>3D metal and live lighting</span>
-            </div>
-          </article>
-        </div>
-
-      </section>
     </section>
 
     <section id="work" class="work-placeholder" aria-label="Selected work" data-section-reveal>
@@ -570,6 +501,6 @@
     </section>
 
     <script src="script.js?v=20260731-2"></script>
-    <script type="module" src="motion-lab.js?v=20260731-3"></script>
+    <script type="module" src="motion-lab.js?v=20260731-4"></script>
   </body>
 </html>
