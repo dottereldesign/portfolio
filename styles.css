@@ -273,7 +273,41 @@ html.js .hero__title > span:not(.is-scramble-ready) { visibility: hidden; }
 .capability-card { position: relative; display: block; min-width: 0; min-height: 0; padding: 0; }
 .capability-card__visual { position: relative; width: 100%; min-height: 0; overflow: hidden; aspect-ratio: 16 / 9; margin: 0 0 1.3rem; isolation: isolate; }
 .capability-card__visual--design { border: 1px solid var(--hero-frame-line); background: color-mix(in srgb, var(--surface-raised) 42%, transparent); }
-.capability-card__animation { position: absolute; inset: 0; display: block; width: 100%; height: 100%; pointer-events: none; }
+.capability-card__visual--develop,
+.capability-card__visual--automate { overflow: visible; }
+.capability-card__visual--develop::before,
+.capability-card__visual--automate::before {
+  position: absolute;
+  z-index: -1;
+  inset: -18% -16% -28%;
+  background: var(--capability-light-spill);
+  content: "";
+  filter: blur(clamp(2.25rem, 4vw, 4.5rem));
+  opacity: 0.52;
+  pointer-events: none;
+  transform: translateZ(0);
+}
+.capability-card__visual--develop {
+  --capability-light-spill:
+    radial-gradient(ellipse 54% 48% at 55% 43%, rgba(135, 145, 216, 0.3) 0%, rgba(93, 97, 216, 0.12) 44%, transparent 76%),
+    radial-gradient(ellipse 38% 42% at 72% 58%, rgba(255, 90, 36, 0.22) 0%, transparent 72%);
+}
+.capability-card__visual--automate {
+  --capability-light-spill:
+    radial-gradient(ellipse 48% 44% at 58% 48%, rgba(255, 204, 133, 0.28) 0%, rgba(255, 138, 84, 0.1) 45%, transparent 76%),
+    radial-gradient(ellipse 62% 52% at 48% 56%, rgba(135, 145, 216, 0.2) 0%, transparent 74%);
+}
+.capability-card__animation { position: absolute; z-index: 1; inset: 0; display: block; width: 100%; height: 100%; pointer-events: none; }
+.capability-card__visual--develop .capability-card__animation {
+  filter:
+    drop-shadow(0 0 1.3rem rgba(135, 145, 216, 0.24))
+    drop-shadow(0.55rem 0.45rem 1.7rem rgba(255, 90, 36, 0.16));
+}
+.capability-card__visual--automate .capability-card__animation {
+  filter:
+    drop-shadow(0 0 1.4rem rgba(255, 204, 133, 0.24))
+    drop-shadow(-0.5rem 0.5rem 1.8rem rgba(135, 145, 216, 0.14));
+}
 .capability-card__index { display: flex; align-items: center; gap: 0.55rem; margin: 0 0 0.6rem; font-family: "DM Mono", monospace; font-size: 0.64rem; letter-spacing: 0.12em; text-transform: uppercase; }
 .capability-card__index span:first-child { color: var(--accent-secondary); }
 .capability-card__index span:last-child { color: var(--muted); }
@@ -1157,6 +1191,21 @@ html[data-theme="light"] .capabilities::after {
   background: linear-gradient(180deg, #f7f3ea 0%, rgba(247, 243, 234, 0.94) 14%, rgba(241, 241, 242, 0.72) 42%, rgba(238, 239, 244, 0.3) 74%, transparent 100%);
 }
 
+html[data-theme="light"] .capability-card__visual--develop::before,
+html[data-theme="light"] .capability-card__visual--automate::before { opacity: 0.34; }
+
+html[data-theme="light"] .capability-card__visual--develop .capability-card__animation {
+  filter:
+    drop-shadow(0 0 1.1rem rgba(93, 97, 216, 0.17))
+    drop-shadow(0.45rem 0.4rem 1.45rem rgba(255, 90, 36, 0.12));
+}
+
+html[data-theme="light"] .capability-card__visual--automate .capability-card__animation {
+  filter:
+    drop-shadow(0 0 1.15rem rgba(218, 139, 66, 0.17))
+    drop-shadow(-0.4rem 0.4rem 1.5rem rgba(93, 97, 216, 0.1));
+}
+
 html[data-theme="light"] .work-placeholder::before {
   background:
     radial-gradient(ellipse 56% 58% at 82% 14%, rgba(116, 55, 91, 0.11) 0%, rgba(133, 77, 105, 0.055) 42%, transparent 72%),
@@ -1424,6 +1473,14 @@ html[data-theme="light"] .cv-section__title h2 span {
 }
 
 @media (max-width: 800px), (pointer: coarse) {
+  .capability-card__visual--develop::before,
+  .capability-card__visual--automate::before {
+    inset: -12% -10% -20%;
+    filter: blur(2.5rem);
+    opacity: 0.4;
+  }
+  .capability-card__visual--develop .capability-card__animation,
+  .capability-card__visual--automate .capability-card__animation { filter: none; }
   .capabilities--reveal-ready .capability-card__visual,
   .project-card--reveal-ready .project-card__visual { filter: none; }
   .project-card--reveal-ready { --project-reveal-delay: 0ms !important; }
