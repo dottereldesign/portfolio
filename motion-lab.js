@@ -9,6 +9,32 @@ if (motionStudy) {
   const laptopThreeDemo = motionStudy.querySelector("[data-track-laptop]");
   const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
   const animationDurationMs = 5800;
+  const developScrambleTokens = [
+    "R",
+    "U",
+    "F'",
+    "L2",
+    "D",
+    "B'",
+    "R2",
+    "U'",
+    "F2",
+    "D'",
+    "L",
+    "B2",
+  ];
+  const developTiming = {
+    solvedHoldMs: 1500,
+    moveMs: 520,
+    scrambledHoldMs: 1200,
+    finalHoldMs: 1500,
+  };
+  const developCycleDurationMs = developTiming.solvedHoldMs
+    + developScrambleTokens.length * developTiming.moveMs
+    + developTiming.scrambledHoldMs
+    + developScrambleTokens.length * developTiming.moveMs
+    + developTiming.finalHoldMs;
+  const developCubeStep = 0.7;
   let studyIsVisible = null;
   let animationFrame;
   let animationStartedAt = performance.now();
@@ -28,7 +54,10 @@ if (motionStudy) {
   let developScene;
   let developCamera;
   let developRig;
-  let developRows = [];
+  let developCubies = [];
+  let developMovePlan = [];
+  let developSnapshots = [];
+  let developScratchQuaternion;
   let developTurnLight;
   let laptopThreeRenderer;
   let laptopThreeScene;
@@ -236,52 +265,81 @@ if (motionStudy) {
   };
 
   const renderDevelopDemo = (phase) => {
-    if (!developRenderer || !developScene || !developCamera || !developRig) return;
-    const turn = (start, end) => smoothStep((phase - start) / (end - start));
-    const topForward = turn(0.04, 0.16);
-    const middleForward = turn(0.2, 0.32);
-    const bottomForward = turn(0.36, 0.48);
-    const bottomReturn = turn(0.52, 0.64);
-    const middleReturn = turn(0.68, 0.8);
-    const topReturn = turn(0.84, 0.96);
-    const rowAngles = [
-      (topForward - topReturn) * Math.PI * 0.5,
-      (middleReturn - middleForward) * Math.PI * 0.5,
-      (bottomForward - bottomReturn) * Math.PI * 0.5,
-    ];
-    const rowTurns = [
-      Math.max(
-        Math.sin(topForward * Math.PI),
-        Math.sin(topReturn * Math.PI),
-      ),
-      Math.max(
-        Math.sin(middleForward * Math.PI),
-        Math.sin(middleReturn * Math.PI),
-      ),
-      Math.max(
-        Math.sin(bottomForward * Math.PI),
-        Math.sin(bottomReturn * Math.PI),
-      ),
-    ];
+    if (
+      !developRenderer
+      || !developScene
+      || !developCamera
+      || !developRig
+      || !developSnapshots.length
+    ) return;
 
-    developRows.forEach((row, index) => {
-      row.rotation.x = rowAngles[index];
-      row.position.z = rowTurns[index] * 0.18;
+    const scrambleMoveCount = developScrambleTokens.length;
+    const scrambleDuration = scrambleMoveCount * developTiming.moveMs;
+    const solveStart = developTiming.solvedHoldMs
+      + scrambleDuration
+      + developTiming.scrambledHoldMs;
+    const solveDuration = scrambleMoveCount * developTiming.moveMs;
+    const elapsed = clamp01(phase) * developCycleDurationMs;
+    let snapshotIndex = 0;
+    let activeMoveIndex = -1;
+    let moveProgress = 0;
+
+    if (elapsed < developTiming.solvedHoldMs) {
+      snapshotIndex = 0;
+    } else if (elapsed < developTiming.solvedHoldMs + scrambleDuration) {
+      const localTime = elapsed - developTiming.solvedHoldMs;
+      activeMoveIndex = Math.floor(localTime / developTiming.moveMs);
+      moveProgress = (localTime % developTiming.moveMs) / developTiming.moveMs;
+      snapshotIndex = activeMoveIndex;
+    } else if (elapsed < solveStart) {
+      snapshotIndex = scrambleMoveCount;
+    } else if (elapsed < solveStart + solveDuration) {
+      const localTime = elapsed - solveStart;
+      const solveMoveIndex = Math.floor(localTime / developTiming.moveMs);
+      activeMoveIndex = scrambleMoveCount + solveMoveIndex;
+      moveProgress = (localTime % developTiming.moveMs) / developTiming.moveMs;
+      snapshotIndex = activeMoveIndex;
+    } else {
+      snapshotIndex = developMovePlan.length;
+    }
+
+    const snapshot = developSnapshots[snapshotIndex];
+    const activeMove = developMovePlan[activeMoveIndex];
+    const easedProgress = activeMove ? smoothStep(moveProgress) : 0;
+
+    if (activeMove) {
+      developScratchQuaternion.setFromAxisAngle(
+        activeMove.axisVector,
+        activeMove.angle * easedProgress,
+      );
+    }
+
+    developCubies.forEach((cubie, index) => {
+      const state = snapshot[index];
+      const isTurning = activeMove
+        && Math.round(state.position[activeMove.axisName]) === activeMove.layer;
+      cubie.group.position.copy(state.position);
+      cubie.group.quaternion.copy(state.quaternion);
+      if (isTurning) {
+        cubie.group.position.applyQuaternion(developScratchQuaternion);
+        cubie.group.quaternion.premultiply(developScratchQuaternion);
+      }
+      cubie.group.position.multiplyScalar(developCubeStep);
     });
 
-    const activeTurn = Math.max(...rowTurns);
-    const activeRowIndex = rowTurns.indexOf(activeTurn);
-    developRig.rotation.x = 0.08 + Math.cos(phase * Math.PI * 2) * 0.025;
-    developRig.rotation.y = -0.2 + Math.sin(phase * Math.PI * 2) * 0.07;
-    developRig.position.y = Math.sin(phase * Math.PI * 2) * 0.025;
+    const loopAngle = phase * Math.PI * 2;
+    developRig.rotation.x = -0.04 + Math.cos(loopAngle) * 0.025;
+    developRig.rotation.y = -0.12 + Math.sin(loopAngle) * 0.065;
+    developRig.position.y = Math.sin(loopAngle) * 0.025;
 
     if (developTurnLight) {
-      developTurnLight.intensity = activeTurn * 5.5;
-      developTurnLight.position.set(
-        0,
-        0.82 - activeRowIndex * 0.82,
-        1.25,
-      );
+      const turnEnergy = activeMove ? Math.sin(moveProgress * Math.PI) : 0;
+      developTurnLight.intensity = turnEnergy * 5.4;
+      developTurnLight.position.set(0, 0, 1.7);
+      if (activeMove) {
+        developTurnLight.position[activeMove.axisName] =
+          activeMove.layer * developCubeStep * 1.15;
+      }
     }
 
     developRenderer.render(developScene, developCamera);
@@ -296,12 +354,15 @@ if (motionStudy) {
     const phase = shouldAnimate
       ? (elapsed % animationDurationMs) / animationDurationMs
       : 0.09;
+    const developPhase = shouldAnimate
+      ? (elapsed % developCycleDurationMs) / developCycleDurationMs
+      : 0;
 
     const conceptPhase = shouldAnimate ? phase : 0.58;
     renderCanvasDemo(phase);
     renderThreeDemos(phase);
     renderDesignDemo(conceptPhase);
-    renderDevelopDemo(conceptPhase);
+    renderDevelopDemo(developPhase);
 
     if (shouldAnimate) animationFrame = window.requestAnimationFrame(renderFrame);
   };
@@ -362,7 +423,7 @@ if (motionStudy) {
   renderCanvasDemo(0.09);
   updateStudyVisibility();
 
-  import("./assets/vendor/laptop-runtime.min.js?v=20260730-4").then(({
+  import("./assets/vendor/laptop-runtime.min.js?v=20260730-5").then(({
     AmbientLight,
     BoxGeometry,
     CatmullRomCurve3,
@@ -374,6 +435,7 @@ if (motionStudy) {
     OrthographicCamera,
     PlaneGeometry,
     PointLight,
+    Quaternion,
     RoundedBoxGeometry,
     Scene,
     SphereGeometry,
@@ -688,71 +750,217 @@ if (motionStudy) {
     });
 
     const cubeMaterials = {
-      alloy: createCubeMaterial(0x73777d, { roughness: 0.52 }),
-      graphite: createCubeMaterial(0x25282d, { roughness: 0.58 }),
-      orange: createCubeMaterial(0xff5a24, {
-        emissive: 0x4a1204,
-        emissiveIntensity: 0.28,
+      body: createCubeMaterial(0x3f4349, {
+        metalness: 0.78,
+        roughness: 0.46,
+      }),
+      right: createCubeMaterial(0xff5a24, {
+        emissive: 0x3c1004,
+        emissiveIntensity: 0.2,
+        metalness: 0.38,
+        roughness: 0.34,
+      }),
+      left: createCubeMaterial(0xc94332, {
+        emissive: 0x270806,
+        emissiveIntensity: 0.14,
+        metalness: 0.4,
+        roughness: 0.36,
+      }),
+      up: createCubeMaterial(0xe8e7e1, {
+        metalness: 0.28,
+        roughness: 0.32,
+      }),
+      down: createCubeMaterial(0xe6a847, {
+        emissive: 0x2a1704,
+        emissiveIntensity: 0.13,
+        metalness: 0.42,
+        roughness: 0.34,
+      }),
+      front: createCubeMaterial(0x5d61d8, {
+        emissive: 0x10123b,
+        emissiveIntensity: 0.18,
+        metalness: 0.4,
+        roughness: 0.34,
+      }),
+      back: createCubeMaterial(0x399a73, {
+        emissive: 0x061f14,
+        emissiveIntensity: 0.14,
         metalness: 0.42,
         roughness: 0.36,
       }),
-      blue: createCubeMaterial(0x5d61d8, {
-        emissive: 0x111340,
-        emissiveIntensity: 0.2,
-        metalness: 0.5,
-        roughness: 0.4,
-      }),
-      ivory: createCubeMaterial(0xe8e7e1, {
-        metalness: 0.22,
-        roughness: 0.38,
-      }),
     };
-    const frontPattern = [
-      cubeMaterials.orange,
-      cubeMaterials.alloy,
-      cubeMaterials.blue,
-      cubeMaterials.ivory,
-      cubeMaterials.orange,
-      cubeMaterials.graphite,
-      cubeMaterials.blue,
-      cubeMaterials.ivory,
-      cubeMaterials.orange,
+    const cubeGeometry = new RoundedBoxGeometry(0.63, 0.63, 0.63, 4, 0.055);
+    const stickerGeometry = new RoundedBoxGeometry(0.49, 0.49, 0.025, 3, 0.028);
+    const stickerOffset = 0.331;
+    const stickerFaces = [
+      {
+        coordinate: "x",
+        value: 1,
+        material: cubeMaterials.right,
+        position: [stickerOffset, 0, 0],
+        rotation: [0, Math.PI / 2, 0],
+      },
+      {
+        coordinate: "x",
+        value: -1,
+        material: cubeMaterials.left,
+        position: [-stickerOffset, 0, 0],
+        rotation: [0, -Math.PI / 2, 0],
+      },
+      {
+        coordinate: "y",
+        value: 1,
+        material: cubeMaterials.up,
+        position: [0, stickerOffset, 0],
+        rotation: [-Math.PI / 2, 0, 0],
+      },
+      {
+        coordinate: "y",
+        value: -1,
+        material: cubeMaterials.down,
+        position: [0, -stickerOffset, 0],
+        rotation: [Math.PI / 2, 0, 0],
+      },
+      {
+        coordinate: "z",
+        value: 1,
+        material: cubeMaterials.front,
+        position: [0, 0, stickerOffset],
+        rotation: [0, 0, 0],
+      },
+      {
+        coordinate: "z",
+        value: -1,
+        material: cubeMaterials.back,
+        position: [0, 0, -stickerOffset],
+        rotation: [0, Math.PI, 0],
+      },
     ];
-    const sidePattern = [
-      cubeMaterials.blue,
-      cubeMaterials.ivory,
-      cubeMaterials.orange,
-    ];
-    const cubeGeometry = new RoundedBoxGeometry(0.72, 0.72, 0.72, 5, 0.055);
-    const cubeStep = 0.82;
 
-    developRows = Array.from({ length: 3 }, (_, rowIndex) => {
-      const row = new Group();
-      row.position.y = (1 - rowIndex) * cubeStep;
-      developRig.add(row);
+    developCubies = [];
+    for (let x = -1; x <= 1; x += 1) {
+      for (let y = -1; y <= 1; y += 1) {
+        for (let z = -1; z <= 1; z += 1) {
+          const group = new Group();
+          const body = new Mesh(cubeGeometry, cubeMaterials.body);
+          group.add(body);
 
-      for (let columnIndex = 0; columnIndex < 3; columnIndex += 1) {
-        const cubeIndex = rowIndex * 3 + columnIndex;
-        const cube = new Mesh(cubeGeometry, [
-          sidePattern[(columnIndex + 1) % 3],
-          sidePattern[(rowIndex + 2) % 3],
-          sidePattern[(rowIndex + columnIndex) % 3],
-          cubeMaterials.graphite,
-          frontPattern[cubeIndex],
-          cubeMaterials.graphite,
-        ]);
-        cube.position.x = (columnIndex - 1) * cubeStep;
-        row.add(cube);
+          stickerFaces.forEach((face) => {
+            if ({ x, y, z }[face.coordinate] !== face.value) return;
+            const sticker = new Mesh(stickerGeometry, face.material);
+            sticker.position.set(...face.position);
+            sticker.rotation.set(...face.rotation);
+            group.add(sticker);
+          });
+
+          group.position.set(
+            x * developCubeStep,
+            y * developCubeStep,
+            z * developCubeStep,
+          );
+          developRig.add(group);
+          developCubies.push({ group, solvedPosition: new Vector3(x, y, z) });
+        }
       }
+    }
 
-      return row;
+    const faceMoves = {
+      R: { axisName: "x", axisVector: new Vector3(1, 0, 0), layer: 1, direction: -1 },
+      L: { axisName: "x", axisVector: new Vector3(1, 0, 0), layer: -1, direction: 1 },
+      U: { axisName: "y", axisVector: new Vector3(0, 1, 0), layer: 1, direction: -1 },
+      D: { axisName: "y", axisVector: new Vector3(0, 1, 0), layer: -1, direction: 1 },
+      F: { axisName: "z", axisVector: new Vector3(0, 0, 1), layer: 1, direction: -1 },
+      B: { axisName: "z", axisVector: new Vector3(0, 0, 1), layer: -1, direction: 1 },
+    };
+    const invertMoveToken = (token) => {
+      if (token.endsWith("2")) return token;
+      return token.endsWith("'") ? token.slice(0, -1) : `${token}'`;
+    };
+    const solutionTokens = [...developScrambleTokens]
+      .reverse()
+      .map(invertMoveToken);
+    const parseMove = (token) => {
+      const face = faceMoves[token[0]];
+      const turnMultiplier = token.endsWith("2")
+        ? 2
+        : token.endsWith("'")
+          ? -1
+          : 1;
+      return {
+        ...face,
+        token,
+        angle: face.direction * turnMultiplier * Math.PI / 2,
+      };
+    };
+    const cloneSnapshot = (snapshot) => snapshot.map((state) => ({
+      position: state.position.clone(),
+      quaternion: state.quaternion.clone(),
+    }));
+    const applyMoveToSnapshot = (snapshot, move) => {
+      const nextSnapshot = cloneSnapshot(snapshot);
+      const rotation = new Quaternion().setFromAxisAngle(move.axisVector, move.angle);
+      nextSnapshot.forEach((state) => {
+        if (Math.round(state.position[move.axisName]) !== move.layer) return;
+        state.position.applyQuaternion(rotation);
+        state.position.set(
+          Math.round(state.position.x),
+          Math.round(state.position.y),
+          Math.round(state.position.z),
+        );
+        state.quaternion.premultiply(rotation).normalize();
+      });
+      return nextSnapshot;
+    };
+
+    developMovePlan = [...developScrambleTokens, ...solutionTokens].map(parseMove);
+    developSnapshots = [
+      developCubies.map(({ solvedPosition }) => ({
+        position: solvedPosition.clone(),
+        quaternion: new Quaternion(),
+      })),
+    ];
+    developMovePlan.forEach((move) => {
+      developSnapshots.push(
+        applyMoveToSnapshot(developSnapshots[developSnapshots.length - 1], move),
+      );
     });
+    developScratchQuaternion = new Quaternion();
+
+    const solvedSnapshot = developSnapshots[0];
+    const scrambledSnapshot = developSnapshots[developScrambleTokens.length];
+    const resolvedSnapshot = developSnapshots[developSnapshots.length - 1];
+    const snapshotsKeepUniquePositions = developSnapshots.every((snapshot) => (
+      new Set(snapshot.map(({ position }) => (
+        `${Math.round(position.x)},${Math.round(position.y)},${Math.round(position.z)}`
+      ))).size === developCubies.length
+    ));
+    const everyMoveTurnsOneLayer = developMovePlan.every((move, index) => (
+      developSnapshots[index].filter((state) => (
+        Math.round(state.position[move.axisName]) === move.layer
+      )).length === 9
+    ));
+    const scrambleIsMixed = scrambledSnapshot.some((state, index) => (
+      state.position.distanceToSquared(solvedSnapshot[index].position) > 1e-8
+      || 1 - Math.abs(state.quaternion.dot(solvedSnapshot[index].quaternion)) > 1e-8
+    ));
+    const loopReturnsToSolved = resolvedSnapshot.every((state, index) => (
+      state.position.distanceToSquared(solvedSnapshot[index].position) < 1e-8
+      && 1 - Math.abs(state.quaternion.dot(solvedSnapshot[index].quaternion)) < 1e-8
+    ));
+    if (
+      !snapshotsKeepUniquePositions
+      || !everyMoveTurnsOneLayer
+      || !scrambleIsMixed
+      || !loopReturnsToSolved
+    ) {
+      throw new Error("Develop cube move plan failed its state validation.");
+    }
 
     const developAmbientLight = new AmbientLight(0xe8e7e1, 1.65);
     const developKeyLight = new DirectionalLight(0xffffff, 4.6);
     const developFillLight = new DirectionalLight(0x8791d8, 1.1);
     const developWarmLight = new DirectionalLight(0xff5a24, 0.75);
-    developTurnLight = new PointLight(0xff8a54, 0, 2.8);
+    developTurnLight = new PointLight(0xff8a54, 0, 3.4);
     developKeyLight.position.set(-2.4, 3.6, 5);
     developFillLight.position.set(4, -1, 3);
     developWarmLight.position.set(3, 2, 2);
@@ -761,8 +969,8 @@ if (motionStudy) {
       developKeyLight,
       developFillLight,
       developWarmLight,
-      developTurnLight,
     );
+    developRig.add(developTurnLight);
 
     laptopThreeRenderer = new WebGLRenderer({
       alpha: true,
@@ -818,7 +1026,7 @@ if (motionStudy) {
     resizeThreeDemos();
     renderThreeDemos(0.09);
     renderDesignDemo(0.58);
-    renderDevelopDemo(0.58);
+    renderDevelopDemo(0);
     requestMotionFrame();
   }).catch((error) => {
     console.error("Capability motion scenes failed to initialise.", error);

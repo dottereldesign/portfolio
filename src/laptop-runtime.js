@@ -17,6 +17,7 @@ export {
   PerspectiveCamera,
   PlaneGeometry,
   PointLight,
+  Quaternion,
   Raycaster,
   Scene,
   SphereGeometry,
