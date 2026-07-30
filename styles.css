@@ -1446,8 +1446,8 @@ html[data-theme="light"] .cv-section__title h2 span {
   .github-activity__panel-header,
   .github-activity__panel-footer { align-items: flex-start; flex-direction: column; }
   .github-activity__panel-footer { gap: 1rem; }
-  .github-activity__scroll { margin-right: -1px; padding-right: 1rem; }
-  .github-calendar { min-width: 51rem; justify-content: start; }
+  .github-activity__scroll { margin-right: -1px; padding-right: 1rem; direction: rtl; }
+  .github-calendar { min-width: 51rem; justify-content: start; direction: ltr; }
   .capability-card h3 { font-size: clamp(1.8rem, 8vw, 2.4rem); }
   .capability-card__description { font-size: 0.8rem; }
   .project-grid { grid-template-columns: 1fr; }

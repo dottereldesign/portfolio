@@ -1934,7 +1934,6 @@ const githubActivity = document.querySelector("[data-github-activity]");
 
 if (githubActivity) {
   const calendar = githubActivity.querySelector("[data-github-calendar]");
-  const calendarScroll = githubActivity.querySelector("[data-github-scroll]");
   const totalLabel = githubActivity.querySelector("[data-github-total]");
   const statusLabel = githubActivity.querySelector("[data-github-status]");
   const profileUrl = "https://github.com/dottereldesign";
@@ -2069,9 +2068,6 @@ if (githubActivity) {
     );
     githubActivity.classList.add("is-ready");
 
-    window.requestAnimationFrame(() => {
-      calendarScroll.scrollLeft = calendarScroll.scrollWidth;
-    });
   };
 
   const renderFallback = () => {
