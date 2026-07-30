@@ -28,3 +28,4 @@ export {
 } from "three";
 
 export { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+export { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";

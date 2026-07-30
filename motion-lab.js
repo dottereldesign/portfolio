@@ -27,9 +27,9 @@ if (motionStudy) {
   let developRenderer;
   let developScene;
   let developCamera;
-  let developBlocks = [];
-  let developGlowMaterial;
-  let developPulseLight;
+  let developRig;
+  let developRows = [];
+  let developTurnLight;
   let laptopThreeRenderer;
   let laptopThreeScene;
   let laptopThreeCamera;
@@ -144,12 +144,11 @@ if (motionStudy) {
     drawCanvasBall(context, point.x, point.y, radius);
   };
 
-  const resizeThreeViewport = (canvas, renderer, camera) => {
+  const resizeThreeViewport = (canvas, renderer, camera, viewHeight = 2.65) => {
     if (!canvas || !renderer || !camera) return;
     const bounds = canvas.getBoundingClientRect();
     const width = Math.max(1, bounds.width);
     const height = Math.max(1, bounds.height);
-    const viewHeight = 2.65;
     const viewWidth = viewHeight * (width / height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.setSize(width, height, false);
@@ -163,7 +162,7 @@ if (motionStudy) {
   const resizeThreeDemos = () => {
     resizeThreeViewport(threeDemo, threeRenderer, threeCamera);
     resizeThreeViewport(designBoardDemo, designRenderer, designCamera);
-    resizeThreeViewport(developAssemblyDemo, developRenderer, developCamera);
+    resizeThreeViewport(developAssemblyDemo, developRenderer, developCamera, 3.55);
     resizeThreeViewport(laptopThreeDemo, laptopThreeRenderer, laptopThreeCamera);
   };
 
@@ -237,37 +236,52 @@ if (motionStudy) {
   };
 
   const renderDevelopDemo = (phase) => {
-    if (!developRenderer || !developScene || !developCamera) return;
-    developBlocks.forEach((block, index) => {
-      const start = 0.035 + index * 0.055;
-      const rawEnter = clamp01((phase - start) / 0.17);
-      const enter = easeOutBack(rawEnter);
-      const leave = smoothStep((phase - 0.86) / 0.11);
-      const { group, material, from, target, rotation } = block;
+    if (!developRenderer || !developScene || !developCamera || !developRig) return;
+    const turn = (start, end) => smoothStep((phase - start) / (end - start));
+    const topForward = turn(0.04, 0.16);
+    const middleForward = turn(0.2, 0.32);
+    const bottomForward = turn(0.36, 0.48);
+    const bottomReturn = turn(0.52, 0.64);
+    const middleReturn = turn(0.68, 0.8);
+    const topReturn = turn(0.84, 0.96);
+    const rowAngles = [
+      (topForward - topReturn) * Math.PI * 0.5,
+      (middleReturn - middleForward) * Math.PI * 0.5,
+      (bottomForward - bottomReturn) * Math.PI * 0.5,
+    ];
+    const rowTurns = [
+      Math.max(
+        Math.sin(topForward * Math.PI),
+        Math.sin(topReturn * Math.PI),
+      ),
+      Math.max(
+        Math.sin(middleForward * Math.PI),
+        Math.sin(middleReturn * Math.PI),
+      ),
+      Math.max(
+        Math.sin(bottomForward * Math.PI),
+        Math.sin(bottomReturn * Math.PI),
+      ),
+    ];
 
-      group.visible = rawEnter > 0.001 && leave < 0.999;
-      group.position.set(
-        from.x + (target.x - from.x) * enter + (from.x - target.x) * 0.28 * leave,
-        from.y + (target.y - from.y) * enter + (from.y - target.y) * 0.28 * leave,
-        from.z + (target.z - from.z) * enter + 0.45 * leave,
-      );
-      group.rotation.set(
-        rotation.x * (1 - enter),
-        rotation.y * (1 - enter),
-        rotation.z * (1 - enter),
-      );
-      group.scale.setScalar(Math.max(0.001, 1 - leave));
-
-      const snapPulse = Math.max(0, 1 - Math.abs(rawEnter - 0.86) / 0.14);
-      material.emissiveIntensity = 0.025 + snapPulse * 0.38;
+    developRows.forEach((row, index) => {
+      row.rotation.x = rowAngles[index];
+      row.position.z = rowTurns[index] * 0.18;
     });
 
-    const assembled = smoothStep((phase - 0.43) / 0.12)
-      * (1 - smoothStep((phase - 0.86) / 0.1));
-    if (developPulseLight) {
-      const sweep = clamp01((phase - 0.48) / 0.28);
-      developPulseLight.intensity = assembled * Math.sin(sweep * Math.PI) * 5;
-      developPulseLight.position.set(-1.35 + sweep * 2.7, 0.18, 0.75);
+    const activeTurn = Math.max(...rowTurns);
+    const activeRowIndex = rowTurns.indexOf(activeTurn);
+    developRig.rotation.x = 0.08 + Math.cos(phase * Math.PI * 2) * 0.025;
+    developRig.rotation.y = -0.2 + Math.sin(phase * Math.PI * 2) * 0.07;
+    developRig.position.y = Math.sin(phase * Math.PI * 2) * 0.025;
+
+    if (developTurnLight) {
+      developTurnLight.intensity = activeTurn * 5.5;
+      developTurnLight.position.set(
+        0,
+        0.82 - activeRowIndex * 0.82,
+        1.25,
+      );
     }
 
     developRenderer.render(developScene, developCamera);
@@ -348,7 +362,7 @@ if (motionStudy) {
   renderCanvasDemo(0.09);
   updateStudyVisibility();
 
-  import("./assets/vendor/laptop-runtime.min.js?v=20260730-3").then(({
+  import("./assets/vendor/laptop-runtime.min.js?v=20260730-4").then(({
     AmbientLight,
     BoxGeometry,
     CatmullRomCurve3,
@@ -356,11 +370,11 @@ if (motionStudy) {
     DirectionalLight,
     Group,
     Mesh,
-    MeshBasicMaterial,
     MeshStandardMaterial,
     OrthographicCamera,
     PlaneGeometry,
     PointLight,
+    RoundedBoxGeometry,
     Scene,
     SphereGeometry,
     SRGBColorSpace,
@@ -640,29 +654,6 @@ if (motionStudy) {
     designWarmLight.position.set(4, -1, 3);
     designScene.add(designAmbientLight, designKeyLight, designWarmLight);
 
-    const createModuleTexture = (label, variant = 0) => {
-      const moduleCanvas = document.createElement("canvas");
-      moduleCanvas.width = 512;
-      moduleCanvas.height = 192;
-      const context = moduleCanvas.getContext("2d");
-      context.clearRect(0, 0, moduleCanvas.width, moduleCanvas.height);
-      context.fillStyle = "rgba(255, 255, 255, 0.9)";
-      context.font = "700 40px ui-monospace, monospace";
-      context.fillText(label, 32, 62);
-      context.fillStyle = "rgba(255, 255, 255, 0.34)";
-      const widths = variant % 2 === 0
-        ? [380, 284, 334]
-        : [310, 402, 244];
-      widths.forEach((width, index) => {
-        context.fillRect(32, 92 + index * 27, width, 8);
-      });
-      context.fillStyle = "#ff7a45";
-      context.fillRect(452, 30, 24, 24);
-      const texture = new CanvasTexture(moduleCanvas);
-      texture.colorSpace = SRGBColorSpace;
-      return texture;
-    };
-
     developRenderer = new WebGLRenderer({
       alpha: true,
       antialias: true,
@@ -674,83 +665,103 @@ if (motionStudy) {
 
     developScene = new Scene();
     developCamera = new OrthographicCamera(-2, 2, 1.3, -1.3, 0.1, 10);
-    developCamera.position.z = 5;
+    developCamera.position.set(3.2, 2.7, 5.4);
+    developCamera.lookAt(0, 0, 0);
 
-    const developFrame = new Mesh(
-      new BoxGeometry(3.55, 2.1, 0.12),
-      new MeshStandardMaterial({
-        color: 0x111419,
-        metalness: 0.45,
-        roughness: 0.7,
+    developRig = new Group();
+    developScene.add(developRig);
+
+    const createCubeMaterial = (
+      color,
+      {
+        emissive = 0x000000,
+        emissiveIntensity = 0,
+        metalness = 0.7,
+        roughness = 0.42,
+      } = {},
+    ) => new MeshStandardMaterial({
+      color,
+      emissive,
+      emissiveIntensity,
+      metalness,
+      roughness,
+    });
+
+    const cubeMaterials = {
+      alloy: createCubeMaterial(0x73777d, { roughness: 0.52 }),
+      graphite: createCubeMaterial(0x25282d, { roughness: 0.58 }),
+      orange: createCubeMaterial(0xff5a24, {
+        emissive: 0x4a1204,
+        emissiveIntensity: 0.28,
+        metalness: 0.42,
+        roughness: 0.36,
       }),
-    );
-    developGlowMaterial = new MeshBasicMaterial({
-      color: 0x080a0d,
-    });
-    const developGlowPanel = new Mesh(
-      new PlaneGeometry(3.3, 1.86),
-      developGlowMaterial,
-    );
-    developGlowPanel.position.z = 0.07;
-    developScene.add(developFrame, developGlowPanel);
-
-    const blockSpecs = [
-      { label: "APP / BUILD", w: 3.12, h: 0.27, x: 0, y: 0.76, from: [-2.6, 1.7, 1.2] },
-      { label: "NAV", w: 0.6, h: 1.08, x: -1.25, y: -0.05, from: [-2.7, -1.3, 0.9] },
-      { label: "</>", w: 2.38, h: 0.46, x: 0.38, y: 0.34, from: [2.8, 1.45, 1.1] },
-      { label: "{ }", w: 0.7, h: 0.44, x: -0.47, y: -0.31, from: [-2.3, 1.55, 0.8] },
-      { label: "API", w: 0.7, h: 0.44, x: 0.33, y: -0.31, from: [2.5, -1.55, 1.25] },
-      { label: "UI", w: 0.7, h: 0.44, x: 1.13, y: -0.31, from: [2.7, 0.3, 0.75] },
-      { label: "BUILD OK", w: 2.38, h: 0.17, x: 0.38, y: -0.75, from: [-2.5, -1.65, 1.05] },
+      blue: createCubeMaterial(0x5d61d8, {
+        emissive: 0x111340,
+        emissiveIntensity: 0.2,
+        metalness: 0.5,
+        roughness: 0.4,
+      }),
+      ivory: createCubeMaterial(0xe8e7e1, {
+        metalness: 0.22,
+        roughness: 0.38,
+      }),
+    };
+    const frontPattern = [
+      cubeMaterials.orange,
+      cubeMaterials.alloy,
+      cubeMaterials.blue,
+      cubeMaterials.ivory,
+      cubeMaterials.orange,
+      cubeMaterials.graphite,
+      cubeMaterials.blue,
+      cubeMaterials.ivory,
+      cubeMaterials.orange,
     ];
-    developBlocks = blockSpecs.map((spec, index) => {
-      const group = new Group();
-      const material = new MeshStandardMaterial({
-        color: index % 3 === 1 ? 0x4f5359 : 0x73777d,
-        emissive: 0xff5a24,
-        emissiveIntensity: 0.025,
-        metalness: 0.7,
-        roughness: 0.52,
-      });
-      const block = new Mesh(
-        new BoxGeometry(spec.w, spec.h, 0.16),
-        material,
-      );
-      const labelPlate = new Mesh(
-        new PlaneGeometry(spec.w * 0.86, Math.max(0.08, spec.h * 0.62)),
-        new MeshBasicMaterial({
-          map: createModuleTexture(spec.label, index),
-          transparent: true,
-          toneMapped: false,
-        }),
-      );
-      labelPlate.position.z = 0.083;
-      group.add(block, labelPlate);
-      developScene.add(group);
-      return {
-        group,
-        material,
-        from: { x: spec.from[0], y: spec.from[1], z: spec.from[2] },
-        target: { x: spec.x, y: spec.y, z: 0.18 },
-        rotation: {
-          x: (index % 2 === 0 ? 1 : -1) * 0.28,
-          y: (index % 3 - 1) * 0.38,
-          z: (index % 2 === 0 ? -1 : 1) * 0.24,
-        },
-      };
+    const sidePattern = [
+      cubeMaterials.blue,
+      cubeMaterials.ivory,
+      cubeMaterials.orange,
+    ];
+    const cubeGeometry = new RoundedBoxGeometry(0.72, 0.72, 0.72, 5, 0.055);
+    const cubeStep = 0.82;
+
+    developRows = Array.from({ length: 3 }, (_, rowIndex) => {
+      const row = new Group();
+      row.position.y = (1 - rowIndex) * cubeStep;
+      developRig.add(row);
+
+      for (let columnIndex = 0; columnIndex < 3; columnIndex += 1) {
+        const cubeIndex = rowIndex * 3 + columnIndex;
+        const cube = new Mesh(cubeGeometry, [
+          sidePattern[(columnIndex + 1) % 3],
+          sidePattern[(rowIndex + 2) % 3],
+          sidePattern[(rowIndex + columnIndex) % 3],
+          cubeMaterials.graphite,
+          frontPattern[cubeIndex],
+          cubeMaterials.graphite,
+        ]);
+        cube.position.x = (columnIndex - 1) * cubeStep;
+        row.add(cube);
+      }
+
+      return row;
     });
 
-    const developAmbientLight = new AmbientLight(0xe8e7e1, 1.55);
-    const developKeyLight = new DirectionalLight(0xffffff, 4.2);
-    const developFillLight = new DirectionalLight(0x8791d8, 0.95);
-    developPulseLight = new PointLight(0xff5a24, 0, 2.6);
-    developKeyLight.position.set(-2, 3.5, 5);
+    const developAmbientLight = new AmbientLight(0xe8e7e1, 1.65);
+    const developKeyLight = new DirectionalLight(0xffffff, 4.6);
+    const developFillLight = new DirectionalLight(0x8791d8, 1.1);
+    const developWarmLight = new DirectionalLight(0xff5a24, 0.75);
+    developTurnLight = new PointLight(0xff8a54, 0, 2.8);
+    developKeyLight.position.set(-2.4, 3.6, 5);
     developFillLight.position.set(4, -1, 3);
+    developWarmLight.position.set(3, 2, 2);
     developScene.add(
       developAmbientLight,
       developKeyLight,
       developFillLight,
-      developPulseLight,
+      developWarmLight,
+      developTurnLight,
     );
 
     laptopThreeRenderer = new WebGLRenderer({
