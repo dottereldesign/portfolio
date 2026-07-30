@@ -191,6 +191,8 @@ html[data-theme="dark"] .theme-switcher-grid[data-theme-toggle] .star-4 { transf
 .hero__content > .eyebrow { z-index: 50; animation: hero-kicker-in 760ms var(--hero-ease) 320ms backwards; }
 .status-dot { width: 0.5rem; height: 0.5rem; border-radius: 50%; background: var(--accent-secondary); box-shadow: 0 0 1rem var(--accent-secondary); animation: pulse 2s ease-in-out infinite; }
 .eyebrow--status .status-dot { background: var(--accent); box-shadow: 0 0 1rem var(--accent); }
+.hero__content .eyebrow--availability { color: #a8f07a; }
+.hero__content .eyebrow--availability .status-dot { background: #a8f07a; box-shadow: 0 0 1rem rgba(168, 240, 122, 0.9); }
 .hero__title { z-index: 50; max-width: none; margin: 0; color: var(--ink); font-size: clamp(4.2rem, 9.5vw, 9.5rem); font-weight: 600; letter-spacing: -0.09em; line-height: 0.86; white-space: nowrap; }
 .hero__title span { display: inline-block; }
 html.js .hero__title > span:not(.is-scramble-ready) { visibility: hidden; }
@@ -1145,6 +1147,9 @@ html[data-theme="light"] .hero__side-rail {
   background: linear-gradient(180deg, rgba(248, 245, 238, 0.92), rgba(241, 236, 226, 0.82));
   color: rgba(25, 26, 23, 0.62);
 }
+
+html[data-theme="light"] .hero__content .eyebrow--availability { color: #358743; }
+html[data-theme="light"] .hero__content .eyebrow--availability .status-dot { background: #57b85c; box-shadow: 0 0 0.85rem rgba(87, 184, 92, 0.55); }
 
 html[data-theme="light"] .capabilities::before {
   background:
