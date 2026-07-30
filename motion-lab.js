@@ -7,6 +7,16 @@ if (motionStudy) {
   const designBoardDemo = motionStudy.querySelector("[data-design-board]");
   const developAssemblyDemo = motionStudy.querySelector("[data-develop-assembly]");
   const laptopThreeDemo = motionStudy.querySelector("[data-track-laptop]");
+  const motionRegions = [
+    svgDemo,
+    canvasDemo,
+    threeDemo,
+    designBoardDemo,
+    developAssemblyDemo,
+    laptopThreeDemo,
+  ]
+    .filter(Boolean)
+    .map((element) => element.closest(".capability-card__visual, .motion-approach__stage") || element);
   const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
   const animationDurationMs = 5800;
   const developScrambleTokens = [
@@ -191,8 +201,8 @@ if (motionStudy) {
   const resizeThreeDemos = () => {
     resizeThreeViewport(threeDemo, threeRenderer, threeCamera);
     resizeThreeViewport(designBoardDemo, designRenderer, designCamera);
-    resizeThreeViewport(developAssemblyDemo, developRenderer, developCamera, 3.55);
-    resizeThreeViewport(laptopThreeDemo, laptopThreeRenderer, laptopThreeCamera);
+    resizeThreeViewport(developAssemblyDemo, developRenderer, developCamera, 4.35);
+    resizeThreeViewport(laptopThreeDemo, laptopThreeRenderer, laptopThreeCamera, 3.35);
   };
 
   const renderThreePrototype = (
@@ -417,9 +427,10 @@ if (motionStudy) {
   resizeObserver.observe(laptopThreeDemo);
 
   const updateStudyVisibility = () => {
-    const bounds = motionStudy.getBoundingClientRect();
-    const isVisible = bounds.bottom >= -160
-      && bounds.top <= window.innerHeight + 160;
+    const isVisible = motionRegions.some((region) => {
+      const bounds = region.getBoundingClientRect();
+      return bounds.bottom >= -160 && bounds.top <= window.innerHeight + 160;
+    });
     if (isVisible === studyIsVisible) return;
     studyIsVisible = isVisible;
     updateMotionState();

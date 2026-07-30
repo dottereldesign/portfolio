@@ -24,7 +24,7 @@
         document.documentElement.style.colorScheme = theme;
       })();
     </script>
-    <link rel="stylesheet" href="styles.css?v=20260731-3" />
+    <link rel="stylesheet" href="styles.css?v=20260731-4" />
     <noscript><style>.hero__title > span { visibility: visible !important; }</style></noscript>
   </head>
   <body>
@@ -113,7 +113,7 @@
       <canvas class="hero__model-canvas"></canvas>
     </div>
 
-    <section class="capabilities" aria-labelledby="capabilities-title" data-capabilities-reveal>
+    <section class="capabilities" aria-labelledby="capabilities-title" data-capabilities-reveal data-motion-study>
       <div class="section-frame" aria-hidden="true"></div>
 
       <div class="capabilities__intro">
@@ -163,8 +163,6 @@
       <div class="capabilities__flow">
         <article class="capability-card">
           <div class="capability-card__visual capability-card__visual--design" aria-hidden="true">
-            <span class="capability-card__visual-index">01</span>
-            <img class="capability-card__image" src="assets/ChatGPT%20Image%20Jul%2015,%202026,%2004_57_22%20PM%203.png" alt="" loading="lazy" />
           </div>
           <p class="capability-card__index"><span>01</span><span>/ Direction</span></p>
           <h3>Design</h3>
@@ -173,8 +171,7 @@
 
         <article class="capability-card">
           <div class="capability-card__visual capability-card__visual--develop" aria-hidden="true">
-            <span class="capability-card__visual-index">02</span>
-            <img class="capability-card__image" src="assets/ChatGPT%20Image%20Jul%2015,%202026,%2004_57_22%20PM%201.png" alt="" loading="lazy" />
+            <canvas class="capability-card__animation" data-develop-assembly></canvas>
           </div>
           <p class="capability-card__index"><span>02</span><span>/ Craft</span></p>
           <h3>Develop</h3>
@@ -183,8 +180,7 @@
 
         <article class="capability-card">
           <div class="capability-card__visual capability-card__visual--automate" aria-hidden="true">
-            <span class="capability-card__visual-index">03</span>
-            <img class="capability-card__image" src="assets/ChatGPT%20Image%20Jul%2015,%202026,%2004_57_22%20PM%202.png" alt="" loading="lazy" />
+            <canvas class="capability-card__animation" data-track-laptop></canvas>
           </div>
           <p class="capability-card__index"><span>03</span><span>/ Leverage</span></p>
           <h3>Automate</h3>
@@ -192,7 +188,7 @@
         </article>
       </div>
 
-      <section class="capability-motion-study" aria-labelledby="motion-study-title" data-motion-study>
+      <section class="capability-motion-study" aria-labelledby="motion-study-title">
         <header class="capability-motion-study__intro">
           <div>
             <p class="eyebrow">Motion study</p>
@@ -260,29 +256,6 @@
           </article>
         </div>
 
-        <div class="capability-motion-grid capability-motion-grid--followup">
-          <article class="motion-approach motion-approach--featured motion-approach--develop">
-            <div class="motion-approach__stage">
-              <canvas class="motion-approach__overlay" aria-hidden="true" data-develop-assembly></canvas>
-            </div>
-            <div class="motion-approach__meta">
-              <p><span>Develop</span><span>/ 3×3×3 build system</span></p>
-              <span>A 27-cubie system scrambling and resolving through real face turns</span>
-            </div>
-          </article>
-        </div>
-
-        <div class="capability-motion-grid capability-motion-grid--followup">
-          <article class="motion-approach motion-approach--featured motion-approach--laptop">
-            <div class="motion-approach__stage">
-              <canvas class="motion-approach__overlay" aria-hidden="true" data-track-laptop></canvas>
-            </div>
-            <div class="motion-approach__meta">
-              <p><span>Automate</span><span>/ Continuous loop</span></p>
-              <span>Clear glass tube with a glowing ball running through it</span>
-            </div>
-          </article>
-        </div>
       </section>
     </section>
 
@@ -597,6 +570,6 @@
     </section>
 
     <script src="script.js?v=20260731-2"></script>
-    <script type="module" src="motion-lab.js?v=20260731-2"></script>
+    <script type="module" src="motion-lab.js?v=20260731-3"></script>
   </body>
 </html>
