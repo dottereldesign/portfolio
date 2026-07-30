@@ -335,30 +335,29 @@ if (motionStudy) {
     laptopThreeCamera.position.z = 5;
     laptopThreeCurve = new CatmullRomCurve3(curvePoints, true, "centripetal");
 
-    const laptopTrackEdge = new Mesh(
-      new TubeGeometry(laptopThreeCurve, 320, 0.15, 16, true),
-      new MeshStandardMaterial({
-        color: 0x080909,
-        metalness: 0.35,
-        roughness: 0.72,
-      }),
-    );
     const laptopTrackMetal = new Mesh(
-      new TubeGeometry(laptopThreeCurve, 320, 0.105, 16, true),
+      new TubeGeometry(laptopThreeCurve, 320, 0.135, 20, true),
       new MeshStandardMaterial({
         color: 0x73777d,
         metalness: 0.7,
         roughness: 0.52,
       }),
     );
-    laptopThreeScene.add(laptopTrackEdge, laptopTrackMetal);
+    laptopThreeScene.add(laptopTrackMetal);
 
-    const laptopAmbientLight = new AmbientLight(0xe8e7e1, 2.2);
-    const laptopKeyLight = new DirectionalLight(0xff5a24, 2.4);
-    const laptopFillLight = new DirectionalLight(0x8791d8, 0.68);
-    laptopKeyLight.position.set(4, 5, 6);
-    laptopFillLight.position.set(-5, 2, 3);
-    laptopThreeScene.add(laptopAmbientLight, laptopKeyLight, laptopFillLight);
+    const laptopAmbientLight = new AmbientLight(0xe8e7e1, 1.8);
+    const laptopKeyLight = new DirectionalLight(0xffffff, 4.6);
+    const laptopWarmRimLight = new DirectionalLight(0xff5a24, 0.72);
+    const laptopFillLight = new DirectionalLight(0x8791d8, 0.8);
+    laptopKeyLight.position.set(-2.5, 3.5, 5);
+    laptopWarmRimLight.position.set(4, 1, 3);
+    laptopFillLight.position.set(-4, -1, 3);
+    laptopThreeScene.add(
+      laptopAmbientLight,
+      laptopKeyLight,
+      laptopWarmRimLight,
+      laptopFillLight,
+    );
 
     laptopThreeBall = new Mesh(
       new SphereGeometry(0.19, 36, 24),
