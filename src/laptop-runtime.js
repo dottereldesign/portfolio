@@ -1,6 +1,7 @@
 export {
   AmbientLight,
   BackSide,
+  BoxGeometry,
   CatmullRomCurve3,
   CanvasTexture,
   Color,

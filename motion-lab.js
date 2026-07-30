@@ -4,6 +4,8 @@ if (motionStudy) {
   const svgDemo = motionStudy.querySelector("[data-track-svg]");
   const canvasDemo = motionStudy.querySelector("[data-track-canvas]");
   const threeDemo = motionStudy.querySelector("[data-track-three]");
+  const designBoardDemo = motionStudy.querySelector("[data-design-board]");
+  const developAssemblyDemo = motionStudy.querySelector("[data-develop-assembly]");
   const laptopThreeDemo = motionStudy.querySelector("[data-track-laptop]");
   const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
   const animationDurationMs = 5800;
@@ -18,6 +20,16 @@ if (motionStudy) {
   let threeCurve;
   let threeBall;
   let threeBallLight;
+  let designRenderer;
+  let designScene;
+  let designCamera;
+  let designNotes = [];
+  let developRenderer;
+  let developScene;
+  let developCamera;
+  let developBlocks = [];
+  let developGlowMaterial;
+  let developPulseLight;
   let laptopThreeRenderer;
   let laptopThreeScene;
   let laptopThreeCamera;
@@ -31,6 +43,17 @@ if (motionStudy) {
       x: width * (0.5 + Math.sin(angle) * 0.36),
       y: height * (0.5 - Math.sin(angle * 2) * 0.23),
     };
+  };
+
+  const clamp01 = (value) => Math.max(0, Math.min(1, value));
+  const smoothStep = (value) => {
+    const amount = clamp01(value);
+    return amount * amount * (3 - 2 * amount);
+  };
+  const easeOutBack = (value) => {
+    const amount = clamp01(value) - 1;
+    const overshoot = 1.35;
+    return 1 + (overshoot + 1) * amount ** 3 + overshoot * amount ** 2;
   };
 
   const resizeCanvasDemo = () => {
@@ -139,6 +162,8 @@ if (motionStudy) {
 
   const resizeThreeDemos = () => {
     resizeThreeViewport(threeDemo, threeRenderer, threeCamera);
+    resizeThreeViewport(designBoardDemo, designRenderer, designCamera);
+    resizeThreeViewport(developAssemblyDemo, developRenderer, developCamera);
     resizeThreeViewport(laptopThreeDemo, laptopThreeRenderer, laptopThreeCamera);
   };
 
@@ -176,6 +201,78 @@ if (motionStudy) {
     );
   };
 
+  const renderDesignDemo = (phase) => {
+    if (!designRenderer || !designScene || !designCamera) return;
+    designNotes.forEach((note, index) => {
+      const {
+        group,
+        pin,
+        targetX,
+        targetY,
+        targetRotation,
+        entryX,
+        entryY,
+      } = note;
+      const start = 0.04 + index * 0.085;
+      const enter = smoothStep((phase - start) / 0.13);
+      const pinProgress = smoothStep((phase - start - 0.075) / 0.065);
+      const leave = smoothStep((phase - 0.86) / 0.11);
+      const presence = enter * (1 - leave);
+
+      group.visible = presence > 0.001;
+      group.position.set(
+        targetX + entryX * (1 - enter) + entryX * 0.3 * leave,
+        targetY + entryY * (1 - enter) + 0.5 * leave,
+        0.15 + 0.9 * (1 - enter) + 0.4 * leave,
+      );
+      group.rotation.z = targetRotation
+        + Math.sign(entryX) * 0.24 * (1 - enter)
+        - Math.sign(entryX) * 0.12 * leave;
+      group.scale.setScalar(Math.max(0.001, (0.84 + enter * 0.16) * (1 - leave)));
+      pin.scale.setScalar(Math.max(0.001, pinProgress * (1 - leave)));
+      pin.position.z = 0.11 + 0.42 * (1 - pinProgress);
+    });
+
+    designRenderer.render(designScene, designCamera);
+  };
+
+  const renderDevelopDemo = (phase) => {
+    if (!developRenderer || !developScene || !developCamera) return;
+    developBlocks.forEach((block, index) => {
+      const start = 0.035 + index * 0.055;
+      const rawEnter = clamp01((phase - start) / 0.17);
+      const enter = easeOutBack(rawEnter);
+      const leave = smoothStep((phase - 0.86) / 0.11);
+      const { group, material, from, target, rotation } = block;
+
+      group.visible = rawEnter > 0.001 && leave < 0.999;
+      group.position.set(
+        from.x + (target.x - from.x) * enter + (from.x - target.x) * 0.28 * leave,
+        from.y + (target.y - from.y) * enter + (from.y - target.y) * 0.28 * leave,
+        from.z + (target.z - from.z) * enter + 0.45 * leave,
+      );
+      group.rotation.set(
+        rotation.x * (1 - enter),
+        rotation.y * (1 - enter),
+        rotation.z * (1 - enter),
+      );
+      group.scale.setScalar(Math.max(0.001, 1 - leave));
+
+      const snapPulse = Math.max(0, 1 - Math.abs(rawEnter - 0.86) / 0.14);
+      material.emissiveIntensity = 0.025 + snapPulse * 0.38;
+    });
+
+    const assembled = smoothStep((phase - 0.43) / 0.12)
+      * (1 - smoothStep((phase - 0.86) / 0.1));
+    if (developPulseLight) {
+      const sweep = clamp01((phase - 0.48) / 0.28);
+      developPulseLight.intensity = assembled * Math.sin(sweep * Math.PI) * 5;
+      developPulseLight.position.set(-1.35 + sweep * 2.7, 0.18, 0.75);
+    }
+
+    developRenderer.render(developScene, developCamera);
+  };
+
   const renderFrame = (now) => {
     animationFrame = undefined;
     const shouldAnimate = studyIsVisible
@@ -186,8 +283,11 @@ if (motionStudy) {
       ? (elapsed % animationDurationMs) / animationDurationMs
       : 0.09;
 
+    const conceptPhase = shouldAnimate ? phase : 0.58;
     renderCanvasDemo(phase);
     renderThreeDemos(phase);
+    renderDesignDemo(conceptPhase);
+    renderDevelopDemo(conceptPhase);
 
     if (shouldAnimate) animationFrame = window.requestAnimationFrame(renderFrame);
   };
@@ -225,6 +325,8 @@ if (motionStudy) {
   });
   resizeObserver.observe(canvasDemo);
   resizeObserver.observe(threeDemo);
+  resizeObserver.observe(designBoardDemo);
+  resizeObserver.observe(developAssemblyDemo);
   resizeObserver.observe(laptopThreeDemo);
 
   const updateStudyVisibility = () => {
@@ -246,13 +348,18 @@ if (motionStudy) {
   renderCanvasDemo(0.09);
   updateStudyVisibility();
 
-  import("./assets/vendor/laptop-runtime.min.js?v=20260730-2").then(({
+  import("./assets/vendor/laptop-runtime.min.js?v=20260730-3").then(({
     AmbientLight,
+    BoxGeometry,
     CatmullRomCurve3,
+    CanvasTexture,
     DirectionalLight,
+    Group,
     Mesh,
+    MeshBasicMaterial,
     MeshStandardMaterial,
     OrthographicCamera,
+    PlaneGeometry,
     PointLight,
     Scene,
     SphereGeometry,
@@ -321,6 +428,331 @@ if (motionStudy) {
     threeBallLight = new PointLight(0xffcc85, 5.5, 1.65);
     threeScene.add(threeBall, threeBallLight);
 
+    const createNoteTexture = ({
+      background,
+      title,
+      subtitle,
+      accent,
+      kind,
+    }) => {
+      const noteCanvas = document.createElement("canvas");
+      noteCanvas.width = 512;
+      noteCanvas.height = 320;
+      const context = noteCanvas.getContext("2d");
+      context.fillStyle = background;
+      context.fillRect(0, 0, noteCanvas.width, noteCanvas.height);
+      context.fillStyle = accent;
+      context.fillRect(0, 0, 18, noteCanvas.height);
+      context.fillStyle = "#242522";
+      context.font = "700 34px Arial, sans-serif";
+      context.fillText(title, 48, 64);
+      context.fillStyle = "rgba(36, 37, 34, 0.62)";
+      context.font = "600 18px Arial, sans-serif";
+      context.fillText(subtitle, 48, 94);
+
+      if (kind === "flow") {
+        context.strokeStyle = "#535650";
+        context.lineWidth = 6;
+        context.beginPath();
+        context.moveTo(72, 196);
+        context.lineTo(205, 150);
+        context.lineTo(334, 208);
+        context.lineTo(444, 158);
+        context.stroke();
+        [72, 205, 334, 444].forEach((x, index) => {
+          const y = [196, 150, 208, 158][index];
+          context.fillStyle = index === 2 ? accent : "#f7f2df";
+          context.beginPath();
+          context.arc(x, y, 18, 0, Math.PI * 2);
+          context.fill();
+          context.strokeStyle = "#535650";
+          context.lineWidth = 4;
+          context.stroke();
+        });
+      } else if (kind === "wireframe") {
+        context.strokeStyle = "#565852";
+        context.lineWidth = 5;
+        context.strokeRect(58, 124, 394, 154);
+        context.beginPath();
+        context.moveTo(58, 158);
+        context.lineTo(452, 158);
+        context.moveTo(172, 158);
+        context.lineTo(172, 278);
+        context.stroke();
+        context.fillStyle = accent;
+        context.fillRect(196, 184, 214, 38);
+        context.fillStyle = "rgba(86, 88, 82, 0.45)";
+        context.fillRect(196, 236, 96, 18);
+        context.fillRect(304, 236, 106, 18);
+      } else if (kind === "type") {
+        context.fillStyle = "#343632";
+        context.font = "700 92px Georgia, serif";
+        context.fillText("Aa", 58, 232);
+        context.fillStyle = accent;
+        [0, 1, 2, 3].forEach((index) => {
+          context.fillRect(230, 142 + index * 34, 192 - index * 25, 12);
+        });
+      } else {
+        context.strokeStyle = "#50524d";
+        context.lineWidth = 8;
+        context.beginPath();
+        context.arc(116, 201, 58, 0, Math.PI * 2);
+        context.stroke();
+        context.strokeStyle = accent;
+        context.beginPath();
+        context.moveTo(82, 201);
+        context.lineTo(108, 226);
+        context.lineTo(154, 174);
+        context.stroke();
+        context.fillStyle = "#343632";
+        context.font = "700 34px Arial, sans-serif";
+        context.fillText("7.2 : 1", 222, 198);
+        context.fillStyle = "rgba(36, 37, 34, 0.62)";
+        context.font = "600 18px Arial, sans-serif";
+        context.fillText("CONTRAST PASSES", 222, 228);
+      }
+
+      const texture = new CanvasTexture(noteCanvas);
+      texture.colorSpace = SRGBColorSpace;
+      return texture;
+    };
+
+    designRenderer = new WebGLRenderer({
+      alpha: true,
+      antialias: true,
+      canvas: designBoardDemo,
+      powerPreference: "high-performance",
+    });
+    designRenderer.setClearColor(0x000000, 0);
+    designRenderer.outputColorSpace = SRGBColorSpace;
+
+    designScene = new Scene();
+    designCamera = new OrthographicCamera(-2, 2, 1.3, -1.3, 0.1, 10);
+    designCamera.position.z = 5;
+
+    const designBoardFrame = new Mesh(
+      new BoxGeometry(3.55, 2.1, 0.14),
+      new MeshStandardMaterial({
+        color: 0x73777d,
+        metalness: 0.7,
+        roughness: 0.52,
+      }),
+    );
+    const designBoardSurface = new Mesh(
+      new PlaneGeometry(3.34, 1.89),
+      new MeshStandardMaterial({
+        color: 0x1c1e1c,
+        metalness: 0.05,
+        roughness: 0.94,
+      }),
+    );
+    designBoardSurface.position.z = 0.075;
+    designScene.add(designBoardFrame, designBoardSurface);
+
+    const notePinGeometry = new SphereGeometry(0.072, 20, 14);
+    const noteSpecs = [
+      {
+        title: "USER FLOW",
+        subtitle: "UX / JOURNEY",
+        background: "#efe2a8",
+        accent: "#e16030",
+        kind: "flow",
+        x: -1.03,
+        y: 0.47,
+        rotation: -0.045,
+        entryX: -2.2,
+        entryY: 0.65,
+      },
+      {
+        title: "HOMEPAGE",
+        subtitle: "UI / WIREFRAME",
+        background: "#dce7e3",
+        accent: "#4f70bb",
+        kind: "wireframe",
+        x: 0.87,
+        y: 0.49,
+        rotation: 0.05,
+        entryX: 2.25,
+        entryY: 0.5,
+      },
+      {
+        title: "TYPE + SPACE",
+        subtitle: "UI / SYSTEM",
+        background: "#ece8dc",
+        accent: "#d15a36",
+        kind: "type",
+        x: -0.86,
+        y: -0.47,
+        rotation: 0.035,
+        entryX: -2.1,
+        entryY: -0.7,
+      },
+      {
+        title: "ACCESSIBILITY",
+        subtitle: "UX / CHECK",
+        background: "#d8ded0",
+        accent: "#5b7160",
+        kind: "access",
+        x: 0.96,
+        y: -0.45,
+        rotation: -0.04,
+        entryX: 2.2,
+        entryY: -0.65,
+      },
+    ];
+    designNotes = noteSpecs.map((spec, index) => {
+      const group = new Group();
+      const note = new Mesh(
+        new PlaneGeometry(1.32, 0.82),
+        new MeshStandardMaterial({
+          color: 0xffffff,
+          map: createNoteTexture(spec),
+          metalness: 0,
+          roughness: 0.88,
+        }),
+      );
+      const pin = new Mesh(
+        notePinGeometry,
+        new MeshStandardMaterial({
+          color: index % 2 === 0 ? 0xff5a24 : 0xfff3d2,
+          metalness: 0.12,
+          roughness: 0.28,
+        }),
+      );
+      pin.position.set(0.5, 0.3, 0.11);
+      group.add(note, pin);
+      designScene.add(group);
+      return {
+        group,
+        pin,
+        targetX: spec.x,
+        targetY: spec.y,
+        targetRotation: spec.rotation,
+        entryX: spec.entryX,
+        entryY: spec.entryY,
+      };
+    });
+
+    const designAmbientLight = new AmbientLight(0xf2eee4, 1.8);
+    const designKeyLight = new DirectionalLight(0xffffff, 3.8);
+    const designWarmLight = new DirectionalLight(0xff7a45, 0.7);
+    designKeyLight.position.set(-2, 3, 5);
+    designWarmLight.position.set(4, -1, 3);
+    designScene.add(designAmbientLight, designKeyLight, designWarmLight);
+
+    const createModuleTexture = (label, variant = 0) => {
+      const moduleCanvas = document.createElement("canvas");
+      moduleCanvas.width = 512;
+      moduleCanvas.height = 192;
+      const context = moduleCanvas.getContext("2d");
+      context.clearRect(0, 0, moduleCanvas.width, moduleCanvas.height);
+      context.fillStyle = "rgba(255, 255, 255, 0.9)";
+      context.font = "700 40px ui-monospace, monospace";
+      context.fillText(label, 32, 62);
+      context.fillStyle = "rgba(255, 255, 255, 0.34)";
+      const widths = variant % 2 === 0
+        ? [380, 284, 334]
+        : [310, 402, 244];
+      widths.forEach((width, index) => {
+        context.fillRect(32, 92 + index * 27, width, 8);
+      });
+      context.fillStyle = "#ff7a45";
+      context.fillRect(452, 30, 24, 24);
+      const texture = new CanvasTexture(moduleCanvas);
+      texture.colorSpace = SRGBColorSpace;
+      return texture;
+    };
+
+    developRenderer = new WebGLRenderer({
+      alpha: true,
+      antialias: true,
+      canvas: developAssemblyDemo,
+      powerPreference: "high-performance",
+    });
+    developRenderer.setClearColor(0x000000, 0);
+    developRenderer.outputColorSpace = SRGBColorSpace;
+
+    developScene = new Scene();
+    developCamera = new OrthographicCamera(-2, 2, 1.3, -1.3, 0.1, 10);
+    developCamera.position.z = 5;
+
+    const developFrame = new Mesh(
+      new BoxGeometry(3.55, 2.1, 0.12),
+      new MeshStandardMaterial({
+        color: 0x111419,
+        metalness: 0.45,
+        roughness: 0.7,
+      }),
+    );
+    developGlowMaterial = new MeshBasicMaterial({
+      color: 0x080a0d,
+    });
+    const developGlowPanel = new Mesh(
+      new PlaneGeometry(3.3, 1.86),
+      developGlowMaterial,
+    );
+    developGlowPanel.position.z = 0.07;
+    developScene.add(developFrame, developGlowPanel);
+
+    const blockSpecs = [
+      { label: "APP / BUILD", w: 3.12, h: 0.27, x: 0, y: 0.76, from: [-2.6, 1.7, 1.2] },
+      { label: "NAV", w: 0.6, h: 1.08, x: -1.25, y: -0.05, from: [-2.7, -1.3, 0.9] },
+      { label: "</>", w: 2.38, h: 0.46, x: 0.38, y: 0.34, from: [2.8, 1.45, 1.1] },
+      { label: "{ }", w: 0.7, h: 0.44, x: -0.47, y: -0.31, from: [-2.3, 1.55, 0.8] },
+      { label: "API", w: 0.7, h: 0.44, x: 0.33, y: -0.31, from: [2.5, -1.55, 1.25] },
+      { label: "UI", w: 0.7, h: 0.44, x: 1.13, y: -0.31, from: [2.7, 0.3, 0.75] },
+      { label: "BUILD OK", w: 2.38, h: 0.17, x: 0.38, y: -0.75, from: [-2.5, -1.65, 1.05] },
+    ];
+    developBlocks = blockSpecs.map((spec, index) => {
+      const group = new Group();
+      const material = new MeshStandardMaterial({
+        color: index % 3 === 1 ? 0x4f5359 : 0x73777d,
+        emissive: 0xff5a24,
+        emissiveIntensity: 0.025,
+        metalness: 0.7,
+        roughness: 0.52,
+      });
+      const block = new Mesh(
+        new BoxGeometry(spec.w, spec.h, 0.16),
+        material,
+      );
+      const labelPlate = new Mesh(
+        new PlaneGeometry(spec.w * 0.86, Math.max(0.08, spec.h * 0.62)),
+        new MeshBasicMaterial({
+          map: createModuleTexture(spec.label, index),
+          transparent: true,
+          toneMapped: false,
+        }),
+      );
+      labelPlate.position.z = 0.083;
+      group.add(block, labelPlate);
+      developScene.add(group);
+      return {
+        group,
+        material,
+        from: { x: spec.from[0], y: spec.from[1], z: spec.from[2] },
+        target: { x: spec.x, y: spec.y, z: 0.18 },
+        rotation: {
+          x: (index % 2 === 0 ? 1 : -1) * 0.28,
+          y: (index % 3 - 1) * 0.38,
+          z: (index % 2 === 0 ? -1 : 1) * 0.24,
+        },
+      };
+    });
+
+    const developAmbientLight = new AmbientLight(0xe8e7e1, 1.55);
+    const developKeyLight = new DirectionalLight(0xffffff, 4.2);
+    const developFillLight = new DirectionalLight(0x8791d8, 0.95);
+    developPulseLight = new PointLight(0xff5a24, 0, 2.6);
+    developKeyLight.position.set(-2, 3.5, 5);
+    developFillLight.position.set(4, -1, 3);
+    developScene.add(
+      developAmbientLight,
+      developKeyLight,
+      developFillLight,
+      developPulseLight,
+    );
+
     laptopThreeRenderer = new WebGLRenderer({
       alpha: true,
       antialias: true,
@@ -374,9 +806,14 @@ if (motionStudy) {
 
     resizeThreeDemos();
     renderThreeDemos(0.09);
+    renderDesignDemo(0.58);
+    renderDevelopDemo(0.58);
     requestMotionFrame();
-  }).catch(() => {
+  }).catch((error) => {
+    console.error("Capability motion scenes failed to initialise.", error);
     threeDemo.classList.add("is-unavailable");
+    designBoardDemo.classList.add("is-unavailable");
+    developAssemblyDemo.classList.add("is-unavailable");
     laptopThreeDemo.classList.add("is-unavailable");
   });
 }
