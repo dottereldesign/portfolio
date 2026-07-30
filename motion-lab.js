@@ -36,7 +36,7 @@ if (motionStudy) {
   const developTiming = {
     solvedHoldMs: 1500,
     moveMs: 520,
-    scrambledHoldMs: 1200,
+    scrambledHoldMs: 0,
     finalHoldMs: 1500,
   };
   const developCycleDurationMs = developTiming.solvedHoldMs
