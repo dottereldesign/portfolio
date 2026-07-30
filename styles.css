@@ -234,7 +234,8 @@ html.js .hero__title > span:not(.is-scramble-ready) { visibility: hidden; }
 .hero__study--reveal-ready.is-visible .hero__study-item + .hero__study-item::before { transform: scaleY(1); transition: transform 820ms var(--hero-ease) calc(var(--study-reveal-delay) + 220ms); }
 .hero__study--reveal-ready.is-visible .hero__study-item p, .hero__study--reveal-ready.is-visible .hero__study-item h3 { opacity: 1; transform: translateY(0); transition: opacity 720ms ease, transform 820ms var(--hero-ease); transition-delay: calc(var(--study-reveal-delay) + var(--study-item-delay)); }
 .hero__study--reveal-ready.is-visible .hero__study-item h3 { transition-delay: calc(var(--study-reveal-delay) + var(--study-item-delay) + 70ms); }
-.capabilities { position: relative; overflow: hidden; margin-top: -1px; padding: clamp(5.5rem, 7vw, 7rem) var(--page-section-inline) clamp(4.5rem, 7vw, 7rem); padding-left: var(--page-section-left); background: transparent; color: var(--ink); }
+.capabilities { position: relative; overflow: hidden; margin-top: -1px; padding: clamp(5.5rem, 7vw, 7rem) var(--page-section-inline) 0; padding-left: var(--page-section-left); background: transparent; color: var(--ink); }
+.capability-showcase { position: relative; overflow: hidden; margin-top: -1px; padding: clamp(5rem, 8vw, 8rem) var(--page-section-inline); padding-left: var(--page-section-left); background: transparent; color: var(--ink); }
 .capabilities::before,
 .work-placeholder::before,
 .journey::before,
@@ -268,7 +269,7 @@ html.js .hero__title > span:not(.is-scramble-ready) { visibility: hidden; }
 .capabilities__cta span { color: var(--accent-secondary); font-size: 1rem; }
 .capabilities__cta:hover { gap: 1.4rem; color: var(--accent-secondary); }
 .capabilities__cta:focus-visible { outline: 2px solid var(--accent-secondary); outline-offset: 0.5rem; }
-.capabilities__flow { position: relative; z-index: 3; display: grid; width: 100%; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(0.9rem, 1.5vw, 1.25rem); margin: 0 0 clamp(3.5rem, 5vw, 5rem); }
+.capabilities__flow { position: relative; z-index: 3; display: grid; width: 100%; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(0.9rem, 1.5vw, 1.25rem); margin: 0; }
 .capability-card { position: relative; display: block; min-width: 0; min-height: 0; padding: 0; }
 .capability-card__visual { position: relative; width: 100%; min-height: 0; overflow: hidden; aspect-ratio: 16 / 9; margin: 0 0 1.3rem; isolation: isolate; }
 .capability-card__visual--design { border: 1px solid var(--hero-frame-line); background: color-mix(in srgb, var(--surface-raised) 42%, transparent); }
@@ -288,7 +289,7 @@ html.js .hero__title > span:not(.is-scramble-ready) { visibility: hidden; }
   position: relative;
   z-index: 3;
   width: 100%;
-  margin: 0 0 clamp(3.5rem, 5vw, 5rem);
+  margin: 0;
 }
 
 .github-activity__panel {
@@ -1044,6 +1045,7 @@ html[data-theme="light"] .github-activity__legend i { border-color: rgba(25, 26,
   .site-header,
   .hero__side-rail,
   .capabilities,
+  .capability-showcase,
   .work-placeholder,
   .journey,
   .cv-section,
@@ -1308,6 +1310,7 @@ html[data-theme="light"] .cv-section__title h2 span {
 
 @media (max-width: 800px) {
   .capabilities { padding-top: 6rem; }
+  .capability-showcase { padding-block: 6rem; }
   .capabilities__intro { min-height: 0; max-width: 38rem; margin-bottom: 4rem; }
   .capabilities h2,
   .work-placeholder h2,
@@ -1365,9 +1368,10 @@ html[data-theme="light"] .cv-section__title h2 span {
   .hero__study--reveal-ready.is-visible .hero__study-item + .hero__study-item::before { transform: scaleX(1); }
   .hero__study-item p { font-size: 0.56rem; }
   .hero__study-item h3 { font-size: 1rem; }
-  .capabilities { padding-top: 5rem; padding-bottom: 5rem; }
+  .capabilities { padding-top: 5rem; padding-bottom: 0; }
+  .capability-showcase { padding-block: 5rem; }
   .capabilities__intro { margin-bottom: 3.25rem; }
-  .capabilities__github-activity { margin-bottom: 3.25rem; }
+  .capabilities__github-activity { margin-bottom: 0; }
   .capability-card { min-height: 0; padding: 0; }
   .github-activity__panel-header,
   .github-activity__panel-footer { align-items: flex-start; flex-direction: column; }

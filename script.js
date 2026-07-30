@@ -212,11 +212,11 @@ if (timeline) {
 }
 
 const capabilities = document.querySelector("[data-capabilities-reveal]");
+const capabilityShowcase = document.querySelector("[data-capabilities-flow-reveal]");
 
 if (capabilities) {
   capabilities.classList.add("capabilities--reveal-ready");
   const capabilitiesIntro = capabilities.querySelector(".capabilities__intro");
-  const capabilitiesFlow = capabilities.querySelector(".capabilities__flow");
 
   if ("IntersectionObserver" in window) {
     const revealCapabilitiesIntro = new IntersectionObserver(([entry]) => {
@@ -225,16 +225,26 @@ if (capabilities) {
       revealCapabilitiesIntro.disconnect();
     }, { threshold: 0.25, rootMargin: "0px 0px -6% 0px" });
 
+    if (capabilitiesIntro) revealCapabilitiesIntro.observe(capabilitiesIntro);
+  } else {
+    capabilities.classList.add("is-visible");
+  }
+}
+
+if (capabilityShowcase) {
+  capabilityShowcase.classList.add("capabilities--reveal-ready");
+  const capabilitiesFlow = capabilityShowcase.querySelector(".capabilities__flow");
+
+  if ("IntersectionObserver" in window) {
     const revealCapabilitiesFlow = new IntersectionObserver(([entry]) => {
       if (!entry.isIntersecting) return;
-      capabilities.classList.add("is-flow-visible");
+      capabilityShowcase.classList.add("is-flow-visible");
       revealCapabilitiesFlow.disconnect();
     }, { threshold: 0.16, rootMargin: "0px 0px -6% 0px" });
 
-    if (capabilitiesIntro) revealCapabilitiesIntro.observe(capabilitiesIntro);
     if (capabilitiesFlow) revealCapabilitiesFlow.observe(capabilitiesFlow);
   } else {
-    capabilities.classList.add("is-visible", "is-flow-visible");
+    capabilityShowcase.classList.add("is-flow-visible");
   }
 }
 
