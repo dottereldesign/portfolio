@@ -4,6 +4,7 @@ if (motionStudy) {
   const svgDemo = motionStudy.querySelector("[data-track-svg]");
   const canvasDemo = motionStudy.querySelector("[data-track-canvas]");
   const threeDemo = motionStudy.querySelector("[data-track-three]");
+  const laptopThreeDemo = motionStudy.querySelector("[data-track-laptop]");
   const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
   const animationDurationMs = 5800;
   let studyIsVisible = null;
@@ -17,6 +18,12 @@ if (motionStudy) {
   let threeCurve;
   let threeBall;
   let threeBallLight;
+  let laptopThreeRenderer;
+  let laptopThreeScene;
+  let laptopThreeCamera;
+  let laptopThreeCurve;
+  let laptopThreeBall;
+  let laptopThreeBallLight;
 
   const getLoopPoint = (phase, width, height) => {
     const angle = phase * Math.PI * 2;
@@ -114,33 +121,59 @@ if (motionStudy) {
     drawCanvasBall(context, point.x, point.y, radius);
   };
 
-  const resizeThreeDemo = () => {
-    if (!threeRenderer || !threeCamera) return;
-    const bounds = threeDemo.getBoundingClientRect();
+  const resizeThreeViewport = (canvas, renderer, camera) => {
+    if (!canvas || !renderer || !camera) return;
+    const bounds = canvas.getBoundingClientRect();
     const width = Math.max(1, bounds.width);
     const height = Math.max(1, bounds.height);
     const viewHeight = 2.65;
     const viewWidth = viewHeight * (width / height);
-    threeRenderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-    threeRenderer.setSize(width, height, false);
-    threeCamera.left = -viewWidth / 2;
-    threeCamera.right = viewWidth / 2;
-    threeCamera.top = viewHeight / 2;
-    threeCamera.bottom = -viewHeight / 2;
-    threeCamera.updateProjectionMatrix();
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setSize(width, height, false);
+    camera.left = -viewWidth / 2;
+    camera.right = viewWidth / 2;
+    camera.top = viewHeight / 2;
+    camera.bottom = -viewHeight / 2;
+    camera.updateProjectionMatrix();
   };
 
-  const renderThreeDemo = (phase) => {
-    if (!threeRenderer || !threeScene || !threeCamera || !threeCurve || !threeBall) return;
-    const point = threeCurve.getPointAt(phase);
-    threeBall.position.copy(point);
-    threeBall.position.z += 0.12;
-    threeBall.rotation.y = phase * Math.PI * 6;
-    if (threeBallLight) {
-      threeBallLight.position.copy(threeBall.position);
-      threeBallLight.position.z += 0.45;
+  const resizeThreeDemos = () => {
+    resizeThreeViewport(threeDemo, threeRenderer, threeCamera);
+    resizeThreeViewport(laptopThreeDemo, laptopThreeRenderer, laptopThreeCamera);
+  };
+
+  const renderThreePrototype = (renderer, scene, camera, curve, ball, ballLight, phase) => {
+    if (!renderer || !scene || !camera || !curve || !ball) return;
+    const point = curve.getPointAt(phase);
+    ball.position.copy(point);
+    ball.position.z += 0.12;
+    ball.rotation.y = phase * Math.PI * 6;
+    if (ballLight) {
+      ballLight.position.copy(ball.position);
+      ballLight.position.z += 0.45;
     }
-    threeRenderer.render(threeScene, threeCamera);
+    renderer.render(scene, camera);
+  };
+
+  const renderThreeDemos = (phase) => {
+    renderThreePrototype(
+      threeRenderer,
+      threeScene,
+      threeCamera,
+      threeCurve,
+      threeBall,
+      threeBallLight,
+      phase,
+    );
+    renderThreePrototype(
+      laptopThreeRenderer,
+      laptopThreeScene,
+      laptopThreeCamera,
+      laptopThreeCurve,
+      laptopThreeBall,
+      laptopThreeBallLight,
+      phase,
+    );
   };
 
   const renderFrame = (now) => {
@@ -154,7 +187,7 @@ if (motionStudy) {
       : 0.09;
 
     renderCanvasDemo(phase);
-    renderThreeDemo(phase);
+    renderThreeDemos(phase);
 
     if (shouldAnimate) animationFrame = window.requestAnimationFrame(renderFrame);
   };
@@ -187,11 +220,12 @@ if (motionStudy) {
 
   const resizeObserver = new ResizeObserver(() => {
     resizeCanvasDemo();
-    resizeThreeDemo();
+    resizeThreeDemos();
     requestMotionFrame();
   });
   resizeObserver.observe(canvasDemo);
   resizeObserver.observe(threeDemo);
+  resizeObserver.observe(laptopThreeDemo);
 
   const updateStudyVisibility = () => {
     const bounds = motionStudy.getBoundingClientRect();
@@ -287,10 +321,63 @@ if (motionStudy) {
     threeBallLight = new PointLight(0xffcc85, 5.5, 1.65);
     threeScene.add(threeBall, threeBallLight);
 
-    resizeThreeDemo();
-    renderThreeDemo(0.09);
+    laptopThreeRenderer = new WebGLRenderer({
+      alpha: true,
+      antialias: true,
+      canvas: laptopThreeDemo,
+      powerPreference: "high-performance",
+    });
+    laptopThreeRenderer.setClearColor(0x000000, 0);
+    laptopThreeRenderer.outputColorSpace = SRGBColorSpace;
+
+    laptopThreeScene = new Scene();
+    laptopThreeCamera = new OrthographicCamera(-2, 2, 1.3, -1.3, 0.1, 10);
+    laptopThreeCamera.position.z = 5;
+    laptopThreeCurve = new CatmullRomCurve3(curvePoints, true, "centripetal");
+
+    const laptopTrackEdge = new Mesh(
+      new TubeGeometry(laptopThreeCurve, 320, 0.15, 16, true),
+      new MeshStandardMaterial({
+        color: 0x080909,
+        metalness: 0.35,
+        roughness: 0.72,
+      }),
+    );
+    const laptopTrackMetal = new Mesh(
+      new TubeGeometry(laptopThreeCurve, 320, 0.105, 16, true),
+      new MeshStandardMaterial({
+        color: 0x73777d,
+        metalness: 0.7,
+        roughness: 0.52,
+      }),
+    );
+    laptopThreeScene.add(laptopTrackEdge, laptopTrackMetal);
+
+    const laptopAmbientLight = new AmbientLight(0xe8e7e1, 2.2);
+    const laptopKeyLight = new DirectionalLight(0xff5a24, 2.4);
+    const laptopFillLight = new DirectionalLight(0x8791d8, 0.68);
+    laptopKeyLight.position.set(4, 5, 6);
+    laptopFillLight.position.set(-5, 2, 3);
+    laptopThreeScene.add(laptopAmbientLight, laptopKeyLight, laptopFillLight);
+
+    laptopThreeBall = new Mesh(
+      new SphereGeometry(0.19, 36, 24),
+      new MeshStandardMaterial({
+        color: 0xfff3d2,
+        emissive: 0x2a1705,
+        emissiveIntensity: 0.14,
+        metalness: 0.08,
+        roughness: 0.3,
+      }),
+    );
+    laptopThreeBallLight = new PointLight(0xffcc85, 5.5, 1.65);
+    laptopThreeScene.add(laptopThreeBall, laptopThreeBallLight);
+
+    resizeThreeDemos();
+    renderThreeDemos(0.09);
     requestMotionFrame();
   }).catch(() => {
     threeDemo.classList.add("is-unavailable");
+    laptopThreeDemo.classList.add("is-unavailable");
   });
 }
