@@ -1,6 +1,7 @@
 export {
   AmbientLight,
   BackSide,
+  CatmullRomCurve3,
   CanvasTexture,
   Color,
   DirectionalLight,
@@ -19,7 +20,9 @@ export {
   Scene,
   SphereGeometry,
   SRGBColorSpace,
+  TubeGeometry,
   Vector2,
+  Vector3,
   WebGLRenderer,
 } from "three";
 

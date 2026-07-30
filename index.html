@@ -7,7 +7,7 @@
     <meta name="theme-color" content="#10110f" />
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22><rect width=%2232%22 height=%2232%22 rx=%227%22 fill=%22%2310110f%22/><text x=%225%22 y=%2222%22 fill=%22%23ff5a24%22 font-family=%22Arial%22 font-size=%2217%22 font-weight=%22700%22>JW</text></svg>" />
     <title>Jamie Wilson | Developer</title>
-    <link rel="modulepreload" href="assets/vendor/laptop-runtime.min.js?v=20260730-1" />
+    <link rel="modulepreload" href="assets/vendor/laptop-runtime.min.js?v=20260730-2" />
     <link rel="preload" href="assets/macbook.glb" as="fetch" type="model/gltf-binary" crossorigin fetchpriority="high" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -24,7 +24,7 @@
         document.documentElement.style.colorScheme = theme;
       })();
     </script>
-    <link rel="stylesheet" href="styles.css?v=20260730-5" />
+    <link rel="stylesheet" href="styles.css?v=20260730-6" />
     <noscript><style>.hero__title > span { visibility: visible !important; }</style></noscript>
   </head>
   <body>
@@ -205,17 +205,23 @@
         <header class="capability-motion-study__intro">
           <div>
             <p class="eyebrow">Motion study</p>
-            <h3 id="motion-study-title">Infinite track prototypes</h3>
+            <h3 id="motion-study-title">Code-native loop prototypes</h3>
           </div>
-          <p>One cleaned track, three ways to keep the ball moving.</p>
+          <p>Every ball is locked to the same geometry that draws its track.</p>
         </header>
 
         <div class="capability-motion-grid">
-          <article class="motion-approach">
+          <article class="motion-approach motion-approach--svg">
             <div class="motion-approach__stage">
-              <img class="motion-approach__track" src="assets/capabilities/infinity-track-empty.png" alt="" loading="lazy" width="1254" height="1254" />
-              <svg class="motion-approach__overlay motion-approach__overlay--svg" viewBox="0 0 1254 1254" aria-hidden="true" data-track-svg>
+              <svg class="motion-approach__overlay motion-approach__overlay--svg" viewBox="0 0 600 400" aria-hidden="true" data-track-svg>
                 <defs>
+                  <path id="svg-loop-path" d="M 300 200 C 215 92 85 88 72 196 C 60 305 205 315 300 200 C 395 85 540 95 528 204 C 516 312 385 308 300 200" />
+                  <linearGradient id="svg-track-metal" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stop-color="#c4b8a8" />
+                    <stop offset="0.38" stop-color="#625b53" />
+                    <stop offset="0.62" stop-color="#302e2b" />
+                    <stop offset="1" stop-color="#9b8f80" />
+                  </linearGradient>
                   <radialGradient id="svg-ball-fill" cx="35%" cy="30%" r="70%">
                     <stop offset="0" stop-color="#ffffff" />
                     <stop offset="0.54" stop-color="#fff7df" />
@@ -225,43 +231,40 @@
                     <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#ffd992" flood-opacity="0.46" />
                   </filter>
                 </defs>
-                <circle r="38" fill="url(#svg-ball-fill)" stroke="#fff9e8" stroke-width="3" filter="url(#svg-ball-glow)">
-                  <animateMotion
-                    dur="5.8s"
-                    repeatCount="indefinite"
-                    path="M 627 627 C 515 470 420 410 285 410 C 145 410 125 560 215 684 C 315 820 480 770 627 627 C 770 485 865 420 978 430 C 1110 440 1128 582 1040 680 C 945 786 785 770 627 627"
-                  />
+                <use href="#svg-loop-path" fill="none" stroke="#070807" stroke-width="58" stroke-linecap="round" stroke-linejoin="round" opacity="0.9" />
+                <use href="#svg-loop-path" fill="none" stroke="url(#svg-track-metal)" stroke-width="42" stroke-linecap="round" stroke-linejoin="round" />
+                <use href="#svg-loop-path" fill="none" stroke="#151717" stroke-width="24" stroke-linecap="round" stroke-linejoin="round" />
+                <use href="#svg-loop-path" fill="none" stroke="#d8844c" stroke-width="2" stroke-linecap="round" opacity="0.65" />
+                <circle r="18" fill="url(#svg-ball-fill)" stroke="#fff9e8" stroke-width="2" filter="url(#svg-ball-glow)">
+                  <animateMotion dur="5.8s" repeatCount="indefinite">
+                    <mpath href="#svg-loop-path" />
+                  </animateMotion>
                 </circle>
               </svg>
-              <img class="motion-approach__occlusion" src="assets/capabilities/infinity-track-empty.png" alt="" loading="lazy" width="1254" height="1254" />
             </div>
             <div class="motion-approach__meta">
-              <p><span>01</span><span>/ SVG path</span></p>
-              <span>Native, crisp and lightweight</span>
+              <p><span>01</span><span>/ SVG rails</span></p>
+              <span>Exact native path animation</span>
             </div>
           </article>
 
-          <article class="motion-approach">
+          <article class="motion-approach motion-approach--canvas">
             <div class="motion-approach__stage">
-              <img class="motion-approach__track" src="assets/capabilities/infinity-track-empty.png" alt="" loading="lazy" width="1254" height="1254" />
               <canvas class="motion-approach__overlay" aria-hidden="true" data-track-canvas></canvas>
-              <img class="motion-approach__occlusion" src="assets/capabilities/infinity-track-empty.png" alt="" loading="lazy" width="1254" height="1254" />
             </div>
             <div class="motion-approach__meta">
-              <p><span>02</span><span>/ Canvas 2D</span></p>
-              <span>Custom glow and motion trail</span>
+              <p><span>02</span><span>/ Canvas glow</span></p>
+              <span>Parametric light trail</span>
             </div>
           </article>
 
-          <article class="motion-approach">
+          <article class="motion-approach motion-approach--three">
             <div class="motion-approach__stage">
-              <img class="motion-approach__track" src="assets/capabilities/infinity-track-empty.png" alt="" loading="lazy" width="1254" height="1254" />
               <canvas class="motion-approach__overlay" aria-hidden="true" data-track-three></canvas>
-              <img class="motion-approach__occlusion" src="assets/capabilities/infinity-track-empty.png" alt="" loading="lazy" width="1254" height="1254" />
             </div>
             <div class="motion-approach__meta">
-              <p><span>03</span><span>/ Three.js</span></p>
-              <span>Real geometry and live lighting</span>
+              <p><span>03</span><span>/ Three.js tube</span></p>
+              <span>3D metal and live lighting</span>
             </div>
           </article>
         </div>
@@ -579,6 +582,6 @@
     </section>
 
     <script src="script.js?v=20260730-4"></script>
-    <script type="module" src="motion-lab.js?v=20260730-1"></script>
+    <script type="module" src="motion-lab.js?v=20260730-2"></script>
   </body>
 </html>

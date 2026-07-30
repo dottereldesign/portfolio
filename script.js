@@ -343,7 +343,7 @@ if (study) {
 const heroModelCanvas = document.querySelector(".hero__model-canvas");
 
 if (heroModelCanvas) {
-  import("./assets/vendor/laptop-runtime.min.js?v=20260730-1").then(({ Scene, PerspectiveCamera, WebGLRenderer, AmbientLight, DirectionalLight, Group, MathUtils, MeshStandardMaterial, MeshBasicMaterial, PlaneGeometry, Mesh, BackSide, DoubleSide, CanvasTexture, LinearFilter, SRGBColorSpace, Raycaster, Vector2, Color, GLTFLoader }) => {
+  import("./assets/vendor/laptop-runtime.min.js?v=20260730-2").then(({ Scene, PerspectiveCamera, WebGLRenderer, AmbientLight, DirectionalLight, Group, MathUtils, MeshStandardMaterial, MeshBasicMaterial, PlaneGeometry, Mesh, BackSide, DoubleSide, CanvasTexture, LinearFilter, SRGBColorSpace, Raycaster, Vector2, Color, GLTFLoader }) => {
     const modelHost = heroModelCanvas.parentElement;
     const hero = document.querySelector(".hero");
     const capabilitiesSection = document.querySelector(".capabilities");

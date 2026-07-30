@@ -6,7 +6,7 @@ if (motionStudy) {
   const threeDemo = motionStudy.querySelector("[data-track-three]");
   const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
   const animationDurationMs = 5800;
-  let studyIsVisible = false;
+  let studyIsVisible = null;
   let animationFrame;
   let animationStartedAt = performance.now();
   let canvasWidth = 0;
@@ -14,13 +14,15 @@ if (motionStudy) {
   let threeRenderer;
   let threeScene;
   let threeCamera;
+  let threeCurve;
   let threeBall;
+  let threeBallLight;
 
-  const getTrackPoint = (phase) => {
+  const getLoopPoint = (phase, width, height) => {
     const angle = phase * Math.PI * 2;
     return {
-      x: 0.5 + Math.sin(angle) * 0.34,
-      y: 0.5 - Math.sin(angle * 2) * 0.155,
+      x: width * (0.5 + Math.sin(angle) * 0.36),
+      y: height * (0.5 - Math.sin(angle * 2) * 0.23),
     };
   };
 
@@ -31,16 +33,47 @@ if (motionStudy) {
     canvasHeight = Math.max(1, bounds.height);
     canvasDemo.width = Math.round(canvasWidth * dpr);
     canvasDemo.height = Math.round(canvasHeight * dpr);
-    const context = canvasDemo.getContext("2d");
-    context.setTransform(dpr, 0, 0, dpr, 0, 0);
+    canvasDemo.getContext("2d").setTransform(dpr, 0, 0, dpr, 0, 0);
+  };
+
+  const drawCanvasTrack = (context) => {
+    context.beginPath();
+    for (let index = 0; index <= 320; index += 1) {
+      const point = getLoopPoint(index / 320, canvasWidth, canvasHeight);
+      if (index === 0) context.moveTo(point.x, point.y);
+      else context.lineTo(point.x, point.y);
+    }
+    context.closePath();
+
+    context.save();
+    context.lineCap = "round";
+    context.lineJoin = "round";
+    context.shadowColor = "rgba(87, 176, 255, 0.28)";
+    context.shadowBlur = canvasWidth * 0.035;
+    context.strokeStyle = "rgba(20, 43, 62, 0.95)";
+    context.lineWidth = canvasWidth * 0.055;
+    context.stroke();
+    context.shadowBlur = 0;
+    context.strokeStyle = "rgba(119, 181, 224, 0.72)";
+    context.lineWidth = canvasWidth * 0.026;
+    context.stroke();
+    context.strokeStyle = "rgba(8, 18, 27, 0.96)";
+    context.lineWidth = canvasWidth * 0.015;
+    context.stroke();
+    context.setLineDash([canvasWidth * 0.015, canvasWidth * 0.025]);
+    context.lineDashOffset = -canvasWidth * 0.02;
+    context.strokeStyle = "rgba(156, 216, 255, 0.68)";
+    context.lineWidth = Math.max(1, canvasWidth * 0.003);
+    context.stroke();
+    context.restore();
   };
 
   const drawCanvasBall = (context, x, y, radius, opacity = 1) => {
     context.save();
     context.globalAlpha = opacity;
-    context.shadowColor = "rgba(255, 211, 132, 0.48)";
-    context.shadowBlur = radius * 0.75;
-    context.shadowOffsetY = radius * 0.22;
+    context.shadowColor = "rgba(255, 211, 132, 0.55)";
+    context.shadowBlur = radius * 1.2;
+    context.shadowOffsetY = radius * 0.25;
     const fill = context.createRadialGradient(
       x - radius * 0.3,
       y - radius * 0.34,
@@ -62,46 +95,51 @@ if (motionStudy) {
   const renderCanvasDemo = (phase) => {
     const context = canvasDemo.getContext("2d");
     context.clearRect(0, 0, canvasWidth, canvasHeight);
-    const radius = canvasWidth * 0.03;
+    drawCanvasTrack(context);
 
-    for (let index = 5; index >= 1; index -= 1) {
-      const trailPhase = (phase - index * 0.009 + 1) % 1;
-      const trailPoint = getTrackPoint(trailPhase);
+    const radius = canvasWidth * 0.034;
+    for (let index = 7; index >= 1; index -= 1) {
+      const trailPhase = (phase - index * 0.008 + 1) % 1;
+      const trailPoint = getLoopPoint(trailPhase, canvasWidth, canvasHeight);
       drawCanvasBall(
         context,
-        trailPoint.x * canvasWidth,
-        trailPoint.y * canvasHeight,
-        radius * (0.48 + index * 0.035),
-        (6 - index) * 0.025,
+        trailPoint.x,
+        trailPoint.y,
+        radius * (0.38 + index * 0.025),
+        (8 - index) * 0.022,
       );
     }
 
-    const point = getTrackPoint(phase);
-    drawCanvasBall(
-      context,
-      point.x * canvasWidth,
-      point.y * canvasHeight,
-      radius,
-    );
+    const point = getLoopPoint(phase, canvasWidth, canvasHeight);
+    drawCanvasBall(context, point.x, point.y, radius);
   };
 
   const resizeThreeDemo = () => {
     if (!threeRenderer || !threeCamera) return;
     const bounds = threeDemo.getBoundingClientRect();
+    const width = Math.max(1, bounds.width);
+    const height = Math.max(1, bounds.height);
+    const viewHeight = 2.65;
+    const viewWidth = viewHeight * (width / height);
     threeRenderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-    threeRenderer.setSize(Math.max(1, bounds.width), Math.max(1, bounds.height), false);
+    threeRenderer.setSize(width, height, false);
+    threeCamera.left = -viewWidth / 2;
+    threeCamera.right = viewWidth / 2;
+    threeCamera.top = viewHeight / 2;
+    threeCamera.bottom = -viewHeight / 2;
     threeCamera.updateProjectionMatrix();
   };
 
   const renderThreeDemo = (phase) => {
-    if (!threeRenderer || !threeScene || !threeCamera || !threeBall) return;
-    const point = getTrackPoint(phase);
-    threeBall.position.set(
-      (point.x - 0.5) * 2,
-      (0.5 - point.y) * 2,
-      0,
-    );
-    threeBall.rotation.y = phase * Math.PI * 4;
+    if (!threeRenderer || !threeScene || !threeCamera || !threeCurve || !threeBall) return;
+    const point = threeCurve.getPointAt(phase);
+    threeBall.position.copy(point);
+    threeBall.position.z += 0.12;
+    threeBall.rotation.y = phase * Math.PI * 6;
+    if (threeBallLight) {
+      threeBallLight.position.copy(threeBall.position);
+      threeBallLight.position.z += 0.45;
+    }
     threeRenderer.render(threeScene, threeCamera);
   };
 
@@ -110,8 +148,9 @@ if (motionStudy) {
     const shouldAnimate = studyIsVisible
       && !document.hidden
       && !reducedMotionQuery.matches;
+    const elapsed = Math.max(0, now - animationStartedAt);
     const phase = shouldAnimate
-      ? ((now - animationStartedAt) % animationDurationMs) / animationDurationMs
+      ? (elapsed % animationDurationMs) / animationDurationMs
       : 0.09;
 
     renderCanvasDemo(phase);
@@ -135,6 +174,8 @@ if (motionStudy) {
     }
 
     if (shouldAnimate) {
+      if (animationFrame) window.cancelAnimationFrame(animationFrame);
+      animationFrame = undefined;
       animationStartedAt = performance.now();
       requestMotionFrame();
     } else {
@@ -152,20 +193,29 @@ if (motionStudy) {
   resizeObserver.observe(canvasDemo);
   resizeObserver.observe(threeDemo);
 
-  const visibilityObserver = new IntersectionObserver(([entry]) => {
-    studyIsVisible = entry.isIntersecting;
+  const updateStudyVisibility = () => {
+    const bounds = motionStudy.getBoundingClientRect();
+    const isVisible = bounds.bottom >= -160
+      && bounds.top <= window.innerHeight + 160;
+    if (isVisible === studyIsVisible) return;
+    studyIsVisible = isVisible;
     updateMotionState();
-  }, { rootMargin: "160px 0px", threshold: 0.08 });
-  visibilityObserver.observe(motionStudy);
+  };
 
   document.addEventListener("visibilitychange", updateMotionState);
   reducedMotionQuery.addEventListener("change", updateMotionState);
+  window.addEventListener("scroll", updateStudyVisibility, { passive: true });
+  window.addEventListener("resize", updateStudyVisibility, { passive: true });
+  window.addEventListener("load", updateStudyVisibility, { once: true });
 
   resizeCanvasDemo();
   renderCanvasDemo(0.09);
+  updateStudyVisibility();
 
-  import("./assets/vendor/laptop-runtime.min.js?v=20260730-1").then(({
+  import("./assets/vendor/laptop-runtime.min.js?v=20260730-2").then(({
     AmbientLight,
+    CatmullRomCurve3,
+    DirectionalLight,
     Mesh,
     MeshStandardMaterial,
     OrthographicCamera,
@@ -173,6 +223,8 @@ if (motionStudy) {
     Scene,
     SphereGeometry,
     SRGBColorSpace,
+    TubeGeometry,
+    Vector3,
     WebGLRenderer,
   }) => {
     threeRenderer = new WebGLRenderer({
@@ -185,24 +237,55 @@ if (motionStudy) {
     threeRenderer.outputColorSpace = SRGBColorSpace;
 
     threeScene = new Scene();
-    threeCamera = new OrthographicCamera(-1, 1, 1, -1, 0.1, 10);
-    threeCamera.position.z = 3;
+    threeCamera = new OrthographicCamera(-2, 2, 1.3, -1.3, 0.1, 10);
+    threeCamera.position.z = 5;
 
-    const ambientLight = new AmbientLight(0xfff2d5, 1.65);
-    const pointLight = new PointLight(0xffffff, 18, 8);
-    pointLight.position.set(-0.55, 0.75, 2.4);
-    threeScene.add(ambientLight, pointLight);
+    const curvePoints = [];
+    for (let index = 0; index < 256; index += 1) {
+      const angle = (index / 256) * Math.PI * 2;
+      curvePoints.push(new Vector3(
+        Math.sin(angle) * 1.7,
+        Math.sin(angle * 2) * 0.78,
+        Math.cos(angle) * 0.13,
+      ));
+    }
+    threeCurve = new CatmullRomCurve3(curvePoints, true, "centripetal");
 
-    const ballGeometry = new SphereGeometry(0.072, 36, 24);
-    const ballMaterial = new MeshStandardMaterial({
-      color: 0xfff3d2,
-      emissive: 0x2a1705,
-      emissiveIntensity: 0.12,
-      metalness: 0.08,
-      roughness: 0.32,
-    });
-    threeBall = new Mesh(ballGeometry, ballMaterial);
-    threeScene.add(threeBall);
+    const trackShadow = new Mesh(
+      new TubeGeometry(threeCurve, 320, 0.15, 16, true),
+      new MeshStandardMaterial({
+        color: 0x171513,
+        metalness: 0.9,
+        roughness: 0.36,
+      }),
+    );
+    const trackRail = new Mesh(
+      new TubeGeometry(threeCurve, 320, 0.095, 16, true),
+      new MeshStandardMaterial({
+        color: 0xa79886,
+        metalness: 0.94,
+        roughness: 0.24,
+      }),
+    );
+    threeScene.add(trackShadow, trackRail);
+
+    const ambientLight = new AmbientLight(0xffe9c7, 1.35);
+    const directionalLight = new DirectionalLight(0xffffff, 4.8);
+    directionalLight.position.set(-1.8, 2.4, 3.5);
+    threeScene.add(ambientLight, directionalLight);
+
+    threeBall = new Mesh(
+      new SphereGeometry(0.19, 36, 24),
+      new MeshStandardMaterial({
+        color: 0xfff3d2,
+        emissive: 0x2a1705,
+        emissiveIntensity: 0.14,
+        metalness: 0.08,
+        roughness: 0.3,
+      }),
+    );
+    threeBallLight = new PointLight(0xffcc85, 5.5, 1.65);
+    threeScene.add(threeBall, threeBallLight);
 
     resizeThreeDemo();
     renderThreeDemo(0.09);
