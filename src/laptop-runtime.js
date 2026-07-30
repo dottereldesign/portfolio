@@ -12,6 +12,7 @@ export {
   MathUtils,
   Mesh,
   MeshBasicMaterial,
+  MeshPhysicalMaterial,
   MeshStandardMaterial,
   OrthographicCamera,
   PerspectiveCamera,

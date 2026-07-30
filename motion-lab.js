@@ -195,15 +195,25 @@ if (motionStudy) {
     resizeThreeViewport(laptopThreeDemo, laptopThreeRenderer, laptopThreeCamera);
   };
 
-  const renderThreePrototype = (renderer, scene, camera, curve, ball, ballLight, phase) => {
+  const renderThreePrototype = (
+    renderer,
+    scene,
+    camera,
+    curve,
+    ball,
+    ballLight,
+    phase,
+    ballDepthOffset = 0.12,
+    lightDepthOffset = 0.45,
+  ) => {
     if (!renderer || !scene || !camera || !curve || !ball) return;
     const point = curve.getPointAt(phase);
     ball.position.copy(point);
-    ball.position.z += 0.12;
+    ball.position.z += ballDepthOffset;
     ball.rotation.y = phase * Math.PI * 6;
     if (ballLight) {
       ballLight.position.copy(ball.position);
-      ballLight.position.z += 0.45;
+      ballLight.position.z += lightDepthOffset;
     }
     renderer.render(scene, camera);
   };
@@ -226,6 +236,8 @@ if (motionStudy) {
       laptopThreeBall,
       laptopThreeBallLight,
       phase,
+      0,
+      0.08,
     );
   };
 
@@ -423,14 +435,16 @@ if (motionStudy) {
   renderCanvasDemo(0.09);
   updateStudyVisibility();
 
-  import("./assets/vendor/laptop-runtime.min.js?v=20260730-5").then(({
+  import("./assets/vendor/laptop-runtime.min.js?v=20260731-1").then(({
     AmbientLight,
+    BackSide,
     BoxGeometry,
     CatmullRomCurve3,
     CanvasTexture,
     DirectionalLight,
     Group,
     Mesh,
+    MeshPhysicalMaterial,
     MeshStandardMaterial,
     OrthographicCamera,
     PlaneGeometry,
@@ -984,17 +998,49 @@ if (motionStudy) {
     laptopThreeScene = new Scene();
     laptopThreeCamera = new OrthographicCamera(-2, 2, 1.3, -1.3, 0.1, 10);
     laptopThreeCamera.position.z = 5;
-    laptopThreeCurve = new CatmullRomCurve3(curvePoints, true, "centripetal");
+    const laptopCurvePoints = curvePoints.map((point, index) => {
+      const angle = (index / curvePoints.length) * Math.PI * 2;
+      return new Vector3(point.x, point.y, Math.cos(angle) * 0.28);
+    });
+    laptopThreeCurve = new CatmullRomCurve3(laptopCurvePoints, true, "centripetal");
 
-    const laptopTrackMetal = new Mesh(
-      new TubeGeometry(laptopThreeCurve, 320, 0.135, 20, true),
-      new MeshStandardMaterial({
-        color: 0x73777d,
-        metalness: 0.7,
-        roughness: 0.52,
+    const laptopGlassOuter = new Mesh(
+      new TubeGeometry(laptopThreeCurve, 320, 0.255, 32, true),
+      new MeshPhysicalMaterial({
+        color: 0xaab3bd,
+        metalness: 0,
+        roughness: 0.08,
+        transmission: 0.72,
+        thickness: 0.18,
+        ior: 1.42,
+        clearcoat: 1,
+        clearcoatRoughness: 0.06,
+        transparent: true,
+        opacity: 0.38,
+        depthWrite: false,
       }),
     );
-    laptopThreeScene.add(laptopTrackMetal);
+    laptopGlassOuter.renderOrder = 3;
+
+    const laptopGlassInner = new Mesh(
+      new TubeGeometry(laptopThreeCurve, 320, 0.198, 32, true),
+      new MeshPhysicalMaterial({
+        color: 0x69737f,
+        metalness: 0,
+        roughness: 0.13,
+        transmission: 0.8,
+        thickness: 0.06,
+        ior: 1.36,
+        clearcoat: 0.85,
+        clearcoatRoughness: 0.09,
+        transparent: true,
+        opacity: 0.16,
+        side: BackSide,
+        depthWrite: false,
+      }),
+    );
+    laptopGlassInner.renderOrder = 4;
+    laptopThreeScene.add(laptopGlassOuter, laptopGlassInner);
 
     const laptopAmbientLight = new AmbientLight(0xe8e7e1, 1.8);
     const laptopKeyLight = new DirectionalLight(0xffffff, 4.6);
@@ -1011,7 +1057,7 @@ if (motionStudy) {
     );
 
     laptopThreeBall = new Mesh(
-      new SphereGeometry(0.19, 36, 24),
+      new SphereGeometry(0.145, 36, 24),
       new MeshStandardMaterial({
         color: 0xfff3d2,
         emissive: 0x2a1705,
@@ -1020,7 +1066,8 @@ if (motionStudy) {
         roughness: 0.3,
       }),
     );
-    laptopThreeBallLight = new PointLight(0xffcc85, 5.5, 1.65);
+    laptopThreeBall.renderOrder = 2;
+    laptopThreeBallLight = new PointLight(0xffcc85, 6.2, 1.35);
     laptopThreeScene.add(laptopThreeBall, laptopThreeBallLight);
 
     resizeThreeDemos();
