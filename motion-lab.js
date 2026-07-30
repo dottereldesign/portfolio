@@ -75,6 +75,14 @@ if (motionStudy) {
   let laptopThreeCurve;
   let laptopThreeBall;
   let laptopThreeBallLight;
+  const laptopBallMotion = {
+    phase: 0.09,
+    lastFrameAt: performance.now(),
+    crestSpeed: 0.032,
+    gravityEnergy: 0.1,
+    minY: -0.78,
+    maxY: 0.78,
+  };
 
   const getLoopPoint = (phase, width, height) => {
     const angle = phase * Math.PI * 2;
@@ -230,7 +238,31 @@ if (motionStudy) {
     renderer.render(scene, camera);
   };
 
-  const renderThreeDemos = (phase) => {
+  const advanceLaptopBall = (now, shouldAnimate) => {
+    if (!shouldAnimate || !laptopThreeCurve) {
+      laptopBallMotion.lastFrameAt = now;
+      return laptopBallMotion.phase;
+    }
+
+    const deltaSeconds = Math.min(
+      1 / 20,
+      Math.max(0, (now - laptopBallMotion.lastFrameAt) / 1000),
+    );
+    laptopBallMotion.lastFrameAt = now;
+
+    const point = laptopThreeCurve.getPointAt(laptopBallMotion.phase);
+    const heightRange = Math.max(0.001, laptopBallMotion.maxY - laptopBallMotion.minY);
+    const dropFromCrest = clamp01((laptopBallMotion.maxY - point.y) / heightRange);
+    const speed = Math.sqrt(
+      laptopBallMotion.crestSpeed ** 2
+        + laptopBallMotion.gravityEnergy * dropFromCrest,
+    );
+
+    laptopBallMotion.phase = (laptopBallMotion.phase + speed * deltaSeconds) % 1;
+    return laptopBallMotion.phase;
+  };
+
+  const renderThreeDemos = (phase, laptopPhase = phase) => {
     renderThreePrototype(
       threeRenderer,
       threeScene,
@@ -247,7 +279,7 @@ if (motionStudy) {
       laptopThreeCurve,
       laptopThreeBall,
       laptopThreeBallLight,
-      phase,
+      laptopPhase,
       0,
       0.08,
     );
@@ -381,10 +413,11 @@ if (motionStudy) {
     const developPhase = shouldAnimate
       ? (elapsed % developCycleDurationMs) / developCycleDurationMs
       : 0;
+    const laptopPhase = advanceLaptopBall(now, shouldAnimate);
 
     const conceptPhase = shouldAnimate ? phase : 0.58;
     renderCanvasDemo(phase);
-    renderThreeDemos(phase);
+    renderThreeDemos(phase, laptopPhase);
     renderDesignDemo(conceptPhase);
     renderDevelopDemo(developPhase);
 
@@ -399,6 +432,7 @@ if (motionStudy) {
     const shouldAnimate = studyIsVisible
       && !document.hidden
       && !reducedMotionQuery.matches;
+    laptopBallMotion.lastFrameAt = performance.now();
 
     if (svgDemo) {
       if (shouldAnimate) svgDemo.unpauseAnimations();
@@ -1021,6 +1055,13 @@ if (motionStudy) {
       return new Vector3(point.x, point.y, Math.cos(angle) * 0.28);
     });
     laptopThreeCurve = new CatmullRomCurve3(laptopCurvePoints, true, "centripetal");
+    laptopBallMotion.minY = Infinity;
+    laptopBallMotion.maxY = -Infinity;
+    for (let index = 0; index < 512; index += 1) {
+      const point = laptopThreeCurve.getPointAt(index / 512);
+      laptopBallMotion.minY = Math.min(laptopBallMotion.minY, point.y);
+      laptopBallMotion.maxY = Math.max(laptopBallMotion.maxY, point.y);
+    }
 
     const laptopGlassOuter = new Mesh(
       new TubeGeometry(laptopThreeCurve, 320, 0.255, 32, true),
