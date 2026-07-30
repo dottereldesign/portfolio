@@ -24,7 +24,7 @@
         document.documentElement.style.colorScheme = theme;
       })();
     </script>
-    <link rel="stylesheet" href="styles.css?v=20260730-10" />
+    <link rel="stylesheet" href="styles.css?v=20260731-1" />
     <noscript><style>.hero__title > span { visibility: visible !important; }</style></noscript>
   </head>
   <body>
@@ -121,6 +121,43 @@
         <h2 id="capabilities-title"><span>Good work should</span><br /><em>keep working.</em></h2>
         <p class="capabilities__lede">I design the experience, develop the system and automate the parts that slow people down.</p>
         <a class="capabilities__cta" href="#work">View selected work <span aria-hidden="true">↗</span></a>
+      </div>
+
+      <div class="capabilities__github-activity" data-github-activity aria-label="GitHub contribution activity">
+        <div class="github-activity__panel">
+          <div class="github-activity__panel-header">
+            <p class="github-activity__total" data-github-total>Loading contribution activity…</p>
+            <a class="github-activity__profile-link" href="https://github.com/dottereldesign" target="_blank" rel="noreferrer">
+              View GitHub profile <span aria-hidden="true">↗</span>
+            </a>
+          </div>
+
+          <div class="github-activity__scroll" data-github-scroll>
+            <div
+              class="github-calendar"
+              role="img"
+              aria-label="Loading Jamie Wilson’s GitHub contribution calendar"
+              data-github-calendar
+            ></div>
+          </div>
+
+          <div class="github-activity__panel-footer">
+            <p aria-live="polite" data-github-status>Connecting to public GitHub activity…</p>
+            <div class="github-activity__legend" aria-label="Contribution intensity from less to more">
+              <span>Less</span>
+              <i data-level="0" aria-hidden="true"></i>
+              <i data-level="1" aria-hidden="true"></i>
+              <i data-level="2" aria-hidden="true"></i>
+              <i data-level="3" aria-hidden="true"></i>
+              <i data-level="4" aria-hidden="true"></i>
+              <span>More</span>
+            </div>
+          </div>
+
+          <noscript>
+            <p class="github-activity__fallback">JavaScript is required for the live calendar. <a href="https://github.com/dottereldesign">View the contribution graph on GitHub.</a></p>
+          </noscript>
+        </div>
       </div>
 
       <div class="capabilities__flow">
@@ -305,55 +342,6 @@
           </article>
         </div>
       </section>
-    </section>
-
-    <section class="github-activity" aria-labelledby="github-activity-title" data-github-activity>
-      <div class="section-frame" aria-hidden="true"></div>
-
-      <div class="github-activity__inner">
-        <header class="github-activity__intro">
-          <div>
-            <p class="eyebrow eyebrow--status"><span class="status-dot" aria-hidden="true"></span> Live GitHub activity</p>
-            <h2 id="github-activity-title"><span>A year of</span><br /><em>making.</em></h2>
-          </div>
-          <p>Public work from <a href="https://github.com/dottereldesign" target="_blank" rel="noreferrer">@dottereldesign</a>, synced automatically from the contribution graph.</p>
-        </header>
-
-        <div class="github-activity__panel">
-          <div class="github-activity__panel-header">
-            <p class="github-activity__total" data-github-total>Loading contribution activity…</p>
-            <a class="github-activity__profile-link" href="https://github.com/dottereldesign" target="_blank" rel="noreferrer">
-              View GitHub profile <span aria-hidden="true">↗</span>
-            </a>
-          </div>
-
-          <div class="github-activity__scroll" data-github-scroll>
-            <div
-              class="github-calendar"
-              role="img"
-              aria-label="Loading Jamie Wilson’s GitHub contribution calendar"
-              data-github-calendar
-            ></div>
-          </div>
-
-          <div class="github-activity__panel-footer">
-            <p aria-live="polite" data-github-status>Connecting to public GitHub activity…</p>
-            <div class="github-activity__legend" aria-label="Contribution intensity from less to more">
-              <span>Less</span>
-              <i data-level="0" aria-hidden="true"></i>
-              <i data-level="1" aria-hidden="true"></i>
-              <i data-level="2" aria-hidden="true"></i>
-              <i data-level="3" aria-hidden="true"></i>
-              <i data-level="4" aria-hidden="true"></i>
-              <span>More</span>
-            </div>
-          </div>
-
-          <noscript>
-            <p class="github-activity__fallback">JavaScript is required for the live calendar. <a href="https://github.com/dottereldesign">View the contribution graph on GitHub.</a></p>
-          </noscript>
-        </div>
-      </div>
     </section>
 
     <section id="work" class="work-placeholder" aria-label="Selected work" data-section-reveal>
