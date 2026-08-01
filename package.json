@@ -3,9 +3,17 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build:laptop-runtime": "esbuild src/laptop-runtime.js --bundle --format=esm --target=es2020 --minify --legal-comments=eof --outfile=assets/vendor/laptop-runtime.min.js"
+    "build:laptop-runtime": "esbuild src/laptop-runtime.js --bundle --format=esm --target=es2020 --minify --legal-comments=eof --outfile=assets/vendor/laptop-runtime.min.js",
+    "check": "node scripts/run-checks.mjs",
+    "check:syntax": "node scripts/check-syntax.mjs",
+    "test": "node scripts/run-tests.mjs",
+    "test:unit": "node --test tests/unit/theme-state.test.js tests/unit/motion.test.js tests/unit/site-content.test.js",
+    "test:e2e": "playwright test",
+    "test:accessibility": "playwright test --grep @accessibility"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.12.1",
+    "@playwright/test": "^1.62.1",
     "esbuild": "0.28.1",
     "three": "0.181.2"
   }
