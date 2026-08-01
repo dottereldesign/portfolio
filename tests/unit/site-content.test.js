@@ -19,15 +19,27 @@ test("homepage retains its recruiter-focused SEO and project content", async () 
 });
 
 test("crawl files and the first-party case study remain present", async () => {
-  const [robots, sitemap, caseStudy] = await Promise.all([
+  const [robots, sitemap, caseStudy, actionPlan] = await Promise.all([
     read("robots.txt"),
     read("sitemap.xml"),
     read("projects/bewriteback/index.html"),
+    read("action-plan/index.html"),
   ]);
 
   assert.match(robots, /Sitemap: https:\/\/dottereldesign\.github\.io\/portfolio\/sitemap\.xml/);
   assert.match(sitemap, /projects\/bewriteback\//);
   assert.match(caseStudy, /<title>BeWriteBack Case Study \| Jamie Wilson<\/title>/);
+  assert.match(caseStudy, /href="\.\.\/\.\.\/action-plan\//);
+  assert.match(actionPlan, /<title>Portfolio Action Plan \| Jamie Wilson<\/title>/);
+  assert.match(actionPlan, /<meta name="robots" content="noindex,follow"/);
+  assert.match(actionPlan, /No boxes are interactive/);
+  assert.match(actionPlan, /Jade Software/);
+  assert.doesNotMatch(actionPlan, /type="checkbox"/);
+});
+
+test("homepage footer links to the action plan", async () => {
+  const html = await read("index.html");
+  assert.match(html, /href="action-plan\/">Action plan/);
 });
 
 test("source files stay divided by responsibility", async () => {

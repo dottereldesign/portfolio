@@ -261,6 +261,13 @@ a:focus-visible {
 
 .case-footer p { margin: 0; }
 
+.case-footer nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 1.5rem;
+  justify-content: flex-end;
+}
+
 @media (max-width: 760px) {
   .case-header,
   .case-hero,
@@ -292,6 +299,8 @@ a:focus-visible {
     flex-direction: column;
     margin-top: 3rem;
   }
+
+  .case-footer nav { justify-content: flex-start; }
 }
 
 @media (max-width: 420px) {

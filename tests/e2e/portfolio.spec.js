@@ -56,10 +56,11 @@ test("mobile quick links support keyboard dismissal without page overflow", asyn
 });
 
 test("crawl files are publicly reachable from the local build", async ({ request }) => {
-  const [robots, sitemap, caseStudy] = await Promise.all([
+  const [robots, sitemap, caseStudy, actionPlan] = await Promise.all([
     request.get("/robots.txt"),
     request.get("/sitemap.xml"),
     request.get("/projects/bewriteback/"),
+    request.get("/action-plan/"),
   ]);
 
   expect(robots.ok()).toBeTruthy();
@@ -67,9 +68,36 @@ test("crawl files are publicly reachable from the local build", async ({ request
   expect(sitemap.ok()).toBeTruthy();
   expect(await sitemap.text()).toContain("projects/bewriteback/");
   expect(caseStudy.ok()).toBeTruthy();
+  expect(actionPlan.ok()).toBeTruthy();
 });
 
-for (const route of ["/", "/projects/bewriteback/"]) {
+test("action plan is static, organised and linked from the footer", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("link", { name: /action plan/i }).click();
+
+  await expect(page).toHaveURL(/\/action-plan\/$/);
+  await expect(page).toHaveTitle("Portfolio Action Plan | Jamie Wilson");
+  await expect(page.getByRole("heading", { level: 1, name: "Portfolio & job-search action plan" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 2, name: "Start here" })).toBeVisible();
+  await expect(page.locator('input[type="checkbox"]')).toHaveCount(0);
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", "noindex,follow");
+});
+
+test("action plan remains readable without mobile overflow", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/action-plan/");
+
+  const widths = await page.evaluate(() => ({
+    client: document.documentElement.clientWidth,
+    scroll: document.documentElement.scrollWidth,
+  }));
+
+  expect(widths.scroll).toBe(widths.client);
+  await expect(page.getByRole("heading", { level: 2, name: "Start here" })).toBeVisible();
+  await expect(page.getByText("Jade Software", { exact: true })).toBeVisible();
+});
+
+for (const route of ["/", "/projects/bewriteback/", "/action-plan/"]) {
   test(`@accessibility ${route} has no serious WCAG regressions`, async ({ page }) => {
     await page.goto(route);
     const results = await new AxeBuilder({ page })
