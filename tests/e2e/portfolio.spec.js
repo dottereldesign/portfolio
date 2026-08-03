@@ -100,7 +100,7 @@ test("theme state is announced and persists across a reload", async ({ page }) =
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
 });
 
-test("the hero offers six responsive laptop angles with the real portrait and dock", async ({ page }) => {
+test("the hero offers seven responsive laptop angles with the real portrait and dock", async ({ page }) => {
   await page.goto("/");
 
   const laptop = page.locator("[data-laptop-picker]");
@@ -109,7 +109,7 @@ test("the hero offers six responsive laptop angles with the real portrait and do
   const dockItems = laptop.locator(".hero__dock-item");
 
   await expect(laptop).toBeVisible();
-  await expect(options).toHaveCount(6);
+  await expect(options).toHaveCount(7);
   await expect(options.first()).toHaveClass(/is-active/);
   await expect(firstArtwork).toBeVisible();
   await expect(dockItems).toHaveCount(11);
@@ -118,16 +118,24 @@ test("the hero offers six responsive laptop angles with the real portrait and do
   expect(await firstArtwork.evaluate((image) => image.currentSrc)).toMatch(/laptop-01\.(avif|webp)$/);
 
   await page.getByRole("button", { name: "Show previous laptop angle" }).click();
+  await expect(laptop).toHaveAttribute("data-active-index", "6");
+  await expect(laptop.locator("[data-laptop-count]")).toHaveText("07 / 07");
+  await expect(laptop.locator("[data-laptop-name]")).toHaveText("Mirrored left perspective");
+  await expect(options.nth(6)).toHaveClass(/is-active/);
+  expect(await options.nth(6).locator("img").evaluate((image) => image.currentSrc)).toMatch(/laptop-07\.(avif|webp)$/);
+
+  await page.getByRole("button", { name: "Show previous laptop angle" }).click();
   await expect(laptop).toHaveAttribute("data-active-index", "5");
-  await expect(laptop.locator("[data-laptop-count]")).toHaveText("06 / 06");
+  await expect(laptop.locator("[data-laptop-count]")).toHaveText("06 / 07");
   await expect(laptop.locator("[data-laptop-name]")).toHaveText("Mirrored right perspective");
   await expect(options.nth(5)).toHaveClass(/is-active/);
   expect(await options.nth(5).locator("img").evaluate((image) => image.currentSrc)).toMatch(/laptop-06\.(avif|webp)$/);
 
   await page.getByRole("button", { name: "Show next laptop angle" }).click();
   await page.getByRole("button", { name: "Show next laptop angle" }).click();
+  await page.getByRole("button", { name: "Show next laptop angle" }).click();
   await expect(laptop).toHaveAttribute("data-active-index", "1");
-  await expect(laptop.locator("[data-laptop-count]")).toHaveText("02 / 06");
+  await expect(laptop.locator("[data-laptop-count]")).toHaveText("02 / 07");
   await expect(laptop.locator("[data-laptop-name]")).toHaveText("Left perspective");
   await expect(options.nth(1)).toHaveClass(/is-active/);
   expect(await options.nth(1).locator("img").evaluate((image) => image.currentSrc)).toMatch(/laptop-02\.(avif|webp)$/);
