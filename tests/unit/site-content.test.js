@@ -44,13 +44,19 @@ test("homepage footer links to the action plan", async () => {
   assert.match(html, /href="assets\/Jamie-Wilson-CV-v2\.pdf"[^>]*>CV #2 \(review\)/);
 });
 
-test("homepage replaces the duplicated CV with a complete visual toolkit", async () => {
+test("homepage places a complete toolkit carousel before GitHub activity", async () => {
   const html = await read("index.html");
-  const toolkitItems = html.match(/class="toolkit-item"/g) || [];
+  const toolkitItems = html.match(/class="toolkit-carousel__item"/g) || [];
+  const toolkitPosition = html.indexOf('id="toolkit"');
+  const githubPosition = html.indexOf('data-github-activity');
 
   assert.doesNotMatch(html, /id="cv"/);
   assert.match(html, /id="toolkit"/);
-  assert.match(html, /<h2 id="toolkit-title">Tools &amp; technologies<\/h2>/);
+  assert.match(html, /id="toolkit-carousel-title">Toolkit \/ 25 tools<\/p>/);
+  assert.match(html, /data-toolkit-previous/);
+  assert.match(html, /data-toolkit-next/);
+  assert.doesNotMatch(html, /class="toolkit-section"/);
+  assert.ok(toolkitPosition > 0 && toolkitPosition < githubPosition, "toolkit carousel should sit before GitHub activity");
   assert.equal(toolkitItems.length, 25);
 
   for (const label of [

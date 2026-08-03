@@ -33,6 +33,7 @@ src/js/
 ├── text-scramble.js            Hero text animation
 ├── section-reveals.js          Intersection-based section animation
 ├── github-activity.js          GitHub contribution data loading
+├── toolkit-carousel.js         Toolkit carousel controls
 ├── hero-laptop.js              Laptop scene orchestration
 ├── laptop-artwork.js           Generated laptop textures and artwork
 ├── laptop-screen.js            Interactive screen and dock rendering
