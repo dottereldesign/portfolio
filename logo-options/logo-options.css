@@ -68,8 +68,9 @@ button { font: inherit; }
   backdrop-filter: blur(16px) saturate(120%);
 }
 
-.wordmark { font-size: 1.35rem; font-weight: 700; letter-spacing: -0.1em; }
-.wordmark span { color: var(--accent); }
+.wordmark { display: inline-flex; width: 3.25rem; height: 2.65rem; align-items: center; justify-content: center; }
+.wordmark img { display: block; width: 100%; height: auto; }
+html[data-theme="light"] .wordmark img { filter: invert(1) brightness(0.98); mix-blend-mode: darken; }
 .site-header__actions { display: flex; align-items: center; gap: clamp(0.8rem, 2vw, 1.5rem); }
 
 .back-link,
@@ -147,6 +148,38 @@ h1 span { color: var(--accent); }
   line-height: 1.75;
 }
 
+.concept-gallery { max-width: 96rem; margin: 0 auto; }
+
+.concept-group + .concept-group {
+  margin-top: clamp(4.5rem, 10vw, 9rem);
+  padding-top: clamp(3rem, 7vw, 6rem);
+  border-top: 1px solid var(--line);
+}
+
+.concept-group__heading {
+  display: grid;
+  max-width: 79rem;
+  align-items: end;
+  margin: 0 auto clamp(2rem, 4vw, 3.5rem);
+  grid-template-columns: minmax(0, 1.3fr) minmax(18rem, 0.7fr);
+  gap: 1.5rem 4rem;
+}
+
+.concept-group .eyebrow { margin-bottom: 1rem; }
+
+.concept-group h2 {
+  margin: 0;
+  font: 500 clamp(2.7rem, 5vw, 5.25rem)/0.9 "Cormorant Garamond", serif;
+  letter-spacing: -0.045em;
+}
+
+.concept-group__heading > p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.concept-group__heading strong { color: var(--accent); font-weight: 600; }
 .concept-sheet { max-width: 79rem; margin: 0 auto; }
 
 .concept-sheet__image {
@@ -183,6 +216,12 @@ h1 span { color: var(--accent); }
   backdrop-filter: blur(8px);
 }
 
+.concept-sheet__numbers .is-active {
+  border-color: rgba(255, 90, 36, 0.72);
+  background: rgba(255, 90, 36, 0.92);
+  color: #10110f;
+}
+
 figcaption {
   margin-top: 1rem;
   color: var(--muted);
@@ -214,6 +253,8 @@ figcaption {
 @media (max-width: 760px) {
   .page-intro { grid-template-columns: 1fr; }
   .page-intro > p:last-child { max-width: 40rem; }
+  .concept-group__heading { grid-template-columns: 1fr; }
+  .concept-group__heading > p { max-width: 40rem; }
 }
 
 @media (max-width: 520px) {

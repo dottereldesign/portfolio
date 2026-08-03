@@ -253,16 +253,25 @@ test("action plan remains readable without mobile overflow", async ({ page }) =>
   await expect(page.getByText("Jade Software", { exact: true })).toBeVisible();
 });
 
-test("logo options are linked from the footer and form a responsive 3x3 study", async ({ page }) => {
+test("logo 08 is active and the footer links to three responsive 3x3 studies", async ({ page }) => {
   await page.goto("/");
+  await expect(page.locator(".site-header .logo img")).toHaveAttribute("src", "assets/logo-options/jw-logo-08.png");
   await page.getByRole("link", { name: /logo options/i }).click();
 
   await expect(page).toHaveURL(/\/logo-options\/$/);
   await expect(page).toHaveTitle("Logo Options | Jamie Wilson");
-  await expect(page.getByRole("heading", { level: 1, name: /Nine ways to sign the work/ })).toBeVisible();
-  await expect(page.locator(".concept-sheet img")).toBeVisible();
-  await expect(page.locator(".concept-sheet__numbers span")).toHaveCount(9);
-  await expect(page.locator(".concept-sheet img")).toHaveJSProperty("complete", true);
+  await expect(page.getByRole("heading", { level: 1, name: /Twenty-seven ways to sign the work/ })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 2, name: "Nine new directions" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 2, name: "Nine variations of 02" })).toBeVisible();
+  const sheets = page.locator(".concept-sheet img");
+  await expect(sheets).toHaveCount(3);
+  await expect(page.locator(".concept-sheet__numbers span")).toHaveCount(27);
+  for (let index = 0; index < 3; index += 1) {
+    const sheet = sheets.nth(index);
+    await sheet.scrollIntoViewIfNeeded();
+    await expect(sheet).toBeVisible();
+    await expect.poll(() => sheet.evaluate((image) => image.complete && image.naturalWidth > 0)).toBe(true);
+  }
 
   await page.setViewportSize({ width: 390, height: 844 });
   await page.reload();
@@ -271,7 +280,7 @@ test("logo options are linked from the footer and form a responsive 3x3 study", 
     scroll: document.documentElement.scrollWidth,
   }));
   expect(widths.scroll).toBe(widths.client);
-  await expect(page.locator(".concept-sheet img")).toBeVisible();
+  await expect(page.locator(".concept-sheet img").first()).toBeVisible();
 });
 
 for (const route of ["/", "/projects/bewriteback/", "/action-plan/", "/logo-options/"]) {

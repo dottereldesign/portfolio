@@ -132,13 +132,15 @@ main {
 }
 
 .wordmark {
-  font-size: 1.2rem;
+  display: inline-flex;
+  width: 3.25rem;
+  height: 2.65rem;
+  align-items: center;
+  justify-content: center;
   text-decoration: none;
 }
 
-.wordmark span {
-  color: var(--muted);
-}
+.wordmark img { display: block; width: 100%; height: auto; filter: invert(1) brightness(0.98); mix-blend-mode: darken; }
 
 .page-intro {
   padding: clamp(72px, 10vw, 144px) 0 72px;

@@ -66,12 +66,14 @@ a:focus-visible {
 }
 
 .case-logo {
-  font-size: 1.35rem;
-  font-weight: 700;
-  letter-spacing: -0.1em;
+  display: inline-flex;
+  width: 3.25rem;
+  height: 2.65rem;
+  align-items: center;
+  justify-content: center;
 }
 
-.case-logo span { color: var(--accent); }
+.case-logo img { display: block; width: 100%; height: auto; }
 
 .case-back,
 .eyebrow,

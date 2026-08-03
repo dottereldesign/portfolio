@@ -45,17 +45,30 @@ test("homepage footer links to the action plan", async () => {
   assert.match(html, /href="assets\/Jamie-Wilson-CV-v2\.pdf"[^>]*>CV #2 \(review\)/);
 });
 
-test("logo options page presents one generated 3x3 navbar concept sheet", async () => {
-  const html = await read("logo-options/index.html");
-  const labels = html.match(/<span>0[1-9]<\/span>/g) || [];
+test("logo options page presents three generated 3x3 navbar concept sheets", async () => {
+  const [html, homepage, actionPlan, caseStudy] = await Promise.all([
+    read("logo-options/index.html"),
+    read("index.html"),
+    read("action-plan/index.html"),
+    read("projects/bewriteback/index.html"),
+  ]);
+  const sheets = html.match(/class="concept-sheet__numbers"/g) || [];
+  const labels = html.match(/<span(?: class="is-active")?>(?:0[1-9]|1[0-8]|02[A-I])<\/span>/g) || [];
 
-  assert.equal(labels.length, 9);
-  assert.match(html, /Nine ways to sign the work/);
-  assert.match(html, /Choose a number from 01–09/);
-  assert.match(html, /id="concept-sheet"/);
+  assert.equal(sheets.length, 3);
+  assert.equal(labels.length, 27);
+  assert.match(html, /Twenty-seven ways to sign the work/);
+  assert.match(html, /Option 08 is active/);
   assert.match(html, /assets\/logo-options\/jw-logo-concepts\.png/);
+  assert.match(html, /assets\/logo-options\/jw-logo-concepts-new-directions\.png/);
+  assert.match(html, /assets\/logo-options\/jw-logo-concept-02-variations\.png/);
   assert.match(html, /width="1254" height="1254"/);
   assert.doesNotMatch(html, /<svg\b/);
+
+  assert.match(homepage, /src="assets\/logo-options\/jw-logo-08\.png"/);
+  assert.match(actionPlan, /src="\.\.\/assets\/logo-options\/jw-logo-08\.png"/);
+  assert.match(caseStudy, /src="\.\.\/\.\.\/assets\/logo-options\/jw-logo-08\.png"/);
+  assert.match(html, /src="\.\.\/assets\/logo-options\/jw-logo-08\.png"/);
 });
 
 test("homepage places a minimalist automatic toolkit carousel directly after education", async () => {
