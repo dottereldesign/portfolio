@@ -31,7 +31,7 @@
   .hero__model { right: -25vw; width: 112vw; }
   .hero__laptop-stage { top: clamp(4.5rem, 8vh, 6rem); transform: none; }
   .hero__title { max-width: 8ch; font-size: clamp(4.2rem, 12.5vw, 6rem); white-space: normal; }
-  html[data-theme="light"] .hero__title { width: auto; background: none; -webkit-text-fill-color: var(--ink); }
+  html[data-theme="light"] .hero__title { width: auto; }
   .hero__title .scramble-space { display: block; width: 100% !important; height: 0; }
   .hero__role { max-width: 34rem; margin-top: 1.4rem; font-size: clamp(0.9rem, 2.4vw, 1.1rem); line-height: 1.65; }
   .hero__intro { max-width: 30rem; margin: 0.9rem 0 1.8rem; }

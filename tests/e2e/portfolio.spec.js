@@ -168,10 +168,15 @@ test("light mode uses a clean hero surface and a distinct contribution scale", a
 
   const palette = await page.evaluate(() => {
     const hero = document.querySelector(".hero");
+    const heroTitle = document.querySelector(".hero__title");
+    const heroRole = document.querySelector(".hero__role");
     const panel = document.querySelector(".github-activity__panel");
     const levels = [...document.querySelectorAll(".github-activity__legend i")];
     return {
       heroBackground: getComputedStyle(hero).backgroundImage,
+      heroRoleBlend: getComputedStyle(heroRole).mixBlendMode,
+      heroTitleBackground: getComputedStyle(heroTitle).backgroundImage,
+      heroTitleBlend: getComputedStyle(heroTitle).mixBlendMode,
       levelColours: levels.map((level) => getComputedStyle(level).backgroundColor),
       panelBackground: getComputedStyle(panel).backgroundColor,
       panelBorder: getComputedStyle(panel).borderColor,
@@ -179,6 +184,9 @@ test("light mode uses a clean hero surface and a distinct contribution scale", a
   });
 
   expect(palette.heroBackground).toBe("none");
+  expect(palette.heroTitleBackground).toBe("none");
+  expect(palette.heroTitleBlend).toBe("difference");
+  expect(palette.heroRoleBlend).toBe("difference");
   expect(new Set(palette.levelColours).size).toBe(5);
   expect(palette.levelColours[0]).not.toBe(palette.panelBackground);
   expect(palette.panelBorder).not.toBe("rgba(0, 0, 0, 0)");

@@ -94,11 +94,10 @@ html[data-theme="light"] .hero::after { background: none; opacity: 0; }
 
 html[data-theme="light"] .hero__title {
   width: max-content;
-  color: var(--ink);
-  background: linear-gradient(90deg, var(--ink) 0 86%, #f8f4eb 94% 100%);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: #f8f4eb;
+  background: none;
+  mix-blend-mode: difference;
+  -webkit-text-fill-color: currentColor;
 }
 
 html[data-theme="light"] .hero__title .scramble-character.is-resolved {
@@ -109,6 +108,13 @@ html[data-theme="light"] .hero__title .scramble-character:not(.is-resolved) {
   color: var(--accent);
   -webkit-text-fill-color: var(--accent);
 }
+
+html[data-theme="light"] .hero__role {
+  color: #f8f4eb;
+  mix-blend-mode: difference;
+}
+
+html[data-theme="light"] .hero__role .slash { color: inherit; }
 
 html[data-theme="light"] .site-header {
   background: linear-gradient(90deg, rgba(248, 245, 238, 0.92), rgba(246, 240, 231, 0.87) 70%, rgba(246, 224, 211, 0.82));
