@@ -253,7 +253,28 @@ test("action plan remains readable without mobile overflow", async ({ page }) =>
   await expect(page.getByText("Jade Software", { exact: true })).toBeVisible();
 });
 
-for (const route of ["/", "/projects/bewriteback/", "/action-plan/"]) {
+test("logo options are linked from the footer and form a responsive 3x3 study", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("link", { name: /logo options/i }).click();
+
+  await expect(page).toHaveURL(/\/logo-options\/$/);
+  await expect(page).toHaveTitle("Logo Options | Jamie Wilson");
+  await expect(page.getByRole("heading", { level: 1, name: /Nine ways to sign the work/ })).toBeVisible();
+  await expect(page.locator(".concept-sheet img")).toBeVisible();
+  await expect(page.locator(".concept-sheet__numbers span")).toHaveCount(9);
+  await expect(page.locator(".concept-sheet img")).toHaveJSProperty("complete", true);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.reload();
+  const widths = await page.evaluate(() => ({
+    client: document.documentElement.clientWidth,
+    scroll: document.documentElement.scrollWidth,
+  }));
+  expect(widths.scroll).toBe(widths.client);
+  await expect(page.locator(".concept-sheet img")).toBeVisible();
+});
+
+for (const route of ["/", "/projects/bewriteback/", "/action-plan/", "/logo-options/"]) {
   test(`@accessibility ${route} has no serious WCAG regressions`, async ({ page }) => {
     await page.goto(route);
     const results = await new AxeBuilder({ page })

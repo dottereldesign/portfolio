@@ -40,8 +40,22 @@ test("crawl files and the first-party case study remain present", async () => {
 test("homepage footer links to the action plan", async () => {
   const html = await read("index.html");
   assert.match(html, /href="action-plan\/">Action plan/);
+  assert.match(html, /href="logo-options\/">Logo options/);
   assert.match(html, /href="assets\/Jamie-Wilson-CV\.pdf"[^>]*>Current CV/);
   assert.match(html, /href="assets\/Jamie-Wilson-CV-v2\.pdf"[^>]*>CV #2 \(review\)/);
+});
+
+test("logo options page presents one generated 3x3 navbar concept sheet", async () => {
+  const html = await read("logo-options/index.html");
+  const labels = html.match(/<span>0[1-9]<\/span>/g) || [];
+
+  assert.equal(labels.length, 9);
+  assert.match(html, /Nine ways to sign the work/);
+  assert.match(html, /Choose a number from 01–09/);
+  assert.match(html, /id="concept-sheet"/);
+  assert.match(html, /assets\/logo-options\/jw-logo-concepts\.png/);
+  assert.match(html, /width="1254" height="1254"/);
+  assert.doesNotMatch(html, /<svg\b/);
 });
 
 test("homepage places a minimalist automatic toolkit carousel directly after education", async () => {

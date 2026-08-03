@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en-NZ" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Nine AI-generated logo directions for Jamie Wilson's portfolio navbar." />
+    <meta name="robots" content="noindex,follow" />
+    <meta name="theme-color" content="#10110f" />
+    <link rel="canonical" href="https://dottereldesign.github.io/portfolio/logo-options/" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500&family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+    <title>Logo Options | Jamie Wilson</title>
+    <script>
+      (() => {
+        let theme = "dark";
+        try {
+          const savedTheme = window.localStorage.getItem("jw-theme");
+          if (savedTheme === "light" || savedTheme === "dark") theme = savedTheme;
+        } catch {}
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+      })();
+    </script>
+    <link rel="stylesheet" href="logo-options.css" />
+  </head>
+
+  <body>
+    <a class="skip-link" href="#concept-sheet">Skip to logo options</a>
+
+    <header class="site-header">
+      <a class="wordmark" href="../" aria-label="Jamie Wilson portfolio">JW<span aria-hidden="true">.</span></a>
+      <div class="site-header__actions">
+        <button type="button" class="theme-toggle" data-theme-toggle aria-label="Switch to light theme" aria-pressed="true">
+          <span aria-hidden="true"></span>
+          <span class="theme-toggle__label">Theme</span>
+        </button>
+        <a class="back-link" href="../">Portfolio <span aria-hidden="true">↗</span></a>
+      </div>
+    </header>
+
+    <main>
+      <header class="page-intro">
+        <p class="eyebrow">AI-generated identity study / Navbar mark</p>
+        <h1>Nine ways to sign the work<span aria-hidden="true">.</span></h1>
+        <p>Choose a number from 01–09. The selected direction can then be refined and fitted into the top-left navbar in place of the current JW.</p>
+      </header>
+
+      <figure class="concept-sheet" id="concept-sheet">
+        <div class="concept-sheet__image">
+          <img src="../assets/logo-options/jw-logo-concepts.png" width="1254" height="1254" alt="A three by three grid of nine distinct Jamie Wilson logo concepts in off-white, orange and blue on black." />
+          <div class="concept-sheet__numbers" aria-hidden="true">
+            <span>01</span><span>02</span><span>03</span>
+            <span>04</span><span>05</span><span>06</span>
+            <span>07</span><span>08</span><span>09</span>
+          </div>
+        </div>
+        <figcaption>Read left to right, top to bottom. Send back the number of your favourite.</figcaption>
+      </figure>
+
+      <footer class="page-footer">
+        <p>Jamie Wilson / Logo exploration / 2026</p>
+        <a href="../">Back to the portfolio <span aria-hidden="true">↗</span></a>
+      </footer>
+    </main>
+
+    <script type="module" src="../src/js/theme.js"></script>
+  </body>
+</html>
