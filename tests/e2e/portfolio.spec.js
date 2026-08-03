@@ -332,25 +332,21 @@ test("display headings protect descenders and body copy has readable leading", a
   expect(typography.paragraphLineRatio).toBeGreaterThanOrEqual(1.65);
 });
 
-test("three Canterbury location studies fill the work-principle panels", async ({ page }) => {
+test("the South Island location study fills the work-principle panel", async ({ page }) => {
   await page.goto("/");
   const panels = page.locator(".capabilities__intro");
   const studies = page.locator(".location-study");
 
-  await expect(panels).toHaveCount(3);
-  await expect(studies).toHaveCount(3);
-  await expect(studies.locator(".location-study__marker")).toHaveCount(3);
-  await expect(studies.getByText("Christchurch, NZ", { exact: true })).toHaveCount(3);
+  await expect(panels).toHaveCount(1);
+  await expect(studies).toHaveCount(1);
+  await expect(studies.locator(".location-study__marker")).toHaveCount(1);
+  await expect(studies.getByText("Christchurch, NZ", { exact: true })).toHaveCount(1);
   await expect(page.getByText(/How I work \/ 0\d/)).toHaveCount(1);
   await expect(studies.first().locator("figcaption")).toHaveCount(0);
 
-  const expectedSources = [
-    "south-island-architecture-cutout.webp",
-    "canterbury-topography.webp",
-    "christchurch-globe.webp",
-  ];
+  const expectedSources = ["south-island-architecture-cutout.webp"];
 
-  for (let index = 0; index < 3; index += 1) {
+  for (let index = 0; index < 1; index += 1) {
     const panel = panels.nth(index);
     const image = studies.nth(index).locator("img");
     await panel.scrollIntoViewIfNeeded();
