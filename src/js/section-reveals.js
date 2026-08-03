@@ -3,18 +3,20 @@ const capabilityShowcase = document.querySelector("[data-capabilities-flow-revea
 
 if (capabilities) {
   capabilities.classList.add("capabilities--reveal-ready");
-  const capabilitiesIntro = capabilities.querySelector(".capabilities__intro");
+  const capabilitiesIntros = [...capabilities.querySelectorAll(".capabilities__intro")];
 
   if ("IntersectionObserver" in window) {
-    const revealCapabilitiesIntro = new IntersectionObserver(([entry]) => {
-      if (!entry.isIntersecting) return;
-      capabilities.classList.add("is-visible");
-      revealCapabilitiesIntro.disconnect();
+    const revealCapabilitiesIntros = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add("is-visible");
+        revealCapabilitiesIntros.unobserve(entry.target);
+      });
     }, { threshold: 0.25, rootMargin: "0px 0px -6% 0px" });
 
-    if (capabilitiesIntro) revealCapabilitiesIntro.observe(capabilitiesIntro);
+    capabilitiesIntros.forEach((intro) => revealCapabilitiesIntros.observe(intro));
   } else {
-    capabilities.classList.add("is-visible");
+    capabilitiesIntros.forEach((intro) => intro.classList.add("is-visible"));
   }
 }
 

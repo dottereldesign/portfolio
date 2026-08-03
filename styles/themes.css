@@ -139,6 +139,13 @@ html[data-theme="light"] .capabilities::after {
   background: linear-gradient(180deg, #f7f3ea 0%, rgba(247, 243, 234, 0.94) 14%, rgba(241, 241, 242, 0.72) 42%, rgba(238, 239, 244, 0.3) 74%, transparent 100%);
 }
 
+html[data-theme="light"] .location-study img { mix-blend-mode: multiply; }
+
+html[data-theme="dark"] .location-study img {
+  opacity: 0.82;
+  filter: grayscale(1) invert(0.94) hue-rotate(180deg) brightness(0.72) contrast(1.08);
+}
+
 html[data-theme="light"] .work-placeholder::before {
   background:
     radial-gradient(ellipse 56% 58% at 82% 14%, rgba(116, 55, 91, 0.11) 0%, rgba(133, 77, 105, 0.055) 42%, transparent 72%),

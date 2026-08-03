@@ -23,7 +23,7 @@ test("homepage renders the positioning and navigates to the internal case study"
 
   await expect(page).toHaveTitle("Jamie Wilson | Christchurch Web Developer");
   await expect(page.getByRole("heading", { level: 1, name: "Jamie Wilson" })).toBeVisible();
-  await expect(page.locator(".capabilities__lede")).toContainText("Christchurch-based web developer");
+  await expect(page.locator(".capabilities__lede").first()).toContainText("Christchurch-based web developer");
 
   await page.getByRole("link", { name: /bewriteback/i }).click();
   await expect(page).toHaveURL(/\/projects\/bewriteback\/$/);
@@ -330,6 +330,33 @@ test("display headings protect descenders and body copy has readable leading", a
 
   expect(typography.headingBoxRatio).toBeGreaterThan(1);
   expect(typography.paragraphLineRatio).toBeGreaterThanOrEqual(1.65);
+});
+
+test("three Canterbury location studies fill the work-principle panels", async ({ page }) => {
+  await page.goto("/");
+  const panels = page.locator(".capabilities__intro");
+  const studies = page.locator(".location-study");
+
+  await expect(panels).toHaveCount(3);
+  await expect(studies).toHaveCount(3);
+  await expect(studies.locator(".location-study__marker")).toHaveCount(3);
+  await expect(studies.getByText("Christchurch", { exact: true })).toHaveCount(3);
+
+  const expectedSources = [
+    "south-island-architecture.webp",
+    "canterbury-topography.webp",
+    "christchurch-globe.webp",
+  ];
+
+  for (let index = 0; index < 3; index += 1) {
+    const panel = panels.nth(index);
+    const image = studies.nth(index).locator("img");
+    await panel.scrollIntoViewIfNeeded();
+    await expect(panel).toHaveClass(/is-visible/);
+    await expect(image).toHaveAttribute("loading", "lazy");
+    await expect(image).toHaveAttribute("src", new RegExp(expectedSources[index]));
+    await expect.poll(() => image.evaluate((element) => element.complete && element.naturalWidth > 0)).toBe(true);
+  }
 });
 
 test("mobile quick links support keyboard dismissal without page overflow", async ({ page }) => {

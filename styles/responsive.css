@@ -15,7 +15,7 @@
   .hero__title { font-size: clamp(4.6rem, 9.2vw, 6.4rem); }
   .hero__role { max-width: 36rem; font-size: clamp(0.95rem, 1.8vw, 1.15rem); line-height: 1.7; }
   .hero__intro { max-width: 31rem; }
-  .capabilities__intro { max-width: 52%; }
+  .capabilities__intro { grid-template-columns: minmax(18rem, 0.9fr) minmax(26rem, 1.1fr); gap: clamp(2rem, 4vw, 3.5rem); }
   .capabilities h2,
   .work-placeholder h2 { font-size: clamp(3rem, 5vw, 4.25rem); }
   .project-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -43,7 +43,9 @@
 @media (max-width: 800px) {
   .capabilities { padding-top: 6rem; }
   .capability-showcase { padding-block: 6rem; }
-  .capabilities__intro { min-height: 0; max-width: 38rem; margin-bottom: 4rem; }
+  .capabilities__intro { min-height: 0; grid-template-columns: 1fr; gap: 2.5rem; padding-block: 4rem; }
+  .capabilities__intro-copy { max-width: 38rem; }
+  .location-study { width: 100%; aspect-ratio: 3 / 2; -webkit-mask-image: none; mask-image: none; }
   .capabilities h2,
   .work-placeholder h2 { font-size: clamp(3.2rem, 11vw, 5.4rem); }
   .capabilities__flow { grid-template-columns: 1fr; gap: 2.75rem; }
@@ -75,7 +77,9 @@
   .hero__study-item h2 { font-size: 1rem; }
   .capabilities { padding-top: 5rem; padding-bottom: 0; }
   .capability-showcase { padding-block: 5rem; }
-  .capabilities__intro { margin-bottom: 3.25rem; }
+  .capabilities__intro { gap: 2rem; padding-block: 3.25rem; }
+  .location-study figcaption { top: 0.85rem; right: 0.85rem; }
+  .location-study__marker > span { right: 1.1rem; padding-right: 0.65rem; }
   .capabilities__github-activity { margin-bottom: 0; }
   .capability-card { min-height: 0; padding: 0; }
   .github-activity__panel-header,
@@ -221,6 +225,7 @@
   .capabilities--reveal-ready .capabilities__intro h2 em,
   .capabilities--reveal-ready .capabilities__lede,
   .capabilities--reveal-ready .capabilities__cta,
+  .capabilities--reveal-ready .location-study,
   .capabilities--reveal-ready .capability-card__visual,
   .capabilities--reveal-ready .capability-card__index span,
   .capabilities--reveal-ready .capability-card h3,
