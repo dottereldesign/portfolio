@@ -34,9 +34,6 @@ src/js/
 ├── section-reveals.js          Intersection-based section animation
 ├── github-activity.js          GitHub contribution data loading
 ├── toolkit-carousel.js         Automatic, pause-on-hover toolkit loop
-├── hero-laptop.js              Laptop scene orchestration
-├── laptop-artwork.js           Generated laptop textures and artwork
-├── laptop-screen.js            Interactive screen and dock rendering
 ├── lib/                        Tested, side-effect-free helpers
 └── motion-lab/
     ├── controller.js           Animation lifecycle and rendering loop
@@ -49,7 +46,7 @@ styles/
 └── responsive.css              Keyframes, breakpoints and reduced motion
 ```
 
-The bundled Three.js exports used by the WebGL scenes are generated from `src/laptop-runtime.js` and committed at `assets/vendor/laptop-runtime.min.js` so the deployed site has no package-manager dependency.
+The hero laptop is a lightweight generated AVIF/WebP cutout with Jamie's original portrait and a CSS-powered local SVG dock. The bundled Three.js exports used by the deferred capability motion study are generated from `src/laptop-runtime.js` and committed at `assets/vendor/laptop-runtime.min.js` so the deployed site has no package-manager dependency.
 
 ## Development
 
@@ -84,9 +81,9 @@ npm run test:accessibility  # Axe WCAG regression checks
 npm test                    # Unit, browser and accessibility suite
 ```
 
-The Playwright suite covers recruiter-facing content, the visual toolkit, internal case-study navigation, persistent theme state, split WebGL initialisation, responsive quick links, crawl files and horizontal overflow. Axe checks the homepage, BeWriteBack case study and action plan for serious WCAG regressions.
+The Playwright suite covers recruiter-facing content, the visual toolkit, internal case-study navigation, persistent theme state, the static hero laptop and dock, deferred WebGL initialisation, responsive quick links, crawl files and horizontal overflow. Axe checks the homepage, BeWriteBack case study and action plan for serious WCAG regressions.
 
-GitHub Actions runs the full quality suite on every push to `main` and on pull requests. It also rebuilds the laptop runtime and fails if the committed bundle is out of date.
+GitHub Actions runs the full quality suite on every push to `main` and on pull requests. It also rebuilds the shared Three.js runtime and fails if the committed bundle is out of date.
 
 ## Search and sharing
 

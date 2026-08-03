@@ -96,13 +96,20 @@ test("career story and action plan reflect the current priorities", async () => 
   assert.ok(cv.size > 5_000, "CV #2 should be a populated PDF");
 });
 
-test("expensive laptop assets are progressive enhancements", async () => {
+test("the hero uses an optimised static laptop with the real portrait and dock", async () => {
   const [html, manifest] = await Promise.all([read("index.html"), read("script.js")]);
 
-  assert.doesNotMatch(html, /laptop-poster/);
+  const dockItems = html.match(/class="hero__dock-item"/g) || [];
+
+  assert.match(html, /data-static-laptop/);
+  assert.match(html, /hero-laptop-static\.avif/);
+  assert.match(html, /hero-portrait\.avif/);
+  assert.equal(dockItems.length, 11);
+  assert.doesNotMatch(html, /hero__model-canvas/);
+  assert.doesNotMatch(html, /data-laptop-enhancement/);
   assert.doesNotMatch(html, /rel="modulepreload"[^>]*laptop-runtime/);
   assert.doesNotMatch(html, /rel="preload"[^>]*macbook\.glb/);
-  assert.match(manifest, /laptop-loader\.js/);
+  assert.doesNotMatch(manifest, /laptop-loader\.js/);
   assert.match(manifest, /motion-lab\/loader\.js/);
 });
 

@@ -99,14 +99,30 @@ test("theme state is announced and persists across a reload", async ({ page }) =
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
 });
 
-test("the real WebGL laptop loads automatically without a placeholder", async ({ page }) => {
+test("the static hero laptop keeps the real portrait and responsive dock without WebGL", async ({ page }) => {
   await page.goto("/");
 
-  await expect(page.locator(".hero__model-poster")).toHaveCount(0);
-  await expect(page.locator(".hero__model")).toHaveClass(/hero__model--ready/, { timeout: 15_000 });
-  await page.locator("[data-motion-study]").scrollIntoViewIfNeeded();
-  await page.waitForTimeout(1_000);
-  await expect(page.locator(".is-unavailable")).toHaveCount(0);
+  const laptop = page.locator("[data-static-laptop]");
+  const artwork = laptop.locator(".hero__static-laptop-art img");
+  const portrait = laptop.locator(".hero__static-portrait img");
+  const dockItems = laptop.locator(".hero__dock-item");
+
+  await expect(laptop).toBeVisible();
+  await expect(artwork).toBeVisible();
+  await expect(portrait).toBeVisible();
+  await expect(dockItems).toHaveCount(11);
+  await expect(page.locator(".hero__model-canvas")).toHaveCount(0);
+  await expect(artwork).toHaveJSProperty("complete", true);
+  expect(await artwork.evaluate((image) => image.currentSrc)).toMatch(/hero-laptop-static\.(avif|webp|png)$/);
+  expect(await portrait.evaluate((image) => image.currentSrc)).toMatch(/hero-portrait\.(avif|webp)|laptop-wallper\.png$/);
+
+  const figma = laptop.locator('.hero__dock-item[data-label="Figma"]');
+  await figma.hover();
+  expect(await figma.evaluate((element) => getComputedStyle(element).transform)).not.toBe("none");
+  await expect.poll(() => figma.evaluate((element) => getComputedStyle(element, "::after").opacity)).toBe("1");
+
+  const heroResources = await page.evaluate(() => performance.getEntriesByType("resource").map(({ name }) => name));
+  expect(heroResources.some((name) => /macbook\.glb|laptop-runtime/.test(name))).toBeFalsy();
 });
 
 test("mobile quick links support keyboard dismissal without page overflow", async ({ page }) => {

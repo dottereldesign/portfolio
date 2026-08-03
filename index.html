@@ -95,7 +95,8 @@
         document.documentElement.style.colorScheme = theme;
       })();
     </script>
-    <link rel="stylesheet" href="assets/portfolio.min.css?v=20260803-4" />
+    <link rel="preload" as="image" href="assets/laptop/hero-laptop-static.avif" type="image/avif" fetchpriority="high" />
+    <link rel="stylesheet" href="assets/portfolio.min.css?v=20260803-5" />
     <noscript><style>.hero__title > span { visibility: visible !important; }</style></noscript>
   </head>
   <body>
@@ -191,6 +192,38 @@
         <a class="cta" href="#work">Explore my work <span aria-hidden="true">↓</span></a>
       </section>
 
+      <div class="hero__model hero__model--static" aria-hidden="true" data-static-laptop>
+        <div class="hero__static-laptop">
+          <picture class="hero__static-laptop-art">
+            <source srcset="assets/laptop/hero-laptop-static.avif" type="image/avif" />
+            <source srcset="assets/laptop/hero-laptop-static.webp" type="image/webp" />
+            <img src="assets/laptop/hero-laptop-static.webp" width="1335" height="1178" alt="" fetchpriority="high" decoding="async" />
+          </picture>
+
+          <div class="hero__static-screen">
+            <picture class="hero__static-portrait">
+              <source srcset="assets/laptop/hero-portrait.avif" type="image/avif" />
+              <source srcset="assets/laptop/hero-portrait.webp" type="image/webp" />
+              <img src="assets/laptop/hero-portrait.webp" width="365" height="937" alt="" decoding="async" />
+            </picture>
+
+            <div class="hero__static-dock">
+              <span class="hero__dock-item" data-label="Git"><img src="assets/laptop/dock/git.svg" alt="" /></span>
+              <span class="hero__dock-item" data-label="Codex"><img src="assets/laptop/dock/codex.svg" alt="" /></span>
+              <span class="hero__dock-item" data-label="WordPress"><img src="assets/laptop/dock/wordpress.svg" alt="" /></span>
+              <span class="hero__dock-item" data-label="Figma"><img src="assets/laptop/dock/figma.svg" alt="" /></span>
+              <span class="hero__dock-item" data-label="Slack"><img src="assets/laptop/dock/slack.svg" alt="" /></span>
+              <span class="hero__dock-item" data-label="Postman"><img src="assets/laptop/dock/postman.svg" alt="" /></span>
+              <span class="hero__dock-item" data-label="Photoshop"><img src="assets/laptop/dock/photoshop.svg" alt="" /></span>
+              <span class="hero__dock-item" data-label="LocalWP"><img src="assets/laptop/dock/localwp.svg" alt="" /></span>
+              <span class="hero__dock-item" data-label="VS Code"><img src="assets/laptop/dock/vscode.svg" alt="" /></span>
+              <span class="hero__dock-item" data-label="Terminal"><img src="assets/laptop/dock/terminal.svg" alt="" /></span>
+              <span class="hero__dock-item" data-label="Chrome"><img src="assets/laptop/dock/chrome.svg" alt="" /></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <section class="hero__study" aria-label="Study at Ara Institute of Canterbury" data-study-reveal>
         <div class="hero__study-grid">
           <article class="hero__study-item hero__study-item--bronze">
@@ -209,10 +242,6 @@
       </section>
 
     </main>
-
-    <div class="hero__model" aria-hidden="true" data-laptop-enhancement>
-      <canvas class="hero__model-canvas"></canvas>
-    </div>
 
     <section class="capabilities" aria-labelledby="capabilities-title" data-capabilities-reveal>
       <div class="section-frame" aria-hidden="true"></div>
@@ -474,6 +503,6 @@
       </footer>
     </section>
 
-    <script type="module" src="script.js?v=20260803-4"></script>
+    <script type="module" src="script.js?v=20260803-5"></script>
   </body>
 </html>
