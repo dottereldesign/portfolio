@@ -17,6 +17,7 @@ if (githubActivity) {
     year: "numeric",
     timeZone: "UTC",
   });
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   const parseCalendarDate = (value) => {
     const [year, month, day] = value.split("-").map(Number);
@@ -81,6 +82,8 @@ if (githubActivity) {
     const weekCount = Math.ceil((firstDayOffset + entries.length) / 7);
     const fragment = document.createDocumentFragment();
     const monthStarts = new Map();
+    const activeEntryCount = entries.filter(({ level }) => level > 0).length;
+    let activeEntryIndex = 0;
 
     calendar.replaceChildren();
     calendar.style.setProperty("--week-count", String(weekCount));
@@ -105,6 +108,18 @@ if (githubActivity) {
       cell.dataset.level = String(entry.level);
       cell.setAttribute("aria-hidden", "true");
       cell.title = `${entry.count} ${contributionWord} on ${dateFormatter.format(entry.parsedDate)}`;
+
+      if (entry.level > 0 && !prefersReducedMotion) {
+        const revealOrder = activeEntryCount - activeEntryIndex - 1;
+        const scatterSeed = position + entry.level;
+        cell.classList.add("is-reveal-ready");
+        cell.style.setProperty("--reveal-delay", `${revealOrder * 9}ms`);
+        cell.style.setProperty("--reveal-x", `${((scatterSeed * 7) % 5 - 2) * 0.12}rem`);
+        cell.style.setProperty("--reveal-y", `${((scatterSeed * 11) % 5 - 2) * 0.08}rem`);
+        cell.style.setProperty("--reveal-rotation", `${((scatterSeed * 13) % 7 - 3) * 4}deg`);
+        activeEntryIndex += 1;
+      }
+
       positionCalendarItem(cell, week, day);
       fragment.appendChild(cell);
     });
@@ -137,6 +152,11 @@ if (githubActivity) {
     githubActivity.classList.add("is-ready");
 
   };
+
+  calendar.addEventListener("animationend", (event) => {
+    if (event.animationName !== "github-calendar-cell-reveal") return;
+    event.target.classList.remove("is-reveal-ready");
+  });
 
   const renderFallback = () => {
     const fallback = document.createElement("p");
@@ -231,6 +251,13 @@ if (githubActivity) {
   }
 
   if ("IntersectionObserver" in window) {
+    const revealObserver = new IntersectionObserver((entries) => {
+      if (!entries.some((entry) => entry.isIntersecting)) return;
+      revealObserver.disconnect();
+      githubActivity.classList.add("is-reveal-active");
+    }, { rootMargin: "0px 0px -12% 0px" });
+    revealObserver.observe(githubActivity);
+
     const activityObserver = new IntersectionObserver((entries) => {
       if (!entries.some((entry) => entry.isIntersecting)) return;
       activityObserver.disconnect();
@@ -238,6 +265,7 @@ if (githubActivity) {
     }, { rootMargin: "0px 0px 480px 0px" });
     activityObserver.observe(githubActivity);
   } else {
+    githubActivity.classList.add("is-reveal-active");
     loadGithubActivity();
   }
 }

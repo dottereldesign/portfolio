@@ -1,6 +1,19 @@
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
+const makeContributionFixture = () => {
+  const startDate = new Date(Date.UTC(2025, 7, 5));
+  return Array.from({ length: 365 }, (_, index) => {
+    const date = new Date(startDate);
+    date.setUTCDate(startDate.getUTCDate() + index);
+    return {
+      count: index % 5,
+      date: date.toISOString().slice(0, 10),
+      level: index % 5,
+    };
+  });
+};
+
 test.beforeEach(async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
 });
@@ -173,16 +186,7 @@ test("light mode uses a clean hero surface and a distinct contribution scale", a
 
 test("GitHub contributions prefetch before the visitor reaches the activity panel", async ({ page }) => {
   let contributionRequests = 0;
-  const startDate = new Date(Date.UTC(2025, 7, 5));
-  const contributions = Array.from({ length: 365 }, (_, index) => {
-    const date = new Date(startDate);
-    date.setUTCDate(startDate.getUTCDate() + index);
-    return {
-      count: index % 5,
-      date: date.toISOString().slice(0, 10),
-      level: index % 5,
-    };
-  });
+  const contributions = makeContributionFixture();
 
   await page.route(
     /github-contributions-api\.jogruber\.de\/v4\/dottereldesign\?y=last$/,
@@ -207,6 +211,46 @@ test("GitHub contributions prefetch before the visitor reaches the activity pane
   await activity.scrollIntoViewIfNeeded();
   await expect(activity).toHaveClass(/is-ready/);
   await expect(activity.locator("[data-github-total]")).toHaveText("730 contributions in the last year");
+});
+
+test("GitHub contribution greens scatter in from newest to oldest", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  const contributions = makeContributionFixture();
+  await page.route(
+    /github-contributions-api\.jogruber\.de\/v4\/dottereldesign\?y=last$/,
+    (route) => route.fulfill({
+      body: JSON.stringify({ contributions, total: { lastYear: 730 } }),
+      contentType: "application/json",
+      status: 200,
+    }),
+  );
+
+  await page.goto("/");
+  const activity = page.locator("[data-github-activity]");
+  await activity.scrollIntoViewIfNeeded();
+  await expect(activity).toHaveClass(/is-ready/);
+  await expect(activity).toHaveClass(/is-reveal-active/);
+
+  const activeCells = activity.locator('.github-calendar__cell:not([data-level="0"])');
+  await expect(activeCells).toHaveCount(292);
+  const delays = await activeCells.evaluateAll((cells) => cells.map((cell) => (
+    Number.parseFloat(cell.style.getPropertyValue("--reveal-delay"))
+  )));
+  expect(new Set(delays).size).toBe(delays.length);
+  expect(delays.at(-1)).toBe(0);
+  expect(delays[0]).toBeGreaterThan(delays.at(-1));
+
+  const oldestActiveCell = activeCells.first();
+  const levelZeroColour = await activity.locator('.github-activity__legend i[data-level="0"]').evaluate(
+    (cell) => getComputedStyle(cell).backgroundColor,
+  );
+  await expect(oldestActiveCell).toHaveCSS("animation-name", "github-calendar-cell-reveal");
+  await expect(oldestActiveCell).toHaveCSS("background-color", levelZeroColour);
+  await expect(oldestActiveCell).not.toHaveClass(/is-reveal-ready/);
+  const levelOneColour = await activity.locator('.github-activity__legend i[data-level="1"]').evaluate(
+    (cell) => getComputedStyle(cell).backgroundColor,
+  );
+  await expect(oldestActiveCell).toHaveCSS("background-color", levelOneColour);
 });
 
 test("the hero uses one front-facing laptop with a covered webcam and compact dock", async ({ page }) => {
