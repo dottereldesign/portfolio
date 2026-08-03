@@ -17,14 +17,17 @@ test("homepage renders the positioning and navigates to the internal case study"
   await expect(page.getByRole("heading", { level: 1, name: "BeWriteBack" })).toBeVisible();
 });
 
-test("the toolkit carousel sits directly after education and keeps looping on hover", async ({ page }) => {
+test("the toolkit carousel reveals in sequence and keeps looping on hover", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "no-preference" });
   await page.goto("/");
 
   const toolkit = page.locator("#toolkit");
   await toolkit.scrollIntoViewIfNeeded();
+  await expect(toolkit).toHaveClass(/toolkit-carousel--revealed/);
   await expect(toolkit.locator(".toolkit-carousel__item:not([aria-hidden='true'])")).toHaveCount(25);
   await expect(toolkit.locator(".toolkit-carousel__item[aria-hidden='true']")).toHaveCount(25);
+  await expect(toolkit.locator('.toolkit-carousel__item[aria-label="Figma"]:not([aria-hidden])')).toHaveCount(1);
+  await expect(toolkit.locator(".toolkit-carousel__item > span:not(.toolkit-carousel__icon)")).toHaveCount(0);
   await expect(toolkit.getByRole("button")).toHaveCount(0);
   await expect(page.locator("#cv")).toHaveCount(0);
   const placement = await toolkit.evaluate((element) => ({
@@ -33,6 +36,14 @@ test("the toolkit carousel sits directly after education and keeps looping on ho
     previousElement: element.previousElementSibling?.className,
   }));
   expect(placement).toEqual({ followsHero: true, precedesCapabilities: true, previousElement: "hero" });
+
+  const entranceMotion = await toolkit.locator(".toolkit-carousel__item:not([aria-hidden='true'])").evaluateAll((items) => items.slice(0, 2).map((item) => {
+    const style = getComputedStyle(item);
+    return { animationName: style.animationName, delay: Number.parseFloat(style.animationDelay) };
+  }));
+  expect(entranceMotion[0].animationName).toBe("toolkit-item-reveal");
+  expect(entranceMotion[1].delay).toBeGreaterThan(entranceMotion[0].delay);
+  await expect(toolkit).toHaveCSS("border-bottom-width", "0px");
 
   const viewport = toolkit.locator("[data-toolkit-viewport]");
   const movePointerOutsideToolkit = async () => {
@@ -87,6 +98,22 @@ test("the toolkit carousel sits directly after education and keeps looping on ho
   await expect.poll(getTrackOffset).toBeLessThan(positionAfterHover - 3);
   await expect(page.getByRole("link", { name: "Current CV", exact: true })).toHaveAttribute("href", "assets/Jamie-Wilson-CV.pdf");
   await expect(page.getByRole("link", { name: /cv #2/i })).toHaveAttribute("href", "assets/Jamie-Wilson-CV-v2.pdf");
+});
+
+test("the toolkit carousel surface follows the selected theme", async ({ page }) => {
+  await page.goto("/");
+  const toolkit = page.locator("#toolkit");
+  await toolkit.scrollIntoViewIfNeeded();
+
+  const palette = () => toolkit.evaluate((element) => ({
+    surface: getComputedStyle(element).backgroundColor,
+    tile: getComputedStyle(element.querySelector(".toolkit-carousel__icon")).backgroundColor,
+  }));
+  const darkPalette = await palette();
+
+  await page.getByRole("button", { name: "Switch to light theme" }).click();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  await expect.poll(async () => JSON.stringify(await palette())).not.toBe(JSON.stringify(darkPalette));
 });
 
 test("theme state is announced and persists across a reload", async ({ page }) => {

@@ -71,10 +71,11 @@ test("logo options page presents three generated 3x3 navbar concept sheets", asy
   assert.match(html, /src="\.\.\/assets\/logo-options\/jw-logo-08\.png"/);
 });
 
-test("homepage places a minimalist automatic toolkit carousel directly after education", async () => {
+test("homepage places an icon-only theme-aware toolkit carousel directly after education", async () => {
   const html = await read("index.html");
   const carouselScript = await read("src/js/toolkit-carousel.js");
   const sectionsCss = await read("styles/sections.css");
+  const themesCss = await read("styles/themes.css");
   const toolkitItems = html.match(/class="toolkit-carousel__item"/g) || [];
   const toolkitPosition = html.indexOf('id="toolkit"');
   const heroEndPosition = html.indexOf("</main>");
@@ -96,8 +97,13 @@ test("homepage places a minimalist automatic toolkit carousel directly after edu
   assert.equal(toolkitItems.length, 25);
   assert.doesNotMatch(carouselScript, /scrollLeft\s*\+=/);
   assert.match(sectionsCss, /@keyframes toolkit-carousel-loop/);
+  assert.match(sectionsCss, /@keyframes toolkit-item-reveal/);
   assert.match(sectionsCss, /animation-play-state:\s*paused/);
   assert.doesNotMatch(sectionsCss, /\.toolkit-carousel:hover/);
+  assert.doesNotMatch(sectionsCss, /\.toolkit-carousel--after-study\s*\{[^}]*border-bottom/);
+  assert.match(themesCss, /html\[data-theme="light"\] \.toolkit-carousel--after-study/);
+  assert.match(carouselScript, /--toolkit-reveal-index/);
+  assert.match(carouselScript, /toolkit-carousel--revealed/);
 
   for (const label of [
     "Figma", "HTML", "CSS", "JavaScript", "TypeScript", "PHP", "React",
@@ -105,7 +111,8 @@ test("homepage places a minimalist automatic toolkit carousel directly after edu
     "Git", "GitHub", "VS Code", "LocalWP", "WP-CLI", "Cloudways", "WPStaq", "DNS",
     "Notion", "HelpScout", "Codex", "AI-assisted development",
   ]) {
-    assert.match(html, new RegExp(`<span>${label}<\\/span>`));
+    assert.match(html, new RegExp(`aria-label="${label}"`));
+    assert.doesNotMatch(html, new RegExp(`<span>${label}<\\/span>`));
   }
 });
 

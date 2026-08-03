@@ -1,6 +1,8 @@
 const carousels = document.querySelectorAll("[data-toolkit-carousel]");
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 const carouselSpeed = 42;
+const revealDuration = 760;
+const revealStep = 48;
 
 carousels.forEach((carousel) => {
   const viewport = carousel.querySelector("[data-toolkit-viewport]");
@@ -11,6 +13,14 @@ carousels.forEach((carousel) => {
   const originalItems = [...track.children];
   if (!originalItems.length) return;
 
+  const canObserve = "IntersectionObserver" in window;
+  if (canObserve) carousel.classList.add("toolkit-carousel--offscreen");
+  if (!reducedMotion.matches) carousel.classList.add("toolkit-carousel--reveal-ready");
+
+  originalItems.forEach((item, index) => {
+    item.style.setProperty("--toolkit-reveal-index", index);
+  });
+
   const duplicateItems = originalItems.map((item) => {
     const duplicate = item.cloneNode(true);
     duplicate.setAttribute("aria-hidden", "true");
@@ -20,6 +30,19 @@ carousels.forEach((carousel) => {
 
   track.append(...duplicateItems);
   carousel.classList.add("toolkit-carousel--enhanced");
+
+  let hasRevealed = false;
+  const reveal = () => {
+    if (hasRevealed || reducedMotion.matches) return;
+    hasRevealed = true;
+    carousel.classList.add("toolkit-carousel--revealed");
+
+    const cleanupDelay = revealDuration + ((originalItems.length - 1) * revealStep) + 120;
+    window.setTimeout(() => {
+      carousel.classList.remove("toolkit-carousel--reveal-ready", "toolkit-carousel--revealed");
+      carousel.classList.add("toolkit-carousel--reveal-complete");
+    }, cleanupDelay);
+  };
 
   const measure = () => {
     const firstDuplicate = track.children[originalItems.length];
@@ -53,11 +76,13 @@ carousels.forEach((carousel) => {
     window.addEventListener("resize", measure, { passive: true });
   }
 
-  if ("IntersectionObserver" in window) {
-    carousel.classList.add("toolkit-carousel--offscreen");
+  if (canObserve) {
     new IntersectionObserver(([entry]) => {
       carousel.classList.toggle("toolkit-carousel--offscreen", !entry.isIntersecting);
-    }, { threshold: 0.08 }).observe(carousel);
+      if (entry.isIntersecting) reveal();
+    }, { threshold: 0.16 }).observe(carousel);
+  } else {
+    reveal();
   }
 
   measure();
