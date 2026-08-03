@@ -17,7 +17,7 @@ test("homepage renders the positioning and navigates to the internal case study"
   await expect(page.getByRole("heading", { level: 1, name: "BeWriteBack" })).toBeVisible();
 });
 
-test("the toolkit carousel sits before GitHub activity, loops and pauses on hover", async ({ page }) => {
+test("the toolkit carousel sits before GitHub activity and keeps looping on hover", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "no-preference" });
   await page.goto("/");
 
@@ -75,13 +75,14 @@ test("the toolkit carousel sits before GitHub activity, loops and pauses on hove
   expect(await viewport.evaluate((element) => element.scrollLeft)).toBe(0);
 
   await toolkit.hover();
-  const pausedPosition = await getTrackOffset();
+  const hoveredPosition = await getTrackOffset();
   await page.waitForTimeout(350);
   const positionAfterHover = await getTrackOffset();
-  expect(Math.abs(positionAfterHover - pausedPosition)).toBeLessThan(1);
+  expect(positionAfterHover).toBeLessThan(hoveredPosition - 3);
+  expect(await track.evaluate((element) => getComputedStyle(element).animationPlayState)).toBe("running");
 
   await movePointerOutsideToolkit();
-  await expect.poll(getTrackOffset).toBeLessThan(pausedPosition - 3);
+  await expect.poll(getTrackOffset).toBeLessThan(positionAfterHover - 3);
   await expect(page.getByRole("link", { name: "Current CV", exact: true })).toHaveAttribute("href", "assets/Jamie-Wilson-CV.pdf");
   await expect(page.getByRole("link", { name: /cv #2/i })).toHaveAttribute("href", "assets/Jamie-Wilson-CV-v2.pdf");
 });

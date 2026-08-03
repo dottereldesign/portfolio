@@ -33,7 +33,7 @@ src/js/
 ├── text-scramble.js            Hero text animation
 ├── section-reveals.js          Intersection-based section animation
 ├── github-activity.js          GitHub contribution data loading
-├── toolkit-carousel.js         Automatic, pause-on-hover toolkit loop
+├── toolkit-carousel.js         Continuous automatic toolkit loop
 ├── lib/                        Tested, side-effect-free helpers
 └── motion-lab/
     ├── controller.js           Animation lifecycle and rendering loop

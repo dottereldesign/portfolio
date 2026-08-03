@@ -57,7 +57,6 @@
   transform: translate3d(0, 0, 0);
   will-change: transform;
 }
-.toolkit-carousel:hover .toolkit-carousel__track,
 .toolkit-carousel:focus-within .toolkit-carousel__track,
 .toolkit-carousel--interacting .toolkit-carousel__track,
 .toolkit-carousel--offscreen .toolkit-carousel__track { animation-play-state: paused; }

@@ -55,7 +55,7 @@ test("homepage places a minimalist automatic toolkit carousel before GitHub acti
   assert.doesNotMatch(html, /id="cv"/);
   assert.match(html, /id="toolkit"/);
   assert.match(html, /data-toolkit-track/);
-  assert.match(html, /Automatically scrolling tools and technologies\. Hover or focus to pause\./);
+  assert.match(html, /Automatically scrolling tools and technologies\. Keeps moving on hover; focus to pause\./);
   assert.doesNotMatch(html, /Toolkit \/ 25 tools/);
   assert.doesNotMatch(html, /Design, development, CMS, delivery and AI\./);
   assert.doesNotMatch(html, /data-toolkit-previous/);
@@ -66,6 +66,7 @@ test("homepage places a minimalist automatic toolkit carousel before GitHub acti
   assert.doesNotMatch(carouselScript, /scrollLeft\s*\+=/);
   assert.match(sectionsCss, /@keyframes toolkit-carousel-loop/);
   assert.match(sectionsCss, /animation-play-state:\s*paused/);
+  assert.doesNotMatch(sectionsCss, /\.toolkit-carousel:hover/);
 
   for (const label of [
     "Figma", "HTML", "CSS", "JavaScript", "TypeScript", "PHP", "React",
