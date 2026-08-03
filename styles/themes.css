@@ -86,31 +86,11 @@ html[data-theme="light"] body {
 }
 
 html[data-theme="light"] .hero {
-  background:
-    radial-gradient(ellipse 60% 72% at 82% 47%, rgba(231, 105, 55, 0.29) 0%, rgba(207, 91, 51, 0.17) 34%, rgba(239, 178, 132, 0.07) 58%, transparent 72%),
-    radial-gradient(ellipse 48% 26% at 75% 77%, rgba(244, 135, 72, 0.22) 0%, rgba(199, 76, 42, 0.08) 48%, transparent 76%),
-    radial-gradient(ellipse 34% 44% at 96% 17%, rgba(192, 72, 46, 0.14) 0%, transparent 72%),
-    linear-gradient(112deg, #faf6ed 0%, #f7f0e5 43%, #f0d9cc 72%, #fbf3e9 100%);
-  background-blend-mode: normal, normal, normal, normal;
-  background-repeat: no-repeat, no-repeat, no-repeat, no-repeat;
-  background-size: auto, auto, auto, auto;
+  background: var(--background);
 }
 
-html[data-theme="light"] .hero::before {
-  background:
-    radial-gradient(ellipse 27% 58% at 76% 47%, rgba(255, 127, 62, 0.34) 0%, rgba(219, 72, 31, 0.14) 36%, transparent 72%),
-    radial-gradient(ellipse 52% 18% at 74% 67%, rgba(244, 104, 51, 0.22) 0%, rgba(188, 67, 37, 0.08) 48%, transparent 76%),
-    radial-gradient(ellipse 17% 38% at 94% 42%, rgba(255, 162, 92, 0.2) 0%, transparent 72%);
-  background-blend-mode: multiply, multiply, multiply;
-  opacity: 0.78;
-}
-
-html[data-theme="light"] .hero::after {
-  background:
-    linear-gradient(180deg, rgba(251, 247, 238, 0.3) 0%, transparent 24% 57%, rgba(251, 244, 235, 0.08) 70%, rgba(249, 242, 232, 0.62) 89%, #f7f3ea 100%),
-    linear-gradient(90deg, rgba(251, 247, 238, 0.97) 0%, rgba(249, 243, 233, 0.83) 27%, rgba(248, 226, 210, 0.3) 49%, transparent 70%),
-    radial-gradient(ellipse 58% 76% at 76% 50%, transparent 30%, rgba(116, 50, 29, 0.055) 72%, rgba(78, 30, 18, 0.12) 100%);
-}
+html[data-theme="light"] .hero::before,
+html[data-theme="light"] .hero::after { background: none; opacity: 0; }
 
 html[data-theme="light"] .hero__title {
   width: max-content;

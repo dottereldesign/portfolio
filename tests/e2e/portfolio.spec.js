@@ -145,10 +145,13 @@ test("the Jamie Wilson scramble animation runs on mobile and tablet", async ({ p
   }
 });
 
-test("light mode uses warm hero embers and a distinct contribution scale", async ({ page }) => {
+test("light mode uses a clean hero surface and a distinct contribution scale", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("button", { name: "Switch to light theme" }).click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  await expect.poll(
+    () => page.locator(".hero").evaluate((hero) => getComputedStyle(hero).backgroundColor),
+  ).toBe("rgb(245, 241, 233)");
 
   const palette = await page.evaluate(() => {
     const hero = document.querySelector(".hero");
@@ -162,7 +165,7 @@ test("light mode uses warm hero embers and a distinct contribution scale", async
     };
   });
 
-  expect(palette.heroBackground).toContain("rgba(231, 105, 55, 0.29)");
+  expect(palette.heroBackground).toBe("none");
   expect(new Set(palette.levelColours).size).toBe(5);
   expect(palette.levelColours[0]).not.toBe(palette.panelBackground);
   expect(palette.panelBorder).not.toBe("rgba(0, 0, 0, 0)");
