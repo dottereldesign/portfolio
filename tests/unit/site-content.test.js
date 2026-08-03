@@ -78,19 +78,17 @@ test("homepage places a minimalist automatic toolkit carousel before GitHub acti
   }
 });
 
-test("career story and action plan reflect the current priorities", async () => {
+test("the former career journey is removed and the action plan reflects current priorities", async () => {
   const [html, actionPlan, cv] = await Promise.all([
     read("index.html"),
     read("action-plan/index.html"),
     stat(new URL("../../assets/Jamie-Wilson-CV-v2.pdf", import.meta.url)),
   ]);
 
-  assert.match(html, /class="career-path"/);
-  assert.match(html, /From study/);
-  assert.match(html, /Student Intern/);
-  assert.match(html, /Technical Support/);
-  assert.match(html, /Website Developer/);
-  assert.doesNotMatch(html, /data-timeline/);
+  assert.doesNotMatch(html, /id="journey"/);
+  assert.doesNotMatch(html, /class="career-path"/);
+  assert.doesNotMatch(html, /The path so far/);
+  assert.doesNotMatch(html, /From study/);
   assert.doesNotMatch(actionPlan, /Add ownership metadata/i);
   assert.doesNotMatch(actionPlan, /Draft the Waikato/i);
   assert.doesNotMatch(actionPlan, /Draft one more client/i);

@@ -33,11 +33,9 @@ html[data-theme="light"] .github-activity__legend i { border-color: rgba(25, 26,
   .capabilities,
   .capability-showcase,
   .work-placeholder,
-  .journey,
   .toolkit-carousel,
   .site-footer-section,
-  .site-credits,
-  .career-step {
+  .site-credits {
     transition: color 500ms ease, background-color 500ms ease, border-color 500ms ease, box-shadow 500ms ease;
   }
 
@@ -151,13 +149,6 @@ html[data-theme="light"] .project-card__index {
 
 html[data-theme="light"] .project-card__visual--lime {
   color: var(--on-accent);
-}
-
-html[data-theme="light"] .journey::before {
-  background:
-    radial-gradient(ellipse 58% 48% at 22% 14%, rgba(30, 112, 111, 0.105) 0%, rgba(44, 110, 109, 0.05) 42%, transparent 72%),
-    radial-gradient(ellipse 46% 60% at 84% 56%, rgba(30, 100, 109, 0.08) 0%, transparent 70%),
-    radial-gradient(ellipse 38% 26% at 32% 92%, rgba(55, 122, 103, 0.06) 0%, transparent 72%);
 }
 
 html[data-theme="light"] .site-credits {

@@ -41,7 +41,7 @@ src/js/
 
 styles/
 ├── base.css                    Foundations, header and hero
-├── sections.css                Capabilities, work, journey, toolkit and footer
+├── sections.css                Capabilities, work, toolkit and footer
 ├── themes.css                  Light-theme overrides
 └── responsive.css              Keyframes, breakpoints and reduced motion
 ```

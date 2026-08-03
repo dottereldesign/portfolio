@@ -70,25 +70,6 @@ if (workSection) {
   }
 }
 
-const journeySection = document.querySelector("#journey[data-section-reveal]");
-
-if (journeySection) {
-  const journeyIntro = journeySection.querySelector(".journey__intro");
-  journeySection.classList.add("journey--reveal-ready");
-
-  if ("IntersectionObserver" in window && journeyIntro) {
-    const revealJourneyIntro = new IntersectionObserver(([entry]) => {
-      if (!entry.isIntersecting) return;
-      journeySection.classList.add("is-visible");
-      revealJourneyIntro.disconnect();
-    }, { threshold: 0.3, rootMargin: "0px 0px -8% 0px" });
-
-    revealJourneyIntro.observe(journeyIntro);
-  } else {
-    journeySection.classList.add("is-visible");
-  }
-}
-
 const study = document.querySelector("[data-study-reveal]");
 
 if (study) {

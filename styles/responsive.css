@@ -17,8 +17,7 @@
   .hero__intro { max-width: 31rem; }
   .capabilities__intro { max-width: 52%; }
   .capabilities h2,
-  .work-placeholder h2,
-  .journey h2 { font-size: clamp(3rem, 5vw, 4.25rem); }
+  .work-placeholder h2 { font-size: clamp(3rem, 5vw, 4.25rem); }
   .project-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
@@ -46,18 +45,12 @@
   .capability-showcase { padding-block: 6rem; }
   .capabilities__intro { min-height: 0; max-width: 38rem; margin-bottom: 4rem; }
   .capabilities h2,
-  .work-placeholder h2,
-  .journey h2 { font-size: clamp(3.2rem, 11vw, 5.4rem); }
+  .work-placeholder h2 { font-size: clamp(3.2rem, 11vw, 5.4rem); }
   .capabilities__flow { grid-template-columns: 1fr; gap: 2.75rem; }
   .capability-card { min-height: 0; }
   .capability-card__description { min-height: 0; }
   .work-heading { padding-top: 0; }
   .project-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .journey__intro { margin-bottom: 3.5rem; text-align: left; }
-  .journey .eyebrow { justify-content: flex-start; }
-  .career-path { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .career-step:nth-child(odd) { border-left: 0; }
-  .career-step:nth-child(n + 3) { border-top: 1px solid var(--hero-frame-line); }
   .site-footer { display: block; }
   .site-footer nav { justify-content: flex-start; margin-top: 2rem; }
 }
@@ -96,12 +89,6 @@
   .capability-card h3 { font-size: clamp(1.8rem, 8vw, 2.4rem); }
   .capability-card__description { font-size: 0.8rem; }
   .project-grid { grid-template-columns: 1fr; }
-  .career-path { grid-template-columns: 1fr; }
-  .career-step,
-  .career-step:nth-child(odd),
-  .career-step:nth-child(n + 3) { min-height: 0; padding: 2rem 0; border-top: 0; border-left: 0; }
-  .career-step + .career-step { border-top: 1px solid var(--hero-frame-line); }
-  .career-step::before { margin-bottom: 2rem; }
   .hero__intro { margin: 0.8rem 0 1.6rem; }
   .hero__side-rail { top: calc(var(--page-frame-inset) + var(--site-header-height) + 0.35rem); right: 1.1rem; }
   .toolkit-carousel__track { gap: 1.75rem; }
@@ -248,12 +235,7 @@
   .project-card--reveal-ready .visual-mark,
   .project-card--reveal-ready .project-card__index,
   .project-card--reveal-ready h3,
-  .project-card--reveal-ready .project-card__description,
-  .journey--reveal-ready .journey__intro .eyebrow,
-  .journey--reveal-ready .journey__intro h2 span,
-  .journey--reveal-ready .journey__intro h2 em,
-  .journey--reveal-ready .journey__lede,
-  .journey--reveal-ready .career-step {
+  .project-card--reveal-ready .project-card__description {
     opacity: 1 !important;
     clip-path: none !important;
     filter: none !important;
