@@ -57,6 +57,9 @@ test("homepage includes three Christchurch location studies", async () => {
 
   assert.equal(studies.length, 3);
   assert.equal(markers.length, 3);
+  assert.equal((html.match(/How I work \/ 0\d/g) || []).length, 1);
+  assert.doesNotMatch(html, /01 \/ South Island|Architectural study/);
+  assert.equal((html.match(/<strong>Christchurch, NZ<\/strong>/g) || []).length, 3);
   assert.match(html, /assets\/location-studies\/south-island-architecture-cutout\.webp/);
   assert.match(html, /assets\/location-studies\/canterbury-topography\.webp/);
   assert.match(html, /assets\/location-studies\/christchurch-globe\.webp/);

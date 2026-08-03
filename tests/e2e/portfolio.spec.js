@@ -340,7 +340,9 @@ test("three Canterbury location studies fill the work-principle panels", async (
   await expect(panels).toHaveCount(3);
   await expect(studies).toHaveCount(3);
   await expect(studies.locator(".location-study__marker")).toHaveCount(3);
-  await expect(studies.getByText("Christchurch", { exact: true })).toHaveCount(3);
+  await expect(studies.getByText("Christchurch, NZ", { exact: true })).toHaveCount(3);
+  await expect(page.getByText(/How I work \/ 0\d/)).toHaveCount(1);
+  await expect(studies.first().locator("figcaption")).toHaveCount(0);
 
   const expectedSources = [
     "south-island-architecture-cutout.webp",
