@@ -33,6 +33,25 @@ test("the toolkit carousel sits before GitHub activity, loops and pauses on hove
   expect(toolkitBeforeGitHub).toBeTruthy();
 
   const viewport = toolkit.locator("[data-toolkit-viewport]");
+  const movePointerOutsideToolkit = async () => {
+    const [box, pageSize] = await Promise.all([toolkit.boundingBox(), page.viewportSize()]);
+    if (!box || !pageSize) throw new Error("Toolkit geometry is unavailable");
+
+    const corners = [
+      { x: 1, y: 1 },
+      { x: pageSize.width - 1, y: 1 },
+      { x: 1, y: pageSize.height - 1 },
+      { x: pageSize.width - 1, y: pageSize.height - 1 },
+    ];
+    const point = corners.find(({ x, y }) => (
+      x < box.x || x > box.x + box.width || y < box.y || y > box.y + box.height
+    ));
+
+    if (!point) throw new Error("No pointer position outside the toolkit was found");
+    await page.mouse.move(point.x, point.y);
+  };
+
+  await movePointerOutsideToolkit();
   await expect.poll(() => viewport.evaluate((element) => element.scrollLeft)).toBeGreaterThan(4);
 
   await toolkit.hover();
@@ -41,7 +60,7 @@ test("the toolkit carousel sits before GitHub activity, loops and pauses on hove
   const positionAfterHover = await viewport.evaluate((element) => element.scrollLeft);
   expect(Math.abs(positionAfterHover - pausedPosition)).toBeLessThan(1);
 
-  await page.mouse.move(0, 0);
+  await movePointerOutsideToolkit();
   await expect.poll(() => viewport.evaluate((element) => element.scrollLeft)).toBeGreaterThan(pausedPosition + 3);
   await expect(page.getByRole("link", { name: "Current CV", exact: true })).toHaveAttribute("href", "assets/Jamie-Wilson-CV.pdf");
   await expect(page.getByRole("link", { name: /cv #2/i })).toHaveAttribute("href", "assets/Jamie-Wilson-CV-v2.pdf");
