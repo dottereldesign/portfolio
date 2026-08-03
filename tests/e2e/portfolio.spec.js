@@ -17,6 +17,18 @@ test("homepage renders the positioning and navigates to the internal case study"
   await expect(page.getByRole("heading", { level: 1, name: "BeWriteBack" })).toBeVisible();
 });
 
+test("the visual toolkit replaces the long on-page CV", async ({ page }) => {
+  await page.goto("/");
+
+  const toolkit = page.locator("#toolkit");
+  await toolkit.scrollIntoViewIfNeeded();
+  await expect(page.getByRole("heading", { level: 2, name: "Tools & technologies" })).toBeVisible();
+  await expect(toolkit.locator(".toolkit-item")).toHaveCount(25);
+  await expect(page.locator("#cv")).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Current CV", exact: true })).toHaveAttribute("href", "assets/Jamie-Wilson-CV.pdf");
+  await expect(page.getByRole("link", { name: /cv #2/i })).toHaveAttribute("href", "assets/Jamie-Wilson-CV-v2.pdf");
+});
+
 test("theme state is announced and persists across a reload", async ({ page }) => {
   await page.goto("/");
   const toggle = page.getByRole("button", { name: "Switch to light theme" });
@@ -55,6 +67,20 @@ test("mobile quick links support keyboard dismissal without page overflow", asyn
     scroll: document.documentElement.scrollWidth,
   }));
   expect(widths.scroll).toBe(widths.client);
+});
+
+test("the toolkit remains tidy without mobile overflow", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/");
+  await page.locator("#toolkit").scrollIntoViewIfNeeded();
+
+  const widths = await page.evaluate(() => ({
+    client: document.documentElement.clientWidth,
+    scroll: document.documentElement.scrollWidth,
+  }));
+
+  expect(widths.scroll).toBe(widths.client);
+  await expect(page.locator("#toolkit .toolkit-grid").first()).toHaveCSS("grid-template-columns", /\d+.* \d+/);
 });
 
 test("crawl files are publicly reachable from the local build", async ({ request }) => {

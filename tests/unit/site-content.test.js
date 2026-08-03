@@ -40,7 +40,27 @@ test("crawl files and the first-party case study remain present", async () => {
 test("homepage footer links to the action plan", async () => {
   const html = await read("index.html");
   assert.match(html, /href="action-plan\/">Action plan/);
+  assert.match(html, /href="assets\/Jamie-Wilson-CV\.pdf"[^>]*>Current CV/);
   assert.match(html, /href="assets\/Jamie-Wilson-CV-v2\.pdf"[^>]*>CV #2 \(review\)/);
+});
+
+test("homepage replaces the duplicated CV with a complete visual toolkit", async () => {
+  const html = await read("index.html");
+  const toolkitItems = html.match(/class="toolkit-item"/g) || [];
+
+  assert.doesNotMatch(html, /id="cv"/);
+  assert.match(html, /id="toolkit"/);
+  assert.match(html, /<h2 id="toolkit-title">Tools &amp; technologies<\/h2>/);
+  assert.equal(toolkitItems.length, 25);
+
+  for (const label of [
+    "Figma", "HTML", "CSS", "JavaScript", "TypeScript", "PHP", "React",
+    "WordPress", "Hail CMS", "Gutenberg", "Divi", "Elementor", "Avada",
+    "Git", "GitHub", "VS Code", "LocalWP", "WP-CLI", "Cloudways", "WPStaq", "DNS",
+    "Notion", "HelpScout", "Codex", "AI-assisted development",
+  ]) {
+    assert.match(html, new RegExp(`<span>${label}<\\/span>`));
+  }
 });
 
 test("career story and action plan reflect the current priorities", async () => {

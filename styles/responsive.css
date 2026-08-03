@@ -19,10 +19,15 @@
   .capabilities h2,
   .work-placeholder h2,
   .journey h2,
-  .cv-section__title h2 { font-size: clamp(3rem, 5vw, 4.25rem); }
+  .toolkit-section__header h2 { font-size: clamp(3rem, 5vw, 4.25rem); }
   .project-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .cv-section__intro { grid-template-columns: minmax(0, 1fr) minmax(18rem, 0.8fr); gap: 3rem; }
-  .cv-role--current .cv-role__body ul { grid-template-columns: 1fr; }
+}
+
+@media (min-width: 601px) and (max-width: 1100px) {
+  .toolkit-group:nth-child(1) .toolkit-grid,
+  .toolkit-group:nth-child(3) .toolkit-grid,
+  .toolkit-group:nth-child(4) .toolkit-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .toolkit-group:nth-child(2) .toolkit-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 
 @media (max-width: 800px), (max-width: 1024px) and (max-aspect-ratio: 1/1) {
@@ -50,8 +55,7 @@
   .capabilities h2,
   .work-placeholder h2,
   .journey h2,
-  .cv-section__title h2 { font-size: clamp(3.2rem, 11vw, 5.4rem); }
-  .cv-section__title h2 { font-size: clamp(2.65rem, 11vw, 5.4rem); }
+  .toolkit-section__header h2 { font-size: clamp(3.2rem, 11vw, 5.4rem); }
   .capabilities__flow { grid-template-columns: 1fr; gap: 2.75rem; }
   .capability-card { min-height: 0; }
   .capability-card__description { min-height: 0; }
@@ -62,25 +66,14 @@
   .career-path { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .career-step:nth-child(odd) { border-left: 0; }
   .career-step:nth-child(n + 3) { border-top: 1px solid var(--hero-frame-line); }
-  .cv-section { padding-top: 6rem; }
-  .cv-section__intro { grid-template-columns: 1fr; align-items: start; gap: 2.5rem; }
-  .cv-section__summary { max-width: 39rem; }
-  .cv-quickfacts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .cv-quickfacts > div:first-child,
-  .cv-quickfacts > div:last-child { padding-inline: 1.25rem; }
-  .cv-quickfacts > div:nth-child(odd) { padding-left: 0; border-left: 0; }
-  .cv-quickfacts > div:nth-child(even) { padding-right: 0; border-left: 1px solid var(--hero-frame-line); }
-  .cv-quickfacts > div:nth-child(n + 3) { border-top: 1px solid var(--hero-frame-line); }
-  .cv-block { grid-template-columns: 1fr; gap: 3rem; }
-  .cv-block__heading { position: static; }
-  .cv-block__heading h3 { max-width: none; }
-  .cv-role { grid-template-columns: 1fr; gap: 1.5rem; }
-  .cv-role--current .cv-role__body ul { grid-template-columns: 1fr; }
-  .cv-education-item { gap: 2rem; }
-  .cv-tool-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .cv-tool-group:nth-child(odd) { padding-left: 0; border-left: 0; }
-  .cv-tool-group:nth-child(even) { padding-right: 0; border-left: 1px solid var(--hero-frame-line); }
-  .cv-tool-group:nth-child(n + 3) { border-top: 1px solid var(--hero-frame-line); padding-top: 2rem; }
+  .toolkit-section { padding-top: 6rem; }
+  .toolkit-section__header { grid-template-columns: 1fr; align-items: start; gap: 2rem; }
+  .toolkit-section__header > p { max-width: 38rem; }
+  .toolkit-group { grid-template-columns: 1fr; gap: 2rem; }
+  .toolkit-group__heading h3 { max-width: none; }
+  .toolkit-grid { grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr)); }
+  .site-footer { display: block; }
+  .site-footer nav { justify-content: flex-start; margin-top: 2rem; }
 }
 
 @media (max-width: 600px) {
@@ -121,30 +114,11 @@
   .career-step::before { margin-bottom: 2rem; }
   .hero__intro { margin: 0.8rem 0 1.6rem; }
   .hero__side-rail { top: calc(var(--page-frame-inset) + var(--site-header-height) + 0.35rem); right: 1.1rem; }
-  .cv-section { padding-top: 5rem; }
-  .cv-quickfacts { grid-template-columns: 1fr; }
-  .cv-quickfacts > div,
-  .cv-quickfacts > div:first-child,
-  .cv-quickfacts > div:last-child,
-  .cv-quickfacts > div:nth-child(even) { min-height: 0; padding: 1.25rem 0; border-left: 0; }
-  .cv-quickfacts > div + div { border-top: 1px solid var(--hero-frame-line); }
-  .cv-strength-grid { grid-template-columns: 1fr; }
-  .cv-strength,
-  .cv-strength:nth-child(odd),
-  .cv-strength:nth-child(even),
-  .cv-strength:nth-child(n + 3) { min-height: 0; padding: 2rem 0; border-left: 0; }
-  .cv-strength + .cv-strength { border-top: 1px solid var(--hero-frame-line); }
-  .cv-education-item { display: block; }
-  .cv-education-item time { display: block; margin-top: 1rem; }
-  .cv-tool-grid { grid-template-columns: 1fr; }
-  .cv-tool-group,
-  .cv-tool-group:first-child,
-  .cv-tool-group:last-child,
-  .cv-tool-group:nth-child(even),
-  .cv-tool-group:nth-child(n + 3) { min-height: 0; padding: 1.75rem 0; border-left: 0; }
-  .cv-tool-group + .cv-tool-group { border-top: 1px solid var(--hero-frame-line); }
-  .cv-section__footer { display: block; }
-  .cv-section__footer nav { justify-content: flex-start; margin-top: 2rem; }
+  .toolkit-section { padding-top: 5rem; }
+  .toolkit-section__header h2 { font-size: clamp(2.8rem, 12vw, 4.3rem); }
+  .toolkit-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .toolkit-item { min-height: 8rem; padding: 1rem; }
+  .toolkit-group:first-child .toolkit-item:last-child { grid-column: 1 / -1; }
 }
 
 @media (max-width: 360px) {
@@ -262,7 +236,8 @@
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-delay: 0ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
   a.project-card:hover,
   a.project-card:focus-visible,
-  a.project-card:active { transform: none; }
+  a.project-card:active,
+  .toolkit-item:hover { transform: none; }
   .hero__study--reveal-ready *, .hero__study--reveal-ready *::before, .hero__study--reveal-ready *::after { transition-delay: 0ms !important; }
   .capabilities--reveal-ready .capabilities__intro .eyebrow,
   .capabilities--reveal-ready .capabilities__intro h2 span,
@@ -287,27 +262,11 @@
   .journey--reveal-ready .journey__intro h2 span,
   .journey--reveal-ready .journey__intro h2 em,
   .journey--reveal-ready .journey__lede,
-  .journey--reveal-ready .career-step,
-  .cv--reveal-ready .cv-section__intro .eyebrow,
-  .cv--reveal-ready .cv-section__title h2 span,
-  .cv--reveal-ready .cv-section__title h2 em,
-  .cv--reveal-ready .cv-section__summary p,
-  .cv--reveal-ready .cv-section__download,
-  .cv--reveal-ready .cv-quickfacts > div,
-  .cv--reveal-ready .cv-block__heading,
-  .cv--reveal-ready .cv-strength,
-  .cv--reveal-ready .cv-role__meta,
-  .cv--reveal-ready .cv-role__body,
-  .cv--reveal-ready .cv-tool-group,
-  .cv--reveal-ready .cv-section__footer > * {
+  .journey--reveal-ready .career-step {
     opacity: 1 !important;
     clip-path: none !important;
     filter: none !important;
     transform: none !important;
   }
   .capabilities--reveal-ready .capabilities__cta::after { transform: scale(1) !important; }
-  .cv--reveal-ready .cv-quickfacts::before,
-  .cv--reveal-ready .cv-quickfacts::after,
-  .cv--reveal-ready .cv-block::before,
-  .cv--reveal-ready .cv-section__footer::before { transform: scaleX(1) !important; }
 }

@@ -34,7 +34,8 @@ html[data-theme="light"] .github-activity__legend i { border-color: rgba(25, 26,
   .capability-showcase,
   .work-placeholder,
   .journey,
-  .cv-section,
+  .toolkit-section,
+  .toolkit-item,
   .site-credits,
   .career-step {
     transition: color 500ms ease, background-color 500ms ease, border-color 500ms ease, box-shadow 500ms ease;
@@ -42,11 +43,6 @@ html[data-theme="light"] .github-activity__legend i { border-color: rgba(25, 26,
 
   .site-header {
     transition: transform 260ms var(--hero-ease), color 500ms ease, background-color 500ms ease, border-color 500ms ease, box-shadow 500ms ease;
-  }
-
-  .cv-block__heading {
-    position: sticky;
-    top: calc(var(--site-header-height) + 2rem);
   }
 }
 
@@ -169,16 +165,16 @@ html[data-theme="light"] .site-credits {
   background-image: none;
 }
 
-html[data-theme="light"] .cv-section::before {
+html[data-theme="light"] .toolkit-section::before {
   background:
     radial-gradient(ellipse 62% 46% at 76% 10%, rgba(97, 68, 137, 0.11) 0%, rgba(96, 78, 130, 0.055) 42%, transparent 72%),
     radial-gradient(ellipse 44% 60% at 12% 50%, rgba(63, 77, 132, 0.075) 0%, transparent 72%),
     radial-gradient(ellipse 48% 30% at 88% 86%, rgba(127, 70, 118, 0.06) 0%, transparent 74%);
 }
 
-html[data-theme="light"] .cv-section__ambient {
-  background: linear-gradient(98deg, transparent 4%, rgba(72, 68, 137, 0.1) 47%, rgba(126, 68, 119, 0.075) 70%, transparent 96%);
-}
+html[data-theme="light"] .toolkit-item { background: color-mix(in srgb, var(--surface-raised) 78%, #fff 22%); }
+html[data-theme="light"] .toolkit-item:hover { background: color-mix(in srgb, var(--surface-raised) 72%, var(--accent) 8%); }
+html[data-theme="light"] .toolkit-item__icon { border-color: rgba(25, 26, 23, 0.1); box-shadow: 0 0.8rem 2rem rgba(61, 52, 45, 0.12); }
 
 html[data-theme="light"] .hero__model {
   filter: drop-shadow(0 2rem 3.5rem rgba(91, 47, 27, 0.2)) brightness(1.04);
@@ -191,11 +187,6 @@ html[data-theme="light"] .hero__study {
 html[data-theme="light"] .hero__study-item--bronze { --study-metal: #8f4f2c; }
 html[data-theme="light"] .hero__study-item--silver { --study-metal: #68727c; }
 html[data-theme="light"] .hero__study-item--gold { --study-metal: #8a6700; }
-html[data-theme="light"] .cv-section__title h2 span {
-  color: #7d5704;
-  background-image: linear-gradient(105deg, #694500 0%, #a87812 48%, #704a00 100%);
-  text-shadow: none;
-}
 
 ::view-transition-old(root),
 ::view-transition-new(root) {
