@@ -129,6 +129,44 @@ test("theme state is announced and persists across a reload", async ({ page }) =
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
 });
 
+test("GitHub contributions prefetch before the visitor reaches the activity panel", async ({ page }) => {
+  let contributionRequests = 0;
+  const startDate = new Date(Date.UTC(2025, 7, 5));
+  const contributions = Array.from({ length: 365 }, (_, index) => {
+    const date = new Date(startDate);
+    date.setUTCDate(startDate.getUTCDate() + index);
+    return {
+      count: index % 5,
+      date: date.toISOString().slice(0, 10),
+      level: index % 5,
+    };
+  });
+
+  await page.route(
+    /github-contributions-api\.jogruber\.de\/v4\/dottereldesign\?y=last$/,
+    async (route) => {
+      contributionRequests += 1;
+      await route.fulfill({
+        body: JSON.stringify({ contributions, total: { lastYear: 730 } }),
+        contentType: "application/json",
+        status: 200,
+      });
+    },
+  );
+
+  await page.goto("/");
+  const activity = page.locator("[data-github-activity]");
+  const distanceBelowViewport = await activity.evaluate(
+    (element) => element.getBoundingClientRect().top - window.innerHeight,
+  );
+  expect(distanceBelowViewport).toBeGreaterThan(0);
+  await expect.poll(() => contributionRequests).toBe(1);
+
+  await activity.scrollIntoViewIfNeeded();
+  await expect(activity).toHaveClass(/is-ready/);
+  await expect(activity.locator("[data-github-total]")).toHaveText("730 contributions in the last year");
+});
+
 test("the hero uses one front-facing laptop with a covered webcam and compact dock", async ({ page }) => {
   await page.goto("/");
 

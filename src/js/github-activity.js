@@ -157,35 +157,85 @@ if (githubActivity) {
   };
 
   let activityHasLoaded = false;
+  let contributionsPromise = null;
+  let prefetchedContributions = null;
+
+  const fetchGithubActivity = () => {
+    if (prefetchedContributions) return Promise.resolve(prefetchedContributions);
+    if (contributionsPromise) return contributionsPromise;
+
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 10000);
+
+    contributionsPromise = fetch(contributionsUrl, {
+      headers: { Accept: "application/json" },
+      referrerPolicy: "no-referrer",
+      signal: controller.signal,
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Contribution request failed: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        prefetchedContributions = data;
+        return data;
+      })
+      .catch((error) => {
+        contributionsPromise = null;
+        throw error;
+      })
+      .finally(() => window.clearTimeout(timeout));
+
+    return contributionsPromise;
+  };
 
   const loadGithubActivity = async () => {
     if (activityHasLoaded) return;
     activityHasLoaded = true;
-    renderSkeleton();
-    const controller = new AbortController();
-    const timeout = window.setTimeout(() => controller.abort(), 10000);
 
     try {
-      const response = await fetch(contributionsUrl, {
-        headers: { Accept: "application/json" },
-        referrerPolicy: "no-referrer",
-        signal: controller.signal,
-      });
-      if (!response.ok) throw new Error(`Contribution request failed: ${response.status}`);
-      renderCalendar(await response.json());
+      if (!prefetchedContributions) renderSkeleton();
+      renderCalendar(await fetchGithubActivity());
     } catch {
       renderFallback();
-    } finally {
-      window.clearTimeout(timeout);
     }
   };
+
+  const connection = navigator.connection
+    || navigator.mozConnection
+    || navigator.webkitConnection;
+  const shouldPrefetch = !connection?.saveData
+    && !["slow-2g", "2g"].includes(connection?.effectiveType);
+
+  const schedulePrefetch = () => {
+    if (!shouldPrefetch) return;
+
+    const prefetch = () => {
+      if (document.visibilityState !== "visible") return;
+      fetchGithubActivity().catch(() => {});
+    };
+
+    if ("requestIdleCallback" in window) {
+      window.requestIdleCallback(prefetch, { timeout: 1500 });
+    } else {
+      window.setTimeout(prefetch, 250);
+    }
+  };
+
+  if (document.readyState === "complete") {
+    schedulePrefetch();
+  } else {
+    window.addEventListener("load", schedulePrefetch, { once: true });
+  }
 
   if ("IntersectionObserver" in window) {
     const activityObserver = new IntersectionObserver((entries) => {
       if (!entries.some((entry) => entry.isIntersecting)) return;
       activityObserver.disconnect();
       loadGithubActivity();
-    }, { rootMargin: "0px 0px -10% 0px" });
+    }, { rootMargin: "0px 0px 480px 0px" });
     activityObserver.observe(githubActivity);
   } else {
     loadGithubActivity();
