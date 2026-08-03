@@ -95,15 +95,15 @@
   width: 3.8rem;
   height: 3.8rem;
   flex: 0 0 auto;
-  border: 1px solid color-mix(in srgb, var(--hero-frame-line) 82%, transparent);
+  border: 0;
   border-radius: 1.05rem;
   background: color-mix(in srgb, var(--surface-raised) 54%, transparent);
   box-shadow: 0 0.8rem 2rem rgba(0, 0, 0, 0.13), inset 0 1px 0 color-mix(in srgb, var(--ink) 7%, transparent);
   place-items: center;
   color: var(--ink);
-  transition: border-color 280ms ease, background-color 500ms ease, box-shadow 280ms ease, transform 360ms var(--hero-ease);
+  transition: background-color 500ms ease, box-shadow 280ms ease, transform 360ms var(--hero-ease);
 }
-.toolkit-carousel__item:hover .toolkit-carousel__icon { border-color: color-mix(in srgb, var(--accent-secondary) 58%, transparent); box-shadow: 0 1rem 2.4rem rgba(0, 0, 0, 0.2), 0 0 0 0.25rem color-mix(in srgb, var(--accent-secondary) 7%, transparent); transform: translateY(-0.22rem) scale(1.055); }
+.toolkit-carousel__item:hover .toolkit-carousel__icon { box-shadow: 0 1rem 2.4rem rgba(0, 0, 0, 0.2), 0 0 0 0.25rem color-mix(in srgb, var(--accent-secondary) 7%, transparent); transform: translateY(-0.22rem) scale(1.055); }
 .toolkit-carousel__icon img { display: block; width: 2.25rem; height: 2.25rem; object-fit: contain; }
 .toolkit-carousel__icon svg { width: 2.15rem; height: 2.15rem; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2.2; }
 .toolkit-carousel__icon--word,

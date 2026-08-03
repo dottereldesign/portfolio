@@ -57,6 +57,7 @@ test("the toolkit carousel reveals in sequence and keeps looping on hover", asyn
   expect(entranceMotion[0].animationName).toBe("toolkit-item-reveal");
   expect(entranceMotion[1].delay).toBeGreaterThan(entranceMotion[0].delay);
   await expect(toolkit).toHaveCSS("border-bottom-width", "0px");
+  await expect(toolkit.locator(".toolkit-carousel__icon").first()).toHaveCSS("border-top-width", "0px");
 
   const viewport = toolkit.locator("[data-toolkit-viewport]");
   const movePointerOutsideToolkit = async () => {
@@ -119,14 +120,17 @@ test("the toolkit carousel surface follows the selected theme", async ({ page })
   await toolkit.scrollIntoViewIfNeeded();
 
   const palette = () => toolkit.evaluate((element) => ({
+    border: getComputedStyle(element.querySelector(".toolkit-carousel__icon")).borderTopWidth,
     surface: getComputedStyle(element).backgroundColor,
     tile: getComputedStyle(element.querySelector(".toolkit-carousel__icon")).backgroundColor,
   }));
   const darkPalette = await palette();
+  expect(darkPalette.border).toBe("0px");
 
   await page.getByRole("button", { name: "Switch to light theme" }).click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
   await expect.poll(async () => JSON.stringify(await palette())).not.toBe(JSON.stringify(darkPalette));
+  expect((await palette()).border).toBe("0px");
 });
 
 test("theme state is announced and persists across a reload", async ({ page }) => {
