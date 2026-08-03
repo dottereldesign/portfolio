@@ -1,5 +1,6 @@
 const carousels = document.querySelectorAll("[data-toolkit-carousel]");
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+const carouselSpeed = 42;
 
 carousels.forEach((carousel) => {
   const viewport = carousel.querySelector("[data-toolkit-viewport]");
@@ -20,48 +21,23 @@ carousels.forEach((carousel) => {
   track.append(...duplicateItems);
   carousel.classList.add("toolkit-carousel--enhanced");
 
-  let previousTime = 0;
-  let loopDistance = 0;
-  let pointerIsDown = false;
-  let isVisible = !("IntersectionObserver" in window);
-
   const measure = () => {
     const firstDuplicate = track.children[originalItems.length];
-    loopDistance = firstDuplicate?.offsetLeft || track.scrollWidth / 2;
+    const loopDistance = firstDuplicate?.offsetLeft || track.scrollWidth / 2;
 
-    if (loopDistance > 0 && viewport.scrollLeft >= loopDistance) {
-      viewport.scrollLeft %= loopDistance;
-    }
+    track.style.setProperty("--toolkit-loop-translate", `${-loopDistance}px`);
+    track.style.setProperty("--toolkit-loop-duration", `${loopDistance / carouselSpeed}s`);
   };
 
-  const shouldPause = () => (
-    reducedMotion.matches
-    || document.hidden
-    || !isVisible
-    || pointerIsDown
-    || carousel.matches(":hover")
-    || carousel.contains(document.activeElement)
-  );
-
-  const animate = (time) => {
-    if (!previousTime) previousTime = time;
-    const elapsed = Math.min(time - previousTime, 64);
-    previousTime = time;
-
-    if (!shouldPause() && loopDistance > 0) {
-      viewport.scrollLeft += elapsed * 0.028;
-
-      if (viewport.scrollLeft >= loopDistance) {
-        viewport.scrollLeft -= loopDistance;
-      }
-    }
-
-    window.requestAnimationFrame(animate);
-  };
-
-  viewport.addEventListener("pointerdown", () => { pointerIsDown = true; });
-  window.addEventListener("pointerup", () => { pointerIsDown = false; }, { passive: true });
-  window.addEventListener("pointercancel", () => { pointerIsDown = false; }, { passive: true });
+  viewport.addEventListener("pointerdown", () => {
+    carousel.classList.add("toolkit-carousel--interacting");
+  });
+  window.addEventListener("pointerup", () => {
+    carousel.classList.remove("toolkit-carousel--interacting");
+  }, { passive: true });
+  window.addEventListener("pointercancel", () => {
+    carousel.classList.remove("toolkit-carousel--interacting");
+  }, { passive: true });
   viewport.addEventListener("keydown", (event) => {
     if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
     event.preventDefault();
@@ -78,12 +54,11 @@ carousels.forEach((carousel) => {
   }
 
   if ("IntersectionObserver" in window) {
+    carousel.classList.add("toolkit-carousel--offscreen");
     new IntersectionObserver(([entry]) => {
-      isVisible = entry.isIntersecting;
-      previousTime = 0;
+      carousel.classList.toggle("toolkit-carousel--offscreen", !entry.isIntersecting);
     }, { threshold: 0.08 }).observe(carousel);
   }
 
   measure();
-  window.requestAnimationFrame(animate);
 });

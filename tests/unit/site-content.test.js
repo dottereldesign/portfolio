@@ -46,6 +46,8 @@ test("homepage footer links to the action plan", async () => {
 
 test("homepage places a minimalist automatic toolkit carousel before GitHub activity", async () => {
   const html = await read("index.html");
+  const carouselScript = await read("src/js/toolkit-carousel.js");
+  const sectionsCss = await read("styles/sections.css");
   const toolkitItems = html.match(/class="toolkit-carousel__item"/g) || [];
   const toolkitPosition = html.indexOf('id="toolkit"');
   const githubPosition = html.indexOf('data-github-activity');
@@ -61,6 +63,9 @@ test("homepage places a minimalist automatic toolkit carousel before GitHub acti
   assert.doesNotMatch(html, /class="toolkit-section"/);
   assert.ok(toolkitPosition > 0 && toolkitPosition < githubPosition, "toolkit carousel should sit before GitHub activity");
   assert.equal(toolkitItems.length, 25);
+  assert.doesNotMatch(carouselScript, /scrollLeft\s*\+=/);
+  assert.match(sectionsCss, /@keyframes toolkit-carousel-loop/);
+  assert.match(sectionsCss, /animation-play-state:\s*paused/);
 
   for (const label of [
     "Figma", "HTML", "CSS", "JavaScript", "TypeScript", "PHP", "React",

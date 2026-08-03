@@ -51,6 +51,16 @@
 .toolkit-carousel__viewport:focus-visible { border-radius: 2px; outline: 2px solid var(--accent-secondary); outline-offset: 0.35rem; }
 
 .toolkit-carousel__track { display: flex; width: max-content; gap: clamp(1.75rem, 3.2vw, 3.5rem); margin: 0; padding: 0; list-style: none; }
+.toolkit-carousel--enhanced .toolkit-carousel__track {
+  animation: toolkit-carousel-loop var(--toolkit-loop-duration, 100s) linear infinite;
+  backface-visibility: hidden;
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+}
+.toolkit-carousel:hover .toolkit-carousel__track,
+.toolkit-carousel:focus-within .toolkit-carousel__track,
+.toolkit-carousel--interacting .toolkit-carousel__track,
+.toolkit-carousel--offscreen .toolkit-carousel__track { animation-play-state: paused; }
 .toolkit-carousel__item {
   display: flex;
   width: clamp(5.75rem, 7.5vw, 7.25rem);
@@ -98,6 +108,10 @@ html[data-theme="dark"] .toolkit-carousel__icon img[src*="github-icon.svg"],
 html[data-theme="dark"] .toolkit-carousel__icon img[src*="notion-icon.svg"],
 html[data-theme="dark"] .toolkit-carousel__icon img[src*="openai-icon.svg"],
 html[data-theme="dark"] .toolkit-carousel__icon img[src*="simple-icons/"] { filter: invert(1); }
+
+@keyframes toolkit-carousel-loop {
+  to { transform: translate3d(var(--toolkit-loop-translate, -50%), 0, 0); }
+}
 
 .capabilities__flow { position: relative; z-index: 3; display: grid; width: 100%; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(0.9rem, 1.5vw, 1.25rem); margin: 0; }
 .capability-card { position: relative; display: block; min-width: 0; min-height: 0; padding: 0; }

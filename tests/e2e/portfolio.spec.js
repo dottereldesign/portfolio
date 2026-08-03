@@ -52,16 +52,36 @@ test("the toolkit carousel sits before GitHub activity, loops and pauses on hove
   };
 
   await movePointerOutsideToolkit();
-  await expect.poll(() => viewport.evaluate((element) => element.scrollLeft)).toBeGreaterThan(4);
+  const track = toolkit.locator("[data-toolkit-track]");
+  const motionEngine = await track.evaluate((element) => {
+    const style = getComputedStyle(element);
+    return {
+      animationName: style.animationName,
+      duration: Number.parseFloat(style.animationDuration),
+      willChange: style.willChange,
+    };
+  });
+  expect(motionEngine.animationName).toBe("toolkit-carousel-loop");
+  expect(motionEngine.duration).toBeGreaterThan(30);
+  expect(motionEngine.willChange).toContain("transform");
+
+  const getTrackOffset = () => track.evaluate((element) => {
+    const transform = getComputedStyle(element).transform;
+    if (transform === "none") return 0;
+    const values = transform.slice(transform.indexOf("(") + 1, -1).split(",").map(Number);
+    return transform.startsWith("matrix3d") ? values[12] : values[4];
+  });
+  await expect.poll(getTrackOffset).toBeLessThan(-3);
+  expect(await viewport.evaluate((element) => element.scrollLeft)).toBe(0);
 
   await toolkit.hover();
-  const pausedPosition = await viewport.evaluate((element) => element.scrollLeft);
+  const pausedPosition = await getTrackOffset();
   await page.waitForTimeout(350);
-  const positionAfterHover = await viewport.evaluate((element) => element.scrollLeft);
+  const positionAfterHover = await getTrackOffset();
   expect(Math.abs(positionAfterHover - pausedPosition)).toBeLessThan(1);
 
   await movePointerOutsideToolkit();
-  await expect.poll(() => viewport.evaluate((element) => element.scrollLeft)).toBeGreaterThan(pausedPosition + 3);
+  await expect.poll(getTrackOffset).toBeLessThan(pausedPosition - 3);
   await expect(page.getByRole("link", { name: "Current CV", exact: true })).toHaveAttribute("href", "assets/Jamie-Wilson-CV.pdf");
   await expect(page.getByRole("link", { name: /cv #2/i })).toHaveAttribute("href", "assets/Jamie-Wilson-CV-v2.pdf");
 });
@@ -120,6 +140,11 @@ test("the toolkit remains tidy without mobile overflow", async ({ page }) => {
   const viewport = page.locator("#toolkit [data-toolkit-viewport]");
   const carouselWidths = await viewport.evaluate((element) => ({ client: element.clientWidth, scroll: element.scrollWidth }));
   expect(carouselWidths.scroll).toBeGreaterThan(carouselWidths.client);
+  const reducedMotionState = await page.locator("#toolkit [data-toolkit-track]").evaluate((element) => {
+    const style = getComputedStyle(element);
+    return { animationName: style.animationName, transform: style.transform, willChange: style.willChange };
+  });
+  expect(reducedMotionState).toEqual({ animationName: "none", transform: "none", willChange: "auto" });
   await expect(page.locator("#toolkit .toolkit-carousel__item").first()).toBeVisible();
 });
 
