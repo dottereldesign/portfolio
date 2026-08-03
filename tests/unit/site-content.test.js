@@ -98,7 +98,11 @@ test("career story and action plan reflect the current priorities", async () => 
 });
 
 test("the hero uses five optimised laptop angles with the real portrait and dock", async () => {
-  const [html, manifest] = await Promise.all([read("index.html"), read("script.js")]);
+  const [html, manifest, styles] = await Promise.all([
+    read("index.html"),
+    read("script.js"),
+    read("styles/base.css"),
+  ]);
 
   const dockItems = html.match(/class="hero__dock-item"/g) || [];
 
@@ -114,6 +118,7 @@ test("the hero uses five optimised laptop angles with the real portrait and dock
   assert.doesNotMatch(manifest, /laptop-loader\.js/);
   assert.match(manifest, /laptop-picker\.js/);
   assert.match(manifest, /motion-lab\/loader\.js/);
+  assert.doesNotMatch(styles, /scaleY\(var\(--dock-scale-y\)\)/);
 });
 
 test("source files stay divided by responsibility", async () => {

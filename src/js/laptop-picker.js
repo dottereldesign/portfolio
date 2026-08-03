@@ -11,7 +11,6 @@ if (laptopPicker) {
     ["--dock-top", "dockTop"],
     ["--dock-width", "dockWidth"],
     ["--dock-rotate", "dockRotate"],
-    ["--dock-scale-y", "dockScaleY"],
   ];
   let activeIndex = 0;
 

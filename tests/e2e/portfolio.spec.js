@@ -124,6 +124,16 @@ test("the hero offers five responsive laptop angles with the real portrait and d
   await expect(options.nth(1)).toHaveClass(/is-active/);
   expect(await options.nth(1).locator("img").evaluate((image) => image.currentSrc)).toMatch(/laptop-02\.(avif|webp)$/);
 
+  const dockScale = await laptop.locator("[data-laptop-dock]").evaluate((element) => {
+    const matrix = new DOMMatrix(getComputedStyle(element).transform);
+    return {
+      x: Math.hypot(matrix.m11, matrix.m12),
+      y: Math.hypot(matrix.m21, matrix.m22),
+    };
+  });
+  expect(dockScale.x).toBeCloseTo(1, 3);
+  expect(dockScale.y).toBeCloseTo(1, 3);
+
   const crop = await laptop.evaluate((element) => {
     const box = element.getBoundingClientRect();
     return (box.right - window.innerWidth) / box.width;
