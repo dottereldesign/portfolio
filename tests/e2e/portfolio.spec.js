@@ -343,7 +343,7 @@ test("three Canterbury location studies fill the work-principle panels", async (
   await expect(studies.getByText("Christchurch", { exact: true })).toHaveCount(3);
 
   const expectedSources = [
-    "south-island-architecture.webp",
+    "south-island-architecture-cutout.webp",
     "canterbury-topography.webp",
     "christchurch-globe.webp",
   ];
@@ -357,6 +357,13 @@ test("three Canterbury location studies fill the work-principle panels", async (
     await expect(image).toHaveAttribute("src", new RegExp(expectedSources[index]));
     await expect.poll(() => image.evaluate((element) => element.complete && element.naturalWidth > 0)).toBe(true);
   }
+
+  const architectureSurface = await studies.first().evaluate((element) => ({
+    background: getComputedStyle(element).backgroundColor,
+    overlay: getComputedStyle(element, "::after").backgroundImage,
+  }));
+  expect(architectureSurface.background).toBe("rgba(0, 0, 0, 0)");
+  expect(architectureSurface.overlay).toBe("none");
 });
 
 test("mobile quick links support keyboard dismissal without page overflow", async ({ page }) => {

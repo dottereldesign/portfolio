@@ -50,14 +50,14 @@ test("homepage includes three Christchurch location studies", async () => {
   const studies = html.match(/class="location-study location-study--/g) || [];
   const markers = html.match(/class="location-study__marker"/g) || [];
   const assetStats = await Promise.all([
-    "south-island-architecture.webp",
+    "south-island-architecture-cutout.webp",
     "canterbury-topography.webp",
     "christchurch-globe.webp",
   ].map((file) => stat(new URL(`../../assets/location-studies/${file}`, import.meta.url))));
 
   assert.equal(studies.length, 3);
   assert.equal(markers.length, 3);
-  assert.match(html, /assets\/location-studies\/south-island-architecture\.webp/);
+  assert.match(html, /assets\/location-studies\/south-island-architecture-cutout\.webp/);
   assert.match(html, /assets\/location-studies\/canterbury-topography\.webp/);
   assert.match(html, /assets\/location-studies\/christchurch-globe\.webp/);
   assert.equal((html.match(/fetchpriority="low"/g) || []).length, 3);
