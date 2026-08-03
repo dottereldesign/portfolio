@@ -6,12 +6,6 @@ if (laptopPicker) {
   const nextButton = laptopPicker.querySelector("[data-laptop-next]");
   const count = laptopPicker.querySelector("[data-laptop-count]");
   const name = laptopPicker.querySelector("[data-laptop-name]");
-  const dockProperties = [
-    ["--dock-left", "dockLeft"],
-    ["--dock-top", "dockTop"],
-    ["--dock-width", "dockWidth"],
-    ["--dock-rotate", "dockRotate"],
-  ];
   let activeIndex = 0;
 
   const warmImage = (index) => {
@@ -29,10 +23,6 @@ if (laptopPicker) {
       const isActive = index === activeIndex;
       option.classList.toggle("is-active", isActive);
       option.setAttribute("aria-hidden", String(!isActive));
-    });
-
-    dockProperties.forEach(([property, datasetName]) => {
-      laptopPicker.style.setProperty(property, activeOption.dataset[datasetName]);
     });
 
     count.textContent = `${String(activeIndex + 1).padStart(2, "0")} / ${String(options.length).padStart(2, "0")}`;

@@ -95,7 +95,7 @@ test("the former career journey is removed and the action plan reflects current 
   assert.ok(cv.size > 5_000, "CV #2 should be a populated PDF");
 });
 
-test("the hero uses seven optimised laptop angles with the real portrait and dock", async () => {
+test("the hero uses one laptop with five optimised portrait treatments and a compact dock", async () => {
   const [html, manifest, styles] = await Promise.all([
     read("index.html"),
     read("script.js"),
@@ -106,9 +106,11 @@ test("the hero uses seven optimised laptop angles with the real portrait and doc
 
   assert.match(html, /data-static-laptop/);
   assert.match(html, /data-laptop-picker/);
-  assert.equal((html.match(/data-laptop-option/g) || []).length, 7);
-  assert.equal(new Set(html.match(/laptop-0[1-7]\.avif/g) || []).size, 7);
+  assert.equal((html.match(/data-laptop-option/g) || []).length, 5);
+  assert.equal(new Set(html.match(/laptop-portrait-0[1-5]\.avif/g) || []).size, 5);
   assert.equal(dockItems.length, 11);
+  assert.doesNotMatch(html, /laptop-0[1-7]\.(?:avif|webp)/);
+  assert.doesNotMatch(html, /perspective|high angle|top-down pair/i);
   assert.doesNotMatch(html, /hero__model-canvas/);
   assert.doesNotMatch(html, /data-laptop-enhancement/);
   assert.doesNotMatch(html, /rel="modulepreload"[^>]*laptop-runtime/);
@@ -117,9 +119,9 @@ test("the hero uses seven optimised laptop angles with the real portrait and doc
   assert.match(manifest, /laptop-picker\.js/);
   assert.match(manifest, /motion-lab\/loader\.js/);
   assert.doesNotMatch(styles, /scaleY\(var\(--dock-scale-y\)\)/);
-  assert.match(styles, /hero__dock-item\[data-label="Figma"\] img \{ width: 82%; height: 82%; \}/);
-  assert.match(html, /hero__laptop-option hero__laptop-option--inset[^>]*data-name="Top-down pair"/);
-  assert.match(styles, /\.hero__laptop-option--inset \{ --laptop-option-x: -7%; --laptop-option-scale: 0\.92; \}/);
+  assert.match(html, /--dock-width: 43%/);
+  assert.match(styles, /hero__dock-item img \{[^}]*width: 88%; height: 88%;/);
+  assert.match(styles, /hero__dock-item\[data-label="Figma"\] img \{ width: 70%; height: 70%; \}/);
 });
 
 test("source files stay divided by responsibility", async () => {

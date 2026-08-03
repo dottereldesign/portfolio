@@ -100,7 +100,7 @@ test("theme state is announced and persists across a reload", async ({ page }) =
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
 });
 
-test("the hero offers seven responsive laptop angles with the real portrait and dock", async ({ page }) => {
+test("the hero offers five portrait treatments on one front-facing laptop with a compact dock", async ({ page }) => {
   await page.goto("/");
 
   const laptop = page.locator("[data-laptop-picker]");
@@ -109,36 +109,36 @@ test("the hero offers seven responsive laptop angles with the real portrait and 
   const dockItems = laptop.locator(".hero__dock-item");
 
   await expect(laptop).toBeVisible();
-  await expect(options).toHaveCount(7);
+  await expect(options).toHaveCount(5);
   await expect(options.first()).toHaveClass(/is-active/);
   await expect(firstArtwork).toBeVisible();
   await expect(dockItems).toHaveCount(11);
   await expect(page.locator(".hero__model-canvas")).toHaveCount(0);
   await expect(firstArtwork).toHaveJSProperty("complete", true);
-  expect(await firstArtwork.evaluate((image) => image.currentSrc)).toMatch(/laptop-01\.(avif|webp)$/);
+  expect(await firstArtwork.evaluate((image) => image.currentSrc)).toMatch(/laptop-portrait-01\.(avif|webp)$/);
 
-  await page.getByRole("button", { name: "Show previous laptop angle" }).click();
-  await expect(laptop).toHaveAttribute("data-active-index", "6");
-  await expect(laptop.locator("[data-laptop-count]")).toHaveText("07 / 07");
-  await expect(laptop.locator("[data-laptop-name]")).toHaveText("Mirrored left perspective");
-  await expect(options.nth(6)).toHaveClass(/is-active/);
-  expect(await options.nth(6).locator("img").evaluate((image) => image.currentSrc)).toMatch(/laptop-07\.(avif|webp)$/);
+  await page.getByRole("button", { name: "Show previous portrait treatment" }).click();
+  await expect(laptop).toHaveAttribute("data-active-index", "4");
+  await expect(laptop.locator("[data-laptop-count]")).toHaveText("05 / 05");
+  await expect(laptop.locator("[data-laptop-name]")).toHaveText("Cool");
+  await expect(options.nth(4)).toHaveClass(/is-active/);
+  expect(await options.nth(4).locator("img").evaluate((image) => image.currentSrc)).toMatch(/laptop-portrait-05\.(avif|webp)$/);
 
-  await page.getByRole("button", { name: "Show previous laptop angle" }).click();
-  await expect(laptop).toHaveAttribute("data-active-index", "5");
-  await expect(laptop.locator("[data-laptop-count]")).toHaveText("06 / 07");
-  await expect(laptop.locator("[data-laptop-name]")).toHaveText("Mirrored right perspective");
-  await expect(options.nth(5)).toHaveClass(/is-active/);
-  expect(await options.nth(5).locator("img").evaluate((image) => image.currentSrc)).toMatch(/laptop-06\.(avif|webp)$/);
+  await page.getByRole("button", { name: "Show previous portrait treatment" }).click();
+  await expect(laptop).toHaveAttribute("data-active-index", "3");
+  await expect(laptop.locator("[data-laptop-count]")).toHaveText("04 / 05");
+  await expect(laptop.locator("[data-laptop-name]")).toHaveText("Warm");
+  await expect(options.nth(3)).toHaveClass(/is-active/);
+  expect(await options.nth(3).locator("img").evaluate((image) => image.currentSrc)).toMatch(/laptop-portrait-04\.(avif|webp)$/);
 
-  await page.getByRole("button", { name: "Show next laptop angle" }).click();
-  await page.getByRole("button", { name: "Show next laptop angle" }).click();
-  await page.getByRole("button", { name: "Show next laptop angle" }).click();
+  await page.getByRole("button", { name: "Show next portrait treatment" }).click();
+  await page.getByRole("button", { name: "Show next portrait treatment" }).click();
+  await page.getByRole("button", { name: "Show next portrait treatment" }).click();
   await expect(laptop).toHaveAttribute("data-active-index", "1");
-  await expect(laptop.locator("[data-laptop-count]")).toHaveText("02 / 07");
-  await expect(laptop.locator("[data-laptop-name]")).toHaveText("Left perspective");
+  await expect(laptop.locator("[data-laptop-count]")).toHaveText("02 / 05");
+  await expect(laptop.locator("[data-laptop-name]")).toHaveText("Soft");
   await expect(options.nth(1)).toHaveClass(/is-active/);
-  expect(await options.nth(1).locator("img").evaluate((image) => image.currentSrc)).toMatch(/laptop-02\.(avif|webp)$/);
+  expect(await options.nth(1).locator("img").evaluate((image) => image.currentSrc)).toMatch(/laptop-portrait-02\.(avif|webp)$/);
 
   const dockScale = await laptop.locator("[data-laptop-dock]").evaluate((element) => {
     const matrix = new DOMMatrix(getComputedStyle(element).transform);
@@ -163,7 +163,7 @@ test("the hero offers seven responsive laptop angles with the real portrait and 
     const imageWidth = Number.parseFloat(getComputedStyle(element.querySelector("img")).width);
     return imageWidth / itemWidth;
   });
-  expect(figmaScale).toBeCloseTo(0.82, 2);
+  expect(figmaScale).toBeCloseTo(0.7, 2);
   await figma.hover();
   expect(await figma.evaluate((element) => getComputedStyle(element).transform)).not.toBe("none");
   await expect.poll(() => figma.evaluate((element) => getComputedStyle(element, "::after").opacity)).toBe("1");
