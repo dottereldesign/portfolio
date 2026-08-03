@@ -3,12 +3,13 @@ const modelHost = document.querySelector("[data-laptop-enhancement]");
 if (modelHost) {
   const interactionEvents = ["pointermove", "pointerdown", "touchstart", "wheel", "keydown"];
   let hasStarted = false;
-  let fallbackTimer;
+  let autoLoadTimer;
 
   const startLaptop = () => {
     if (hasStarted) return;
     hasStarted = true;
-    window.clearTimeout(fallbackTimer);
+    window.clearTimeout(autoLoadTimer);
+    window.removeEventListener("load", scheduleAutoLoad);
     interactionEvents.forEach((eventName) => window.removeEventListener(eventName, startLaptop));
     modelHost.classList.add("hero__model--loading");
 
@@ -22,14 +23,16 @@ if (modelHost) {
     window.addEventListener(eventName, startLaptop, { once: true, passive: true });
   });
 
-  // Keep the initial page lightweight. A real interaction starts the 3D
-  // enhancement immediately; an idle visitor still receives it after the
-  // critical loading and reading window has passed.
-  fallbackTimer = window.setTimeout(() => {
-    if ("requestIdleCallback" in window) {
-      window.requestIdleCallback(startLaptop, { timeout: 2000 });
-    } else {
-      startLaptop();
-    }
-  }, 30000);
+  function scheduleAutoLoad() {
+    autoLoadTimer = window.setTimeout(() => {
+      if ("requestIdleCallback" in window) {
+        window.requestIdleCallback(startLaptop, { timeout: 2500 });
+      } else {
+        startLaptop();
+      }
+    }, 8000);
+  }
+
+  if (document.readyState === "complete") scheduleAutoLoad();
+  else window.addEventListener("load", scheduleAutoLoad, { once: true });
 }

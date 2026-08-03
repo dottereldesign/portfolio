@@ -30,16 +30,10 @@ test("theme state is announced and persists across a reload", async ({ page }) =
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
 });
 
-test("WebGL scenes initialise after progressive enhancement triggers", async ({ page }) => {
+test("the real WebGL laptop loads automatically without a placeholder", async ({ page }) => {
   await page.goto("/");
 
-  await expect(page.locator(".hero__model-poster")).toBeVisible();
-  const initialHeavyResources = await page.evaluate(() => performance.getEntriesByType("resource")
-    .filter(({ name }) => name.includes("laptop-runtime") || name.includes("macbook.glb"))
-    .length);
-  expect(initialHeavyResources).toBe(0);
-
-  await page.mouse.move(120, 120);
+  await expect(page.locator(".hero__model-poster")).toHaveCount(0);
   await expect(page.locator(".hero__model")).toHaveClass(/hero__model--ready/, { timeout: 15_000 });
   await page.locator("[data-motion-study]").scrollIntoViewIfNeeded();
   await page.waitForTimeout(1_000);

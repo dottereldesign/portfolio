@@ -65,7 +65,7 @@ test("career story and action plan reflect the current priorities", async () => 
 test("expensive laptop assets are progressive enhancements", async () => {
   const [html, manifest] = await Promise.all([read("index.html"), read("script.js")]);
 
-  assert.match(html, /assets\/laptop-poster\.svg/);
+  assert.doesNotMatch(html, /laptop-poster/);
   assert.doesNotMatch(html, /rel="modulepreload"[^>]*laptop-runtime/);
   assert.doesNotMatch(html, /rel="preload"[^>]*macbook\.glb/);
   assert.match(manifest, /laptop-loader\.js/);
