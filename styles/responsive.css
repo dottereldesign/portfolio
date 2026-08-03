@@ -63,9 +63,6 @@
   .hero__content { padding: clamp(24rem, 50svh, 28rem) 1rem clamp(2.5rem, 5vh, 3.5rem); }
   .hero__model { right: -22vw; width: 110vw; }
   .hero__laptop-stage { top: 4.25rem; }
-  .hero__laptop-controls { right: 24%; gap: 0.45rem; }
-  .hero__laptop-controls button { width: 2.35rem; height: 2.35rem; }
-  .hero__laptop-controls p { min-width: 6.6rem; }
   .hero__title { font-size: clamp(3.75rem, 16vw, 5.4rem); }
   .hero__content .eyebrow { margin-bottom: 1rem; }
   .hero__role { margin-top: 1.2rem; font-size: clamp(0.82rem, 3.5vw, 1rem); }

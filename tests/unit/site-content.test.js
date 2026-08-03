@@ -44,12 +44,14 @@ test("homepage footer links to the action plan", async () => {
   assert.match(html, /href="assets\/Jamie-Wilson-CV-v2\.pdf"[^>]*>CV #2 \(review\)/);
 });
 
-test("homepage places a minimalist automatic toolkit carousel before GitHub activity", async () => {
+test("homepage places a minimalist automatic toolkit carousel directly after education", async () => {
   const html = await read("index.html");
   const carouselScript = await read("src/js/toolkit-carousel.js");
   const sectionsCss = await read("styles/sections.css");
   const toolkitItems = html.match(/class="toolkit-carousel__item"/g) || [];
   const toolkitPosition = html.indexOf('id="toolkit"');
+  const heroEndPosition = html.indexOf("</main>");
+  const capabilitiesPosition = html.indexOf('<section class="capabilities"');
   const githubPosition = html.indexOf('data-github-activity');
 
   assert.doesNotMatch(html, /id="cv"/);
@@ -61,7 +63,9 @@ test("homepage places a minimalist automatic toolkit carousel before GitHub acti
   assert.doesNotMatch(html, /data-toolkit-previous/);
   assert.doesNotMatch(html, /data-toolkit-next/);
   assert.doesNotMatch(html, /class="toolkit-section"/);
-  assert.ok(toolkitPosition > 0 && toolkitPosition < githubPosition, "toolkit carousel should sit before GitHub activity");
+  assert.ok(heroEndPosition < toolkitPosition && toolkitPosition < capabilitiesPosition, "toolkit carousel should sit immediately after the hero education strip");
+  assert.ok(toolkitPosition < githubPosition, "toolkit carousel should remain before GitHub activity");
+  assert.match(html, /toolkit-carousel toolkit-carousel--after-study/);
   assert.equal(toolkitItems.length, 25);
   assert.doesNotMatch(carouselScript, /scrollLeft\s*\+=/);
   assert.match(sectionsCss, /@keyframes toolkit-carousel-loop/);
@@ -95,19 +99,20 @@ test("the former career journey is removed and the action plan reflects current 
   assert.ok(cv.size > 5_000, "CV #2 should be a populated PDF");
 });
 
-test("the hero uses one laptop with five optimised portrait treatments and a compact dock", async () => {
-  const [html, manifest, styles] = await Promise.all([
+test("the hero uses one optimised laptop image with a covered webcam and compact dock", async () => {
+  const [html, manifest, styles, sourceNotes] = await Promise.all([
     read("index.html"),
     read("script.js"),
     read("styles/base.css"),
+    read("assets/laptop/options/SOURCE.md"),
   ]);
 
   const dockItems = html.match(/class="hero__dock-item"/g) || [];
 
   assert.match(html, /data-static-laptop/);
-  assert.match(html, /data-laptop-picker/);
-  assert.equal((html.match(/data-laptop-option/g) || []).length, 5);
-  assert.equal(new Set(html.match(/laptop-portrait-0[1-5]\.avif/g) || []).size, 5);
+  assert.doesNotMatch(html, /data-laptop-picker|data-laptop-option|hero__laptop-controls/);
+  assert.equal(new Set(html.match(/laptop-portrait-01\.avif/g) || []).size, 1);
+  assert.doesNotMatch(html, /laptop-portrait-0[2-5]\.(?:avif|webp)/);
   assert.equal(dockItems.length, 11);
   assert.doesNotMatch(html, /laptop-0[1-7]\.(?:avif|webp)/);
   assert.doesNotMatch(html, /perspective|high angle|top-down pair/i);
@@ -116,12 +121,25 @@ test("the hero uses one laptop with five optimised portrait treatments and a com
   assert.doesNotMatch(html, /rel="modulepreload"[^>]*laptop-runtime/);
   assert.doesNotMatch(html, /rel="preload"[^>]*macbook\.glb/);
   assert.doesNotMatch(manifest, /laptop-loader\.js/);
-  assert.match(manifest, /laptop-picker\.js/);
   assert.match(manifest, /motion-lab\/loader\.js/);
   assert.doesNotMatch(styles, /scaleY\(var\(--dock-scale-y\)\)/);
   assert.match(html, /--dock-width: 43%/);
   assert.match(styles, /hero__dock-item img \{[^}]*width: 88%; height: 88%;/);
   assert.match(styles, /hero__dock-item\[data-label="Figma"\] img \{ width: 70%; height: 70%; \}/);
+  assert.doesNotMatch(manifest, /laptop-picker\.js/);
+  assert.match(sourceNotes, /matte webcam cover/i);
+});
+
+test("homepage display headings and body copy have safe vertical spacing", async () => {
+  const [baseStyles, sectionStyles] = await Promise.all([
+    read("styles/base.css"),
+    read("styles/sections.css"),
+  ]);
+
+  assert.match(baseStyles, /\.hero__intro \{[^}]*line-height: 1\.7;/);
+  assert.match(sectionStyles, /\.capabilities h2 \{[^}]*line-height: 0\.98;/);
+  assert.match(sectionStyles, /padding-block: 0\.06em 0\.13em/);
+  assert.match(sectionStyles, /\.capabilities__lede \{[^}]*line-height: 1\.7;/);
 });
 
 test("source files stay divided by responsibility", async () => {

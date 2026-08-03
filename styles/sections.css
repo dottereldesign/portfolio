@@ -21,9 +21,9 @@
 .capabilities__intro .eyebrow { justify-content: flex-start; }
 .capabilities h2,
 .work-placeholder h2 { font-size: clamp(3.35rem, 5.5vw, 6.2rem); }
-.capabilities h2 { margin: 0; font-weight: 500; letter-spacing: -0.09em; line-height: 0.88; }
+.capabilities h2 { margin: 0; font-weight: 500; letter-spacing: -0.09em; line-height: 0.98; }
 .capabilities h2 em { color: var(--accent-secondary); font-family: "Cormorant Garamond", Georgia, serif; font-size: 1.12em; font-style: italic; font-weight: 500; letter-spacing: -0.05em; }
-.capabilities__lede { max-width: 36rem; margin: 1.75rem 0 0; color: var(--supporting-copy); font-size: 17px; line-height: 22px; }
+.capabilities__lede { max-width: 36rem; margin: 1.75rem 0 0; color: var(--supporting-copy); font-size: 17px; line-height: 1.7; }
 .capabilities__cta { position: relative; display: inline-flex; align-items: center; gap: 1rem; margin-top: 2rem; padding-bottom: 0.55rem; color: var(--ink); font-family: "DM Mono", monospace; font-size: 0.72rem; letter-spacing: 0.13em; text-transform: uppercase; transition: gap 180ms ease, color 180ms ease; }
 .capabilities__cta::after { position: absolute; right: 0; bottom: 0; left: 0; height: 1px; background: var(--accent-secondary); content: ""; transform-origin: left center; transition: transform 220ms ease; }
 .capabilities__cta span { color: var(--accent-secondary); font-size: 1rem; }
@@ -34,7 +34,17 @@
   position: relative;
   z-index: 3;
   width: 100%;
-  margin: 0 0 clamp(3.5rem, 6vw, 6rem);
+  margin: 0;
+}
+
+.toolkit-carousel--after-study {
+  overflow: hidden;
+  margin-top: -1px;
+  padding: clamp(1rem, 2vw, 1.5rem) var(--page-section-inline) clamp(1.25rem, 2.4vw, 2rem);
+  padding-left: var(--page-section-left);
+  border-bottom: 1px solid var(--hero-frame-line);
+  background: #0a0a0a;
+  color: var(--ink);
 }
 
 .toolkit-carousel__viewport {
@@ -119,7 +129,7 @@ html[data-theme="dark"] .toolkit-carousel__icon img[src*="simple-icons/"] { filt
 .capability-card__index span:first-child { color: var(--accent-secondary); }
 .capability-card__index span:last-child { color: var(--muted); }
 .capability-card h3 { margin: 0; font-size: clamp(1.7rem, 2.2vw, 2.45rem); letter-spacing: -0.07em; line-height: 0.98; }
-.capability-card__description { max-width: 21rem; min-height: 0; margin: 0.8rem 0 0; color: var(--muted); font-size: clamp(0.8rem, 0.85vw, 0.92rem); line-height: 1.55; }
+.capability-card__description { max-width: 21rem; min-height: 0; margin: 0.8rem 0 0; color: var(--muted); font-size: clamp(0.8rem, 0.85vw, 0.92rem); line-height: 1.65; }
 
 .capabilities__github-activity {
   --github-level-0: #151b19;
@@ -286,7 +296,7 @@ html[data-theme="dark"] .toolkit-carousel__icon img[src*="simple-icons/"] { filt
 .capabilities h2 span,
 .capabilities h2 em,
 .work-placeholder h2 span,
-.work-placeholder h2 em { display: inline-block; }
+.work-placeholder h2 em { display: inline-block; margin-block: -0.06em -0.13em; padding-block: 0.06em 0.13em; }
 
 .capabilities--reveal-ready .capabilities__intro .eyebrow { opacity: 0; letter-spacing: 0.19em; transform: translateY(0.8rem); }
 .capabilities--reveal-ready .capabilities__intro h2 span,
@@ -361,9 +371,9 @@ html[data-theme="dark"] .toolkit-carousel__icon img[src*="simple-icons/"] { filt
 .work-placeholder .eyebrow { color: var(--accent-secondary); }
 .work-heading { position: relative; z-index: 3; display: flex; width: 100%; flex-direction: column; align-items: center; justify-content: center; gap: clamp(1.5rem, 2.5vw, 2.25rem); text-align: center; }
 .work-heading > div { display: flex; flex-direction: column; align-items: center; }
-.work-placeholder h2 { max-width: none; margin: 0; letter-spacing: -0.08em; line-height: 0.9; white-space: nowrap; }
+.work-placeholder h2 { max-width: none; margin: 0; letter-spacing: -0.08em; line-height: 0.98; white-space: nowrap; }
 .work-placeholder h2 em { color: var(--accent-secondary); font-family: "Cormorant Garamond", Georgia, serif; font-size: 1.12em; font-style: italic; font-weight: 500; letter-spacing: -0.05em; }
-.work-heading__note { max-width: 34rem; margin: 0; color: var(--supporting-copy); font-size: 17px; line-height: 22px; text-align: center; }
+.work-heading__note { max-width: 34rem; margin: 0; color: var(--supporting-copy); font-size: 17px; line-height: 1.65; text-align: center; }
 .project-grid { position: relative; z-index: 3; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; margin-top: clamp(4rem, 8vw, 8rem); }
 .project-card { display: block; min-width: 0; padding-top: 1rem; color: inherit; text-decoration: none; transform: translate3d(0, 0, 0) scale(1); transform-origin: 50% 72%; transition: color 180ms ease, transform 650ms cubic-bezier(0.16, 1, 0.3, 1); }
 .project-card:hover h3 { color: var(--accent); }
@@ -377,7 +387,7 @@ html[data-theme="dark"] .toolkit-carousel__icon img[src*="simple-icons/"] { filt
 .visual-mark { font-family: "Space Grotesk", sans-serif; font-size: 4rem; line-height: 0.7; }
 .project-card__index { margin: 0 0 0.6rem; color: rgba(232, 231, 225, 0.58); font-family: "DM Mono", monospace; font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; }
 .project-card h3 { margin: 0; font-size: 1.7rem; letter-spacing: -0.06em; }
-.project-card__description { max-width: 18rem; margin: 0.8rem 0 0; color: var(--muted); font-size: 0.9rem; line-height: 1.5; }
+.project-card__description { max-width: 18rem; margin: 0.8rem 0 0; color: var(--muted); font-size: 0.9rem; line-height: 1.65; }
 
 .work--reveal-ready .work-heading .eyebrow { opacity: 0; letter-spacing: 0.19em; transform: translateY(0.75rem); }
 .work--reveal-ready .work-heading h2 span,

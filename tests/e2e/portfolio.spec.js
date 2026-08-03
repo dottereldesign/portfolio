@@ -17,7 +17,7 @@ test("homepage renders the positioning and navigates to the internal case study"
   await expect(page.getByRole("heading", { level: 1, name: "BeWriteBack" })).toBeVisible();
 });
 
-test("the toolkit carousel sits before GitHub activity and keeps looping on hover", async ({ page }) => {
+test("the toolkit carousel sits directly after education and keeps looping on hover", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "no-preference" });
   await page.goto("/");
 
@@ -27,10 +27,12 @@ test("the toolkit carousel sits before GitHub activity and keeps looping on hove
   await expect(toolkit.locator(".toolkit-carousel__item[aria-hidden='true']")).toHaveCount(25);
   await expect(toolkit.getByRole("button")).toHaveCount(0);
   await expect(page.locator("#cv")).toHaveCount(0);
-  const toolkitBeforeGitHub = await toolkit.evaluate((element) => (
-    element.compareDocumentPosition(document.querySelector("[data-github-activity]")) & Node.DOCUMENT_POSITION_FOLLOWING
-  ));
-  expect(toolkitBeforeGitHub).toBeTruthy();
+  const placement = await toolkit.evaluate((element) => ({
+    followsHero: Boolean(document.querySelector(".hero").compareDocumentPosition(element) & Node.DOCUMENT_POSITION_FOLLOWING),
+    precedesCapabilities: Boolean(element.compareDocumentPosition(document.querySelector(".capabilities")) & Node.DOCUMENT_POSITION_FOLLOWING),
+    previousElement: element.previousElementSibling?.className,
+  }));
+  expect(placement).toEqual({ followsHero: true, precedesCapabilities: true, previousElement: "hero" });
 
   const viewport = toolkit.locator("[data-toolkit-viewport]");
   const movePointerOutsideToolkit = async () => {
@@ -100,45 +102,20 @@ test("theme state is announced and persists across a reload", async ({ page }) =
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
 });
 
-test("the hero offers five portrait treatments on one front-facing laptop with a compact dock", async ({ page }) => {
+test("the hero uses one front-facing laptop with a covered webcam and compact dock", async ({ page }) => {
   await page.goto("/");
 
-  const laptop = page.locator("[data-laptop-picker]");
-  const options = laptop.locator("[data-laptop-option]");
-  const firstArtwork = options.first().locator(".hero__static-laptop-art img");
+  const laptop = page.locator(".hero__model--static");
+  const artwork = laptop.locator(".hero__static-laptop-art img");
   const dockItems = laptop.locator(".hero__dock-item");
 
   await expect(laptop).toBeVisible();
-  await expect(options).toHaveCount(5);
-  await expect(options.first()).toHaveClass(/is-active/);
-  await expect(firstArtwork).toBeVisible();
+  await expect(page.locator("[data-laptop-picker], [data-laptop-option], .hero__laptop-controls")).toHaveCount(0);
+  await expect(artwork).toBeVisible();
   await expect(dockItems).toHaveCount(11);
   await expect(page.locator(".hero__model-canvas")).toHaveCount(0);
-  await expect(firstArtwork).toHaveJSProperty("complete", true);
-  expect(await firstArtwork.evaluate((image) => image.currentSrc)).toMatch(/laptop-portrait-01\.(avif|webp)$/);
-
-  await page.getByRole("button", { name: "Show previous portrait treatment" }).click();
-  await expect(laptop).toHaveAttribute("data-active-index", "4");
-  await expect(laptop.locator("[data-laptop-count]")).toHaveText("05 / 05");
-  await expect(laptop.locator("[data-laptop-name]")).toHaveText("Cool");
-  await expect(options.nth(4)).toHaveClass(/is-active/);
-  expect(await options.nth(4).locator("img").evaluate((image) => image.currentSrc)).toMatch(/laptop-portrait-05\.(avif|webp)$/);
-
-  await page.getByRole("button", { name: "Show previous portrait treatment" }).click();
-  await expect(laptop).toHaveAttribute("data-active-index", "3");
-  await expect(laptop.locator("[data-laptop-count]")).toHaveText("04 / 05");
-  await expect(laptop.locator("[data-laptop-name]")).toHaveText("Warm");
-  await expect(options.nth(3)).toHaveClass(/is-active/);
-  expect(await options.nth(3).locator("img").evaluate((image) => image.currentSrc)).toMatch(/laptop-portrait-04\.(avif|webp)$/);
-
-  await page.getByRole("button", { name: "Show next portrait treatment" }).click();
-  await page.getByRole("button", { name: "Show next portrait treatment" }).click();
-  await page.getByRole("button", { name: "Show next portrait treatment" }).click();
-  await expect(laptop).toHaveAttribute("data-active-index", "1");
-  await expect(laptop.locator("[data-laptop-count]")).toHaveText("02 / 05");
-  await expect(laptop.locator("[data-laptop-name]")).toHaveText("Soft");
-  await expect(options.nth(1)).toHaveClass(/is-active/);
-  expect(await options.nth(1).locator("img").evaluate((image) => image.currentSrc)).toMatch(/laptop-portrait-02\.(avif|webp)$/);
+  await expect(artwork).toHaveJSProperty("complete", true);
+  expect(await artwork.evaluate((image) => image.currentSrc)).toMatch(/laptop-portrait-01\.(avif|webp)$/);
 
   const dockScale = await laptop.locator("[data-laptop-dock]").evaluate((element) => {
     const matrix = new DOMMatrix(getComputedStyle(element).transform);
@@ -170,6 +147,26 @@ test("the hero offers five portrait treatments on one front-facing laptop with a
 
   const heroResources = await page.evaluate(() => performance.getEntriesByType("resource").map(({ name }) => name));
   expect(heroResources.some((name) => /macbook\.glb|laptop-runtime/.test(name))).toBeFalsy();
+});
+
+test("display headings protect descenders and body copy has readable leading", async ({ page }) => {
+  await page.goto("/");
+  const heading = page.locator("#capabilities-title em");
+  await heading.scrollIntoViewIfNeeded();
+
+  const typography = await page.evaluate(() => {
+    const headingElement = document.querySelector("#capabilities-title em");
+    const paragraph = document.querySelector(".capabilities__lede");
+    const headingStyle = getComputedStyle(headingElement);
+    const paragraphStyle = getComputedStyle(paragraph);
+    return {
+      headingBoxRatio: headingElement.getBoundingClientRect().height / Number.parseFloat(headingStyle.fontSize),
+      paragraphLineRatio: Number.parseFloat(paragraphStyle.lineHeight) / Number.parseFloat(paragraphStyle.fontSize),
+    };
+  });
+
+  expect(typography.headingBoxRatio).toBeGreaterThan(1);
+  expect(typography.paragraphLineRatio).toBeGreaterThanOrEqual(1.65);
 });
 
 test("mobile quick links support keyboard dismissal without page overflow", async ({ page }) => {
