@@ -129,6 +129,45 @@ test("theme state is announced and persists across a reload", async ({ page }) =
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
 });
 
+test("the Jamie Wilson scramble animation runs on mobile and tablet", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+
+  for (const viewport of [
+    { width: 390, height: 844 },
+    { width: 768, height: 1024 },
+  ]) {
+    await page.setViewportSize(viewport);
+    await page.goto("/");
+    const title = page.locator(".hero__title > span");
+    await expect(title).toHaveClass(/is-scramble-ready/);
+    await expect(title.locator(".scramble-character")).toHaveCount(12);
+    await expect(title.locator(".scramble-space")).toHaveCount(1);
+  }
+});
+
+test("light mode uses warm hero embers and a distinct contribution scale", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Switch to light theme" }).click();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+
+  const palette = await page.evaluate(() => {
+    const hero = document.querySelector(".hero");
+    const panel = document.querySelector(".github-activity__panel");
+    const levels = [...document.querySelectorAll(".github-activity__legend i")];
+    return {
+      heroBackground: getComputedStyle(hero).backgroundImage,
+      levelColours: levels.map((level) => getComputedStyle(level).backgroundColor),
+      panelBackground: getComputedStyle(panel).backgroundColor,
+      panelBorder: getComputedStyle(panel).borderColor,
+    };
+  });
+
+  expect(palette.heroBackground).toContain("rgba(231, 105, 55, 0.29)");
+  expect(new Set(palette.levelColours).size).toBe(5);
+  expect(palette.levelColours[0]).not.toBe(palette.panelBackground);
+  expect(palette.panelBorder).not.toBe("rgba(0, 0, 0, 0)");
+});
+
 test("GitHub contributions prefetch before the visitor reaches the activity panel", async ({ page }) => {
   let contributionRequests = 0;
   const startDate = new Date(Date.UTC(2025, 7, 5));
