@@ -37,89 +37,53 @@
   z-index: 3;
   width: 100%;
   margin: 0 0 clamp(3.5rem, 6vw, 6rem);
-  border-block: 1px solid var(--hero-frame-line);
 }
-
-.toolkit-carousel__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 2rem;
-  padding: 1rem 0;
-}
-
-.toolkit-carousel__header > div:first-child { display: flex; align-items: baseline; flex-wrap: wrap; gap: 0.45rem 1rem; }
-.toolkit-carousel__header p { margin: 0; color: var(--ink); font-family: "DM Mono", monospace; font-size: 0.66rem; letter-spacing: 0.12em; text-transform: uppercase; }
-.toolkit-carousel__header > div:first-child > span { color: var(--muted); font-size: 0.78rem; }
-
-.toolkit-carousel__controls { display: flex; flex: 0 0 auto; gap: 0.45rem; }
-.toolkit-carousel__controls button {
-  display: grid;
-  width: 2.45rem;
-  height: 2.45rem;
-  place-items: center;
-  border: 1px solid var(--hero-frame-line);
-  border-radius: 50%;
-  background: color-mix(in srgb, var(--surface-raised) 78%, transparent);
-  color: var(--ink);
-  cursor: pointer;
-  transition: border-color 180ms ease, background-color 180ms ease, color 180ms ease, transform 180ms var(--hero-ease);
-}
-.toolkit-carousel__controls button:hover:not(:disabled) { border-color: var(--accent-secondary); color: var(--accent-secondary); transform: translateY(-0.12rem); }
-.toolkit-carousel__controls button:focus-visible { outline: 2px solid var(--accent-secondary); outline-offset: 0.2rem; }
-.toolkit-carousel__controls button:disabled { opacity: 0.3; cursor: default; }
 
 .toolkit-carousel__viewport {
   overflow-x: auto;
   overscroll-behavior-inline: contain;
-  padding: 0 0 1rem;
-  scroll-behavior: smooth;
-  scroll-snap-type: inline mandatory;
+  padding: 0.75rem 0 1.25rem;
   scrollbar-width: none;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 3.5%, #000 96.5%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 3.5%, #000 96.5%, transparent);
 }
 .toolkit-carousel__viewport::-webkit-scrollbar { display: none; }
 .toolkit-carousel__viewport:focus-visible { border-radius: 2px; outline: 2px solid var(--accent-secondary); outline-offset: 0.35rem; }
 
-.toolkit-carousel__track { display: flex; width: max-content; gap: 0.65rem; margin: 0; padding: 0; list-style: none; }
+.toolkit-carousel__track { display: flex; width: max-content; gap: clamp(1.75rem, 3.2vw, 3.5rem); margin: 0; padding: 0; list-style: none; }
 .toolkit-carousel__item {
   display: flex;
-  width: clamp(8rem, 11vw, 10.25rem);
-  min-height: 8.25rem;
+  width: clamp(5.75rem, 7.5vw, 7.25rem);
+  min-height: 6.25rem;
   flex: 0 0 auto;
   flex-direction: column;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1.25rem;
-  padding: 1rem;
-  border: 1px solid var(--hero-frame-line);
-  background: color-mix(in srgb, var(--surface-raised) 82%, transparent);
-  scroll-snap-align: start;
-  transition: border-color 180ms ease, background-color 180ms ease, transform 220ms var(--hero-ease);
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0;
+  text-align: center;
+  transition: opacity 220ms ease, transform 220ms var(--hero-ease);
 }
-.toolkit-carousel__item:hover { border-color: color-mix(in srgb, var(--accent-secondary) 55%, var(--hero-frame-line)); background: color-mix(in srgb, var(--surface-raised) 72%, var(--accent-secondary) 6%); transform: translateY(-0.15rem); }
-.toolkit-carousel__item > span:last-child { max-width: 9rem; font-size: 0.78rem; font-weight: 500; letter-spacing: -0.02em; line-height: 1.25; }
+.toolkit-carousel__item:hover { transform: translateY(-0.15rem) scale(1.025); }
+.toolkit-carousel__item > span:last-child { max-width: 7.25rem; color: var(--muted); font-size: 0.74rem; font-weight: 500; letter-spacing: -0.02em; line-height: 1.25; transition: color 180ms ease; }
+.toolkit-carousel__item:hover > span:last-child { color: var(--ink); }
 
 .toolkit-carousel__icon {
   display: grid;
-  width: 3.2rem;
-  height: 3.2rem;
+  width: 3rem;
+  height: 3rem;
   flex: 0 0 auto;
   place-items: center;
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 0.65rem;
-  background: #f5f5f2;
-  box-shadow: 0 0.75rem 1.8rem rgba(0, 0, 0, 0.15);
-  color: #f4f4ef;
+  color: var(--ink);
 }
-.toolkit-carousel__icon img { display: block; width: 1.9rem; height: 1.9rem; object-fit: contain; }
-.toolkit-carousel__icon svg { width: 1.9rem; height: 1.9rem; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2.2; }
+.toolkit-carousel__icon img { display: block; width: 2.35rem; height: 2.35rem; object-fit: contain; }
+.toolkit-carousel__icon svg { width: 2.2rem; height: 2.2rem; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2.2; }
 .toolkit-carousel__icon--word,
 .toolkit-carousel__icon--letter,
 .toolkit-carousel__icon--terminal,
 .toolkit-carousel__icon--stack,
 .toolkit-carousel__icon--network,
-.toolkit-carousel__icon--spark { border-color: rgba(140, 207, 227, 0.24); background: linear-gradient(145deg, #171b1d, #242126); }
+.toolkit-carousel__icon--spark { background: transparent; }
 .toolkit-carousel__icon--word,
 .toolkit-carousel__icon--letter,
 .toolkit-carousel__icon--terminal { font-family: "DM Mono", monospace; font-weight: 500; letter-spacing: -0.06em; }
@@ -129,6 +93,11 @@
 .toolkit-carousel__icon--stack { color: #c18cff; }
 .toolkit-carousel__icon--network { color: var(--accent-secondary); }
 .toolkit-carousel__icon--spark { color: var(--accent); }
+
+html[data-theme="dark"] .toolkit-carousel__icon img[src*="github-icon.svg"],
+html[data-theme="dark"] .toolkit-carousel__icon img[src*="notion-icon.svg"],
+html[data-theme="dark"] .toolkit-carousel__icon img[src*="openai-icon.svg"],
+html[data-theme="dark"] .toolkit-carousel__icon img[src*="simple-icons/"] { filter: invert(1); }
 
 .capabilities__flow { position: relative; z-index: 3; display: grid; width: 100%; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(0.9rem, 1.5vw, 1.25rem); margin: 0; }
 .capability-card { position: relative; display: block; min-width: 0; min-height: 0; padding: 0; }

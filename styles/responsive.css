@@ -99,9 +99,8 @@
   .career-step::before { margin-bottom: 2rem; }
   .hero__intro { margin: 0.8rem 0 1.6rem; }
   .hero__side-rail { top: calc(var(--page-frame-inset) + var(--site-header-height) + 0.35rem); right: 1.1rem; }
-  .toolkit-carousel__header { align-items: flex-start; }
-  .toolkit-carousel__header > div:first-child > span { display: none; }
-  .toolkit-carousel__item { width: 7.75rem; min-height: 7.75rem; }
+  .toolkit-carousel__track { gap: 1.75rem; }
+  .toolkit-carousel__item { width: 5.5rem; min-height: 5.75rem; }
   .site-footer-section { padding-top: 2rem; }
 }
 
@@ -222,8 +221,7 @@
   a.project-card:hover,
   a.project-card:focus-visible,
   a.project-card:active,
-  .toolkit-carousel__item:hover,
-  .toolkit-carousel__controls button:hover:not(:disabled) { transform: none; }
+  .toolkit-carousel__item:hover { transform: none; }
   .hero__study--reveal-ready *, .hero__study--reveal-ready *::before, .hero__study--reveal-ready *::after { transition-delay: 0ms !important; }
   .capabilities--reveal-ready .capabilities__intro .eyebrow,
   .capabilities--reveal-ready .capabilities__intro h2 span,

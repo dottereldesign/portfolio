@@ -3,51 +3,87 @@ const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
 carousels.forEach((carousel) => {
   const viewport = carousel.querySelector("[data-toolkit-viewport]");
-  const previous = carousel.querySelector("[data-toolkit-previous]");
-  const next = carousel.querySelector("[data-toolkit-next]");
-  const firstItem = carousel.querySelector(".toolkit-carousel__item");
+  const track = carousel.querySelector("[data-toolkit-track]");
 
-  if (!viewport || !previous || !next || !firstItem) return;
+  if (!viewport || !track) return;
 
-  let updateFrame = 0;
+  const originalItems = [...track.children];
+  if (!originalItems.length) return;
 
-  const updateControls = () => {
-    const maximum = Math.max(0, viewport.scrollWidth - viewport.clientWidth);
-    previous.disabled = viewport.scrollLeft <= 2;
-    next.disabled = viewport.scrollLeft >= maximum - 2;
+  const duplicateItems = originalItems.map((item) => {
+    const duplicate = item.cloneNode(true);
+    duplicate.setAttribute("aria-hidden", "true");
+    duplicate.setAttribute("inert", "");
+    return duplicate;
+  });
+
+  track.append(...duplicateItems);
+  carousel.classList.add("toolkit-carousel--enhanced");
+
+  let previousTime = 0;
+  let loopDistance = 0;
+  let pointerIsDown = false;
+  let isVisible = !("IntersectionObserver" in window);
+
+  const measure = () => {
+    const firstDuplicate = track.children[originalItems.length];
+    loopDistance = firstDuplicate?.offsetLeft || track.scrollWidth / 2;
+
+    if (loopDistance > 0 && viewport.scrollLeft >= loopDistance) {
+      viewport.scrollLeft %= loopDistance;
+    }
   };
 
-  const scheduleControlUpdate = () => {
-    window.cancelAnimationFrame(updateFrame);
-    updateFrame = window.requestAnimationFrame(updateControls);
+  const shouldPause = () => (
+    reducedMotion.matches
+    || document.hidden
+    || !isVisible
+    || pointerIsDown
+    || carousel.matches(":hover")
+    || carousel.contains(document.activeElement)
+  );
+
+  const animate = (time) => {
+    if (!previousTime) previousTime = time;
+    const elapsed = Math.min(time - previousTime, 64);
+    previousTime = time;
+
+    if (!shouldPause() && loopDistance > 0) {
+      viewport.scrollLeft += elapsed * 0.028;
+
+      if (viewport.scrollLeft >= loopDistance) {
+        viewport.scrollLeft -= loopDistance;
+      }
+    }
+
+    window.requestAnimationFrame(animate);
   };
 
-  const move = (direction) => {
-    const styles = window.getComputedStyle(viewport.querySelector(".toolkit-carousel__track"));
-    const gap = Number.parseFloat(styles.columnGap || styles.gap) || 0;
-    const visibleItems = Math.max(1, Math.floor(viewport.clientWidth / (firstItem.offsetWidth + gap)));
-    const distance = (firstItem.offsetWidth + gap) * Math.max(1, visibleItems - 1);
-
-    viewport.scrollBy({
-      left: distance * direction,
-      behavior: reducedMotion.matches ? "auto" : "smooth",
-    });
-  };
-
-  previous.addEventListener("click", () => move(-1));
-  next.addEventListener("click", () => move(1));
-  viewport.addEventListener("scroll", scheduleControlUpdate, { passive: true });
+  viewport.addEventListener("pointerdown", () => { pointerIsDown = true; });
+  window.addEventListener("pointerup", () => { pointerIsDown = false; }, { passive: true });
+  window.addEventListener("pointercancel", () => { pointerIsDown = false; }, { passive: true });
   viewport.addEventListener("keydown", (event) => {
     if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
     event.preventDefault();
-    move(event.key === "ArrowLeft" ? -1 : 1);
+    viewport.scrollBy({
+      left: viewport.clientWidth * (event.key === "ArrowLeft" ? -0.6 : 0.6),
+      behavior: reducedMotion.matches ? "auto" : "smooth",
+    });
   });
 
   if ("ResizeObserver" in window) {
-    new ResizeObserver(scheduleControlUpdate).observe(viewport);
+    new ResizeObserver(measure).observe(viewport);
   } else {
-    window.addEventListener("resize", scheduleControlUpdate, { passive: true });
+    window.addEventListener("resize", measure, { passive: true });
   }
 
-  updateControls();
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(([entry]) => {
+      isVisible = entry.isIntersecting;
+      previousTime = 0;
+    }, { threshold: 0.08 }).observe(carousel);
+  }
+
+  measure();
+  window.requestAnimationFrame(animate);
 });

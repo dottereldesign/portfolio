@@ -17,13 +17,15 @@ test("homepage renders the positioning and navigates to the internal case study"
   await expect(page.getByRole("heading", { level: 1, name: "BeWriteBack" })).toBeVisible();
 });
 
-test("the toolkit carousel sits before GitHub activity and responds to its controls", async ({ page }) => {
+test("the toolkit carousel sits before GitHub activity, loops and pauses on hover", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "no-preference" });
   await page.goto("/");
 
   const toolkit = page.locator("#toolkit");
   await toolkit.scrollIntoViewIfNeeded();
-  await expect(toolkit.getByText("Toolkit / 25 tools", { exact: true })).toBeVisible();
-  await expect(toolkit.locator(".toolkit-carousel__item")).toHaveCount(25);
+  await expect(toolkit.locator(".toolkit-carousel__item:not([aria-hidden='true'])")).toHaveCount(25);
+  await expect(toolkit.locator(".toolkit-carousel__item[aria-hidden='true']")).toHaveCount(25);
+  await expect(toolkit.getByRole("button")).toHaveCount(0);
   await expect(page.locator("#cv")).toHaveCount(0);
   const toolkitBeforeGitHub = await toolkit.evaluate((element) => (
     element.compareDocumentPosition(document.querySelector("[data-github-activity]")) & Node.DOCUMENT_POSITION_FOLLOWING
@@ -31,9 +33,16 @@ test("the toolkit carousel sits before GitHub activity and responds to its contr
   expect(toolkitBeforeGitHub).toBeTruthy();
 
   const viewport = toolkit.locator("[data-toolkit-viewport]");
-  await toolkit.getByRole("button", { name: "Show more tools" }).click();
-  await expect.poll(() => viewport.evaluate((element) => element.scrollLeft)).toBeGreaterThan(0);
-  await expect(toolkit.getByRole("button", { name: "Show previous tools" })).toBeEnabled();
+  await expect.poll(() => viewport.evaluate((element) => element.scrollLeft)).toBeGreaterThan(4);
+
+  await toolkit.hover();
+  const pausedPosition = await viewport.evaluate((element) => element.scrollLeft);
+  await page.waitForTimeout(350);
+  const positionAfterHover = await viewport.evaluate((element) => element.scrollLeft);
+  expect(Math.abs(positionAfterHover - pausedPosition)).toBeLessThan(1);
+
+  await page.mouse.move(0, 0);
+  await expect.poll(() => viewport.evaluate((element) => element.scrollLeft)).toBeGreaterThan(pausedPosition + 3);
   await expect(page.getByRole("link", { name: "Current CV", exact: true })).toHaveAttribute("href", "assets/Jamie-Wilson-CV.pdf");
   await expect(page.getByRole("link", { name: /cv #2/i })).toHaveAttribute("href", "assets/Jamie-Wilson-CV-v2.pdf");
 });

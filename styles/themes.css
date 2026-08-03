@@ -35,7 +35,6 @@ html[data-theme="light"] .github-activity__legend i { border-color: rgba(25, 26,
   .work-placeholder,
   .journey,
   .toolkit-carousel,
-  .toolkit-carousel__item,
   .site-footer-section,
   .site-credits,
   .career-step {
@@ -166,10 +165,6 @@ html[data-theme="light"] .site-credits {
   background-image: none;
 }
 
-html[data-theme="light"] .toolkit-carousel__item,
-html[data-theme="light"] .toolkit-carousel__controls button { background: color-mix(in srgb, var(--surface-raised) 78%, #fff 22%); }
-html[data-theme="light"] .toolkit-carousel__item:hover { background: color-mix(in srgb, var(--surface-raised) 72%, var(--accent-secondary) 7%); }
-html[data-theme="light"] .toolkit-carousel__icon { border-color: rgba(25, 26, 23, 0.1); box-shadow: 0 0.75rem 1.8rem rgba(61, 52, 45, 0.12); }
 html[data-theme="light"] .site-footer-section::before { background: radial-gradient(ellipse 50% 90% at 84% 50%, rgba(53, 94, 124, 0.075), transparent 72%); }
 
 html[data-theme="light"] .hero__model {

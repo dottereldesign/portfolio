@@ -95,7 +95,7 @@
         document.documentElement.style.colorScheme = theme;
       })();
     </script>
-    <link rel="stylesheet" href="assets/portfolio.min.css?v=20260803-2" />
+    <link rel="stylesheet" href="assets/portfolio.min.css?v=20260803-3" />
     <noscript><style>.hero__title > span { visibility: visible !important; }</style></noscript>
   </head>
   <body>
@@ -224,20 +224,9 @@
         <a class="capabilities__cta" href="#work">View selected work <span aria-hidden="true">↗</span></a>
       </div>
 
-      <section id="toolkit" class="toolkit-carousel" aria-labelledby="toolkit-carousel-title" data-toolkit-carousel>
-        <header class="toolkit-carousel__header">
-          <div>
-            <p id="toolkit-carousel-title">Toolkit / 25 tools</p>
-            <span>Design, development, CMS, delivery and AI.</span>
-          </div>
-          <div class="toolkit-carousel__controls" aria-label="Toolkit carousel controls">
-            <button type="button" data-toolkit-previous aria-label="Show previous tools" aria-controls="toolkit-carousel-track" disabled><span aria-hidden="true">←</span></button>
-            <button type="button" data-toolkit-next aria-label="Show more tools" aria-controls="toolkit-carousel-track"><span aria-hidden="true">→</span></button>
-          </div>
-        </header>
-
-        <div id="toolkit-carousel-track" class="toolkit-carousel__viewport" data-toolkit-viewport role="region" tabindex="0" aria-label="Scrollable list of tools and technologies">
-          <ul class="toolkit-carousel__track">
+      <section id="toolkit" class="toolkit-carousel" data-toolkit-carousel aria-label="Tools and technologies carousel">
+        <div class="toolkit-carousel__viewport" data-toolkit-viewport role="region" tabindex="0" aria-label="Automatically scrolling tools and technologies. Hover or focus to pause.">
+          <ul class="toolkit-carousel__track" data-toolkit-track>
             <li class="toolkit-carousel__item"><span class="toolkit-carousel__icon"><img src="https://api.iconify.design/logos/figma.svg" alt="" loading="lazy" decoding="async" /></span><span>Figma</span></li>
             <li class="toolkit-carousel__item"><span class="toolkit-carousel__icon"><img src="https://api.iconify.design/logos/html-5.svg" alt="" loading="lazy" decoding="async" /></span><span>HTML</span></li>
             <li class="toolkit-carousel__item"><span class="toolkit-carousel__icon"><img src="https://api.iconify.design/logos/css-3.svg" alt="" loading="lazy" decoding="async" /></span><span>CSS</span></li>
@@ -485,6 +474,6 @@
       </footer>
     </section>
 
-    <script type="module" src="script.js?v=20260803-2"></script>
+    <script type="module" src="script.js?v=20260803-3"></script>
   </body>
 </html>
