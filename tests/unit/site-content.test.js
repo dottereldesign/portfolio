@@ -120,6 +120,8 @@ test("the hero uses seven optimised laptop angles with the real portrait and doc
   assert.match(manifest, /motion-lab\/loader\.js/);
   assert.doesNotMatch(styles, /scaleY\(var\(--dock-scale-y\)\)/);
   assert.match(styles, /hero__dock-item\[data-label="Figma"\] img \{ width: 82%; height: 82%; \}/);
+  assert.match(html, /hero__laptop-option hero__laptop-option--inset[^>]*data-name="Top-down pair"/);
+  assert.match(styles, /\.hero__laptop-option--inset \{ --laptop-option-x: -7%; --laptop-option-scale: 0\.92; \}/);
 });
 
 test("source files stay divided by responsibility", async () => {
