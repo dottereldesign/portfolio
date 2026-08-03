@@ -97,20 +97,22 @@ test("career story and action plan reflect the current priorities", async () => 
   assert.ok(cv.size > 5_000, "CV #2 should be a populated PDF");
 });
 
-test("the hero uses an optimised static laptop with the real portrait and dock", async () => {
+test("the hero uses five optimised laptop angles with the real portrait and dock", async () => {
   const [html, manifest] = await Promise.all([read("index.html"), read("script.js")]);
 
   const dockItems = html.match(/class="hero__dock-item"/g) || [];
 
   assert.match(html, /data-static-laptop/);
-  assert.match(html, /hero-laptop-static\.avif/);
-  assert.match(html, /hero-portrait\.avif/);
+  assert.match(html, /data-laptop-picker/);
+  assert.equal((html.match(/data-laptop-option/g) || []).length, 5);
+  assert.equal(new Set(html.match(/laptop-0[1-5]\.avif/g) || []).size, 5);
   assert.equal(dockItems.length, 11);
   assert.doesNotMatch(html, /hero__model-canvas/);
   assert.doesNotMatch(html, /data-laptop-enhancement/);
   assert.doesNotMatch(html, /rel="modulepreload"[^>]*laptop-runtime/);
   assert.doesNotMatch(html, /rel="preload"[^>]*macbook\.glb/);
   assert.doesNotMatch(manifest, /laptop-loader\.js/);
+  assert.match(manifest, /laptop-picker\.js/);
   assert.match(manifest, /motion-lab\/loader\.js/);
 });
 

@@ -95,7 +95,7 @@
         document.documentElement.style.colorScheme = theme;
       })();
     </script>
-    <link rel="preload" as="image" href="assets/laptop/hero-laptop-static.avif" type="image/avif" fetchpriority="high" />
+    <link rel="preload" as="image" href="assets/laptop/options/laptop-01.avif" type="image/avif" fetchpriority="high" />
     <link rel="stylesheet" href="assets/portfolio.min.css?v=20260803-6" />
     <noscript><style>.hero__title > span { visibility: visible !important; }</style></noscript>
   </head>
@@ -192,34 +192,75 @@
         <a class="cta" href="#work">Explore my work <span aria-hidden="true">↓</span></a>
       </section>
 
-      <div class="hero__model hero__model--static" aria-hidden="true" data-static-laptop>
-        <div class="hero__static-laptop">
-          <picture class="hero__static-laptop-art">
-            <source srcset="assets/laptop/hero-laptop-static.avif" type="image/avif" />
-            <source srcset="assets/laptop/hero-laptop-static.webp" type="image/webp" />
-            <img src="assets/laptop/hero-laptop-static.webp" width="1335" height="1178" alt="" fetchpriority="high" decoding="async" />
-          </picture>
+      <div
+        class="hero__model hero__model--static"
+        data-laptop-picker
+        role="group"
+        aria-label="Choose a laptop angle"
+        style="--dock-left: 50.005%; --dock-top: 85.286%; --dock-width: 59.291%; --dock-rotate: 0deg; --dock-scale-y: 1.15;"
+      >
+        <div class="hero__laptop-controls">
+          <button type="button" data-laptop-previous aria-label="Show previous laptop angle">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14.5 5-7 7 7 7" /></svg>
+          </button>
+          <p aria-live="polite" aria-atomic="true">
+            <span data-laptop-count>01 / 05</span>
+            <span data-laptop-name>Front</span>
+          </p>
+          <button type="button" data-laptop-next aria-label="Show next laptop angle">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 5 7 7-7 7" /></svg>
+          </button>
+        </div>
 
-          <div class="hero__static-screen">
-            <picture class="hero__static-portrait">
-              <source srcset="assets/laptop/hero-portrait.avif" type="image/avif" />
-              <source srcset="assets/laptop/hero-portrait.webp" type="image/webp" />
-              <img src="assets/laptop/hero-portrait.webp" width="365" height="937" alt="" decoding="async" />
+        <div class="hero__laptop-stage" data-static-laptop>
+          <div class="hero__laptop-option is-active" data-laptop-option data-name="Front" data-dock-left="50.005%" data-dock-top="85.286%" data-dock-width="59.291%" data-dock-rotate="0deg" data-dock-scale-y="1.15">
+            <picture class="hero__static-laptop-art">
+              <source srcset="assets/laptop/options/laptop-01.avif" type="image/avif" />
+              <source srcset="assets/laptop/options/laptop-01.webp" type="image/webp" />
+              <img src="assets/laptop/options/laptop-01.webp" width="2100" height="1800" alt="" fetchpriority="high" decoding="async" />
             </picture>
+          </div>
+          <div class="hero__laptop-option" data-laptop-option data-name="Left perspective" data-dock-left="38.641%" data-dock-top="51.904%" data-dock-width="42.006%" data-dock-rotate="-20.437deg" data-dock-scale-y="1.125" aria-hidden="true">
+            <picture class="hero__static-laptop-art">
+              <source srcset="assets/laptop/options/laptop-02.avif" type="image/avif" />
+              <source srcset="assets/laptop/options/laptop-02.webp" type="image/webp" />
+              <img src="assets/laptop/options/laptop-02.webp" width="2100" height="1800" alt="" loading="lazy" decoding="async" />
+            </picture>
+          </div>
+          <div class="hero__laptop-option" data-laptop-option data-name="Right perspective" data-dock-left="40.891%" data-dock-top="61.645%" data-dock-width="35.633%" data-dock-rotate="-30.245deg" data-dock-scale-y="1.15" aria-hidden="true">
+            <picture class="hero__static-laptop-art">
+              <source srcset="assets/laptop/options/laptop-03.avif" type="image/avif" />
+              <source srcset="assets/laptop/options/laptop-03.webp" type="image/webp" />
+              <img src="assets/laptop/options/laptop-03.webp" width="2100" height="1800" alt="" loading="lazy" decoding="async" />
+            </picture>
+          </div>
+          <div class="hero__laptop-option" data-laptop-option data-name="High angle" data-dock-left="42.284%" data-dock-top="50.821%" data-dock-width="36.347%" data-dock-rotate="-40.304deg" data-dock-scale-y="1.149" aria-hidden="true">
+            <picture class="hero__static-laptop-art">
+              <source srcset="assets/laptop/options/laptop-04.avif" type="image/avif" />
+              <source srcset="assets/laptop/options/laptop-04.webp" type="image/webp" />
+              <img src="assets/laptop/options/laptop-04.webp" width="2100" height="1800" alt="" loading="lazy" decoding="async" />
+            </picture>
+          </div>
+          <div class="hero__laptop-option" data-laptop-option data-name="Top-down pair" data-dock-left="70.995%" data-dock-top="41.074%" data-dock-width="28.139%" data-dock-rotate="46.433deg" data-dock-scale-y="1.104" aria-hidden="true">
+            <picture class="hero__static-laptop-art">
+              <source srcset="assets/laptop/options/laptop-05.avif" type="image/avif" />
+              <source srcset="assets/laptop/options/laptop-05.webp" type="image/webp" />
+              <img src="assets/laptop/options/laptop-05.webp" width="2100" height="1800" alt="" loading="lazy" decoding="async" />
+            </picture>
+          </div>
 
-            <div class="hero__static-dock">
-              <span class="hero__dock-item" data-label="Git"><img src="assets/laptop/dock/git.svg" alt="" /></span>
-              <span class="hero__dock-item" data-label="Codex"><img src="assets/laptop/dock/codex.svg" alt="" /></span>
-              <span class="hero__dock-item" data-label="WordPress"><img src="assets/laptop/dock/wordpress.svg" alt="" /></span>
-              <span class="hero__dock-item" data-label="Figma"><img src="assets/laptop/dock/figma.svg" alt="" /></span>
-              <span class="hero__dock-item" data-label="Slack"><img src="assets/laptop/dock/slack.svg" alt="" /></span>
-              <span class="hero__dock-item" data-label="Postman"><img src="assets/laptop/dock/postman.svg" alt="" /></span>
-              <span class="hero__dock-item" data-label="Photoshop"><img src="assets/laptop/dock/photoshop.svg" alt="" /></span>
-              <span class="hero__dock-item" data-label="LocalWP"><img src="assets/laptop/dock/localwp.svg" alt="" /></span>
-              <span class="hero__dock-item" data-label="VS Code"><img src="assets/laptop/dock/vscode.svg" alt="" /></span>
-              <span class="hero__dock-item" data-label="Terminal"><img src="assets/laptop/dock/terminal.svg" alt="" /></span>
-              <span class="hero__dock-item" data-label="Chrome"><img src="assets/laptop/dock/chrome.svg" alt="" /></span>
-            </div>
+          <div class="hero__static-dock" data-laptop-dock role="group" aria-label="Developer tools">
+            <span class="hero__dock-item" data-label="Git"><img src="assets/laptop/dock/git.svg" alt="" /></span>
+            <span class="hero__dock-item" data-label="Codex"><img src="assets/laptop/dock/codex.svg" alt="" /></span>
+            <span class="hero__dock-item" data-label="WordPress"><img src="assets/laptop/dock/wordpress.svg" alt="" /></span>
+            <span class="hero__dock-item" data-label="Figma"><img src="assets/laptop/dock/figma.svg" alt="" /></span>
+            <span class="hero__dock-item" data-label="Slack"><img src="assets/laptop/dock/slack.svg" alt="" /></span>
+            <span class="hero__dock-item" data-label="Postman"><img src="assets/laptop/dock/postman.svg" alt="" /></span>
+            <span class="hero__dock-item" data-label="Photoshop"><img src="assets/laptop/dock/photoshop.svg" alt="" /></span>
+            <span class="hero__dock-item" data-label="LocalWP"><img src="assets/laptop/dock/localwp.svg" alt="" /></span>
+            <span class="hero__dock-item" data-label="VS Code"><img src="assets/laptop/dock/vscode.svg" alt="" /></span>
+            <span class="hero__dock-item" data-label="Terminal"><img src="assets/laptop/dock/terminal.svg" alt="" /></span>
+            <span class="hero__dock-item" data-label="Chrome"><img src="assets/laptop/dock/chrome.svg" alt="" /></span>
           </div>
         </div>
       </div>

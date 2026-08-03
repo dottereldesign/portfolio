@@ -6,6 +6,7 @@ import { extname, join, normalize, resolve, sep } from "node:path";
 const root = resolve(new URL("../", import.meta.url).pathname.replace(/^\/(?:([A-Za-z]:))/, "$1"));
 const port = Number(process.env.PORT) || 4174;
 const mimeTypes = {
+  ".avif": "image/avif",
   ".css": "text/css; charset=utf-8",
   ".glb": "model/gltf-binary",
   ".html": "text/html; charset=utf-8",

@@ -100,22 +100,36 @@ test("theme state is announced and persists across a reload", async ({ page }) =
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
 });
 
-test("the static hero laptop keeps the real portrait and responsive dock without WebGL", async ({ page }) => {
+test("the hero offers five responsive laptop angles with the real portrait and dock", async ({ page }) => {
   await page.goto("/");
 
-  const laptop = page.locator("[data-static-laptop]");
-  const artwork = laptop.locator(".hero__static-laptop-art img");
-  const portrait = laptop.locator(".hero__static-portrait img");
+  const laptop = page.locator("[data-laptop-picker]");
+  const options = laptop.locator("[data-laptop-option]");
+  const firstArtwork = options.first().locator(".hero__static-laptop-art img");
   const dockItems = laptop.locator(".hero__dock-item");
 
   await expect(laptop).toBeVisible();
-  await expect(artwork).toBeVisible();
-  await expect(portrait).toBeVisible();
+  await expect(options).toHaveCount(5);
+  await expect(options.first()).toHaveClass(/is-active/);
+  await expect(firstArtwork).toBeVisible();
   await expect(dockItems).toHaveCount(11);
   await expect(page.locator(".hero__model-canvas")).toHaveCount(0);
-  await expect(artwork).toHaveJSProperty("complete", true);
-  expect(await artwork.evaluate((image) => image.currentSrc)).toMatch(/hero-laptop-static\.(avif|webp|png)$/);
-  expect(await portrait.evaluate((image) => image.currentSrc)).toMatch(/hero-portrait\.(avif|webp)|laptop-wallper\.png$/);
+  await expect(firstArtwork).toHaveJSProperty("complete", true);
+  expect(await firstArtwork.evaluate((image) => image.currentSrc)).toMatch(/laptop-01\.(avif|webp)$/);
+
+  await page.getByRole("button", { name: "Show next laptop angle" }).click();
+  await expect(laptop).toHaveAttribute("data-active-index", "1");
+  await expect(laptop.locator("[data-laptop-count]")).toHaveText("02 / 05");
+  await expect(laptop.locator("[data-laptop-name]")).toHaveText("Left perspective");
+  await expect(options.nth(1)).toHaveClass(/is-active/);
+  expect(await options.nth(1).locator("img").evaluate((image) => image.currentSrc)).toMatch(/laptop-02\.(avif|webp)$/);
+
+  const crop = await laptop.evaluate((element) => {
+    const box = element.getBoundingClientRect();
+    return (box.right - window.innerWidth) / box.width;
+  });
+  expect(crop).toBeGreaterThan(0.15);
+  expect(crop).toBeLessThan(0.3);
 
   const figma = laptop.locator('.hero__dock-item[data-label="Figma"]');
   await figma.hover();
