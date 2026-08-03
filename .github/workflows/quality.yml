@@ -39,6 +39,11 @@ jobs:
           npm run build:laptop-runtime
           git diff --exit-code -- assets/vendor/laptop-runtime.min.js
 
+      - name: Verify the committed CSS bundle
+        run: |
+          npm run build:css
+          git diff --exit-code -- assets/portfolio.min.css
+
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 

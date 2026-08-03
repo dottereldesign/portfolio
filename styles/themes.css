@@ -36,8 +36,7 @@ html[data-theme="light"] .github-activity__legend i { border-color: rgba(25, 26,
   .journey,
   .cv-section,
   .site-credits,
-  .timeline-event__card,
-  .timeline-event__marker {
+  .career-step {
     transition: color 500ms ease, background-color 500ms ease, border-color 500ms ease, box-shadow 500ms ease;
   }
 
@@ -63,18 +62,6 @@ html[data-theme="light"] .github-activity__legend i { border-color: rgba(25, 26,
 html[data-theme="light"] body {
   background-color: var(--background);
   background-image: none;
-}
-
-html[data-theme="light"] body::before {
-  position: fixed;
-  z-index: 100;
-  inset: 0;
-  background: var(--grain-texture) repeat;
-  background-size: 144px 144px;
-  content: "";
-  mix-blend-mode: multiply;
-  opacity: 0.045;
-  pointer-events: none;
 }
 
 html[data-theme="light"] .hero {
@@ -175,42 +162,6 @@ html[data-theme="light"] .journey::before {
     radial-gradient(ellipse 58% 48% at 22% 14%, rgba(30, 112, 111, 0.105) 0%, rgba(44, 110, 109, 0.05) 42%, transparent 72%),
     radial-gradient(ellipse 46% 60% at 84% 56%, rgba(30, 100, 109, 0.08) 0%, transparent 70%),
     radial-gradient(ellipse 38% 26% at 32% 92%, rgba(55, 122, 103, 0.06) 0%, transparent 72%);
-}
-
-html[data-theme="light"] .timeline__track {
-  background: rgba(25, 26, 23, 0.17);
-}
-
-html[data-theme="light"] .timeline-event__marker {
-  border-color: rgba(25, 26, 23, 0.28);
-  background: #e8e3d8;
-}
-
-html[data-theme="light"] .timeline-event.is-visible .timeline-event__marker {
-  color: var(--on-accent);
-  background: var(--accent-secondary);
-}
-
-html[data-theme="light"] .timeline-event__card {
-  border-color: rgba(25, 26, 23, 0.18);
-  background: rgba(255, 253, 247, 0.5);
-}
-
-html[data-theme="light"] .timeline-event__visual {
-  color: rgba(25, 26, 23, 0.66);
-}
-
-html[data-theme="light"] .timeline-event__visual--signal {
-  color: rgba(255, 253, 247, 0.7);
-}
-
-html[data-theme="light"] .timeline-event__visual--grid {
-  background-color: rgba(255, 253, 247, 0.38);
-  background-image: linear-gradient(rgba(25, 26, 23, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(25, 26, 23, 0.1) 1px, transparent 1px);
-}
-
-html[data-theme="light"] .timeline-event__visual--orbit {
-  background: #f8f4eb;
 }
 
 html[data-theme="light"] .site-credits {

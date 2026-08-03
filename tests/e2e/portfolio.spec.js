@@ -30,11 +30,19 @@ test("theme state is announced and persists across a reload", async ({ page }) =
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
 });
 
-test("WebGL scenes initialise through the split rendering modules", async ({ page }) => {
+test("WebGL scenes initialise after progressive enhancement triggers", async ({ page }) => {
   await page.goto("/");
 
+  await expect(page.locator(".hero__model-poster")).toBeVisible();
+  const initialHeavyResources = await page.evaluate(() => performance.getEntriesByType("resource")
+    .filter(({ name }) => name.includes("laptop-runtime") || name.includes("macbook.glb"))
+    .length);
+  expect(initialHeavyResources).toBe(0);
+
+  await page.mouse.move(120, 120);
   await expect(page.locator(".hero__model")).toHaveClass(/hero__model--ready/, { timeout: 15_000 });
-  await page.waitForTimeout(800);
+  await page.locator("[data-motion-study]").scrollIntoViewIfNeeded();
+  await page.waitForTimeout(1_000);
   await expect(page.locator(".is-unavailable")).toHaveCount(0);
 });
 
@@ -56,11 +64,12 @@ test("mobile quick links support keyboard dismissal without page overflow", asyn
 });
 
 test("crawl files are publicly reachable from the local build", async ({ request }) => {
-  const [robots, sitemap, caseStudy, actionPlan] = await Promise.all([
+  const [robots, sitemap, caseStudy, actionPlan, reviewCv] = await Promise.all([
     request.get("/robots.txt"),
     request.get("/sitemap.xml"),
     request.get("/projects/bewriteback/"),
     request.get("/action-plan/"),
+    request.get("/assets/Jamie-Wilson-CV-v2.pdf"),
   ]);
 
   expect(robots.ok()).toBeTruthy();
@@ -69,6 +78,8 @@ test("crawl files are publicly reachable from the local build", async ({ request
   expect(await sitemap.text()).toContain("projects/bewriteback/");
   expect(caseStudy.ok()).toBeTruthy();
   expect(actionPlan.ok()).toBeTruthy();
+  expect(reviewCv.ok()).toBeTruthy();
+  expect(reviewCv.headers()["content-type"]).toContain("application/pdf");
 });
 
 test("action plan is static, organised and linked from the footer", async ({ page }) => {

@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 640" role="img" aria-label="Stylised laptop">
+  <defs>
+    <linearGradient id="shell" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#a7aaad"/>
+      <stop offset="0.55" stop-color="#5f6266"/>
+      <stop offset="1" stop-color="#27292c"/>
+    </linearGradient>
+    <linearGradient id="screen" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#15120f"/>
+      <stop offset="0.6" stop-color="#090a09"/>
+      <stop offset="1" stop-color="#25110b"/>
+    </linearGradient>
+    <linearGradient id="base" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#83878b"/>
+      <stop offset="1" stop-color="#323438"/>
+    </linearGradient>
+    <radialGradient id="glow">
+      <stop offset="0" stop-color="#ff5a24" stop-opacity=".42"/>
+      <stop offset="1" stop-color="#ff5a24" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="180%">
+      <feGaussianBlur stdDeviation="18"/>
+    </filter>
+  </defs>
+
+  <ellipse cx="500" cy="565" rx="315" ry="38" fill="#000" opacity=".55" filter="url(#shadow)"/>
+  <circle cx="690" cy="255" r="250" fill="url(#glow)"/>
+
+  <g transform="translate(86 38) rotate(-2 400 280)">
+    <rect x="170" y="62" width="570" height="392" rx="27" fill="url(#shell)" stroke="#c1c3c4" stroke-opacity=".28" stroke-width="3"/>
+    <rect x="184" y="76" width="542" height="364" rx="17" fill="#070807"/>
+    <rect x="200" y="92" width="510" height="332" rx="8" fill="url(#screen)"/>
+    <circle cx="455" cy="70" r="3" fill="#111"/>
+
+    <g opacity=".92">
+      <rect x="218" y="109" width="474" height="26" rx="7" fill="#030403" opacity=".82"/>
+      <circle cx="235" cy="122" r="4" fill="#ff5a24"/>
+      <rect x="248" y="118" width="76" height="7" rx="3.5" fill="#dadbd6" opacity=".6"/>
+      <rect x="650" y="118" width="24" height="7" rx="3.5" fill="#dadbd6" opacity=".34"/>
+    </g>
+
+    <g transform="translate(257 312)">
+      <rect width="394" height="76" rx="18" fill="#171a18" stroke="#f2f2ed" stroke-opacity=".13"/>
+      <g fill="#e7e7e1">
+        <rect x="17" y="14" width="48" height="48" rx="13" opacity=".13"/>
+        <rect x="80" y="14" width="48" height="48" rx="13" opacity=".13"/>
+        <rect x="143" y="14" width="48" height="48" rx="13" opacity=".13"/>
+        <rect x="206" y="14" width="48" height="48" rx="13" opacity=".13"/>
+        <rect x="269" y="14" width="48" height="48" rx="13" opacity=".13"/>
+        <rect x="332" y="14" width="48" height="48" rx="13" opacity=".13"/>
+      </g>
+      <g font-family="Arial, sans-serif" font-size="18" font-weight="700" text-anchor="middle">
+        <text x="41" y="45" fill="#f05032">G</text>
+        <text x="104" y="45" fill="#f7df1e">JS</text>
+        <text x="167" y="45" fill="#31a8ff">Ps</text>
+        <text x="230" y="45" fill="#a259ff">F</text>
+        <text x="293" y="45" fill="#21759b">W</text>
+        <text x="356" y="45" fill="#ff5a24">&gt;_</text>
+      </g>
+    </g>
+
+    <path d="M110 454H800l72 67c7 7 3 20-8 22-90 16-181 23-288 25H333c-108-2-199-9-288-25-12-2-16-15-8-22l73-67Z" fill="url(#base)" stroke="#b8babc" stroke-opacity=".34" stroke-width="2"/>
+    <path d="M110 454h690l28 26H82l28-26Z" fill="#676a6e"/>
+    <path d="M344 480h222l-15 23H359l-15-23Z" fill="#303235" stroke="#9b9ea1" stroke-opacity=".45"/>
+    <path d="M82 523h746" stroke="#d5d7d8" stroke-opacity=".24" stroke-width="3"/>
+  </g>
+</svg>

@@ -161,6 +161,7 @@ if (githubActivity) {
   const loadGithubActivity = async () => {
     if (activityHasLoaded) return;
     activityHasLoaded = true;
+    renderSkeleton();
     const controller = new AbortController();
     const timeout = window.setTimeout(() => controller.abort(), 10000);
 
@@ -179,14 +180,12 @@ if (githubActivity) {
     }
   };
 
-  renderSkeleton();
-
   if ("IntersectionObserver" in window) {
     const activityObserver = new IntersectionObserver((entries) => {
       if (!entries.some((entry) => entry.isIntersecting)) return;
       activityObserver.disconnect();
       loadGithubActivity();
-    }, { rootMargin: "35% 0px" });
+    }, { rootMargin: "0px 0px -10% 0px" });
     activityObserver.observe(githubActivity);
   } else {
     loadGithubActivity();

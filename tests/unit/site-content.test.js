@@ -40,6 +40,36 @@ test("crawl files and the first-party case study remain present", async () => {
 test("homepage footer links to the action plan", async () => {
   const html = await read("index.html");
   assert.match(html, /href="action-plan\/">Action plan/);
+  assert.match(html, /href="assets\/Jamie-Wilson-CV-v2\.pdf"[^>]*>CV #2 \(review\)/);
+});
+
+test("career story and action plan reflect the current priorities", async () => {
+  const [html, actionPlan, cv] = await Promise.all([
+    read("index.html"),
+    read("action-plan/index.html"),
+    stat(new URL("../../assets/Jamie-Wilson-CV-v2.pdf", import.meta.url)),
+  ]);
+
+  assert.match(html, /class="career-path"/);
+  assert.match(html, /From study/);
+  assert.match(html, /Student Intern/);
+  assert.match(html, /Technical Support/);
+  assert.match(html, /Website Developer/);
+  assert.doesNotMatch(html, /data-timeline/);
+  assert.doesNotMatch(actionPlan, /Add ownership metadata/i);
+  assert.doesNotMatch(actionPlan, /Draft the Waikato/i);
+  assert.doesNotMatch(actionPlan, /Draft one more client/i);
+  assert.ok(cv.size > 5_000, "CV #2 should be a populated PDF");
+});
+
+test("expensive laptop assets are progressive enhancements", async () => {
+  const [html, manifest] = await Promise.all([read("index.html"), read("script.js")]);
+
+  assert.match(html, /assets\/laptop-poster\.svg/);
+  assert.doesNotMatch(html, /rel="modulepreload"[^>]*laptop-runtime/);
+  assert.doesNotMatch(html, /rel="preload"[^>]*macbook\.glb/);
+  assert.match(manifest, /laptop-loader\.js/);
+  assert.match(manifest, /motion-lab\/loader\.js/);
 });
 
 test("source files stay divided by responsibility", async () => {

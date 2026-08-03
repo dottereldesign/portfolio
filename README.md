@@ -67,6 +67,12 @@ If the Three.js version or exported runtime symbols change, rebuild the committe
 npm run build:laptop-runtime
 ```
 
+If the modular stylesheets change, rebuild the committed minified homepage bundle:
+
+```sh
+npm run build:css
+```
+
 ## Testing
 
 ```sh

@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "build:css": "esbuild src/portfolio.css --bundle --minify --outfile=assets/portfolio.min.css",
     "build:laptop-runtime": "esbuild src/laptop-runtime.js --bundle --format=esm --target=es2020 --minify --legal-comments=eof --outfile=assets/vendor/laptop-runtime.min.js",
     "check": "node scripts/run-checks.mjs",
     "check:syntax": "node scripts/check-syntax.mjs",

@@ -6,7 +6,10 @@ function scrambleText(element) {
   const text = element.textContent.trim();
   element.classList.remove("is-scramble-ready");
 
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+  if (
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    || window.matchMedia("(max-width: 50rem)").matches
+  ) {
     element.classList.add("is-scramble-ready");
     return;
   }

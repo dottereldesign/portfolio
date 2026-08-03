@@ -9,7 +9,6 @@
 @keyframes hero-rail-in { from { opacity: 0; transform: translateX(-0.6rem); } to { opacity: 1; transform: translateX(0); } }
 @keyframes quick-links-menu-in { from { opacity: 0; transform: translateY(0.65rem) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
 @keyframes pulse { 50% { opacity: 0.35; transform: scale(0.7); } }
-
 @media (min-width: 801px) and (max-width: 1100px) {
   .hero__content { width: min(68%, 46rem); padding: clamp(3rem, 8vh, 6rem) clamp(1.5rem, 3vw, 2.5rem); }
   .hero__model { --hero-model-opacity: 0.92; top: 50%; right: -45vw; width: 118vw; height: min(94vh, 60rem); }
@@ -58,13 +57,11 @@
   .capability-card__description { min-height: 0; }
   .work-heading { padding-top: 0; }
   .project-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .journey__intro { margin-bottom: 5rem; text-align: left; }
+  .journey__intro { margin-bottom: 3.5rem; text-align: left; }
   .journey .eyebrow { justify-content: flex-start; }
-  .timeline__track { left: 1rem; }
-  .timeline-event { grid-template-columns: 3rem 1fr; gap: 1rem; min-height: auto; padding: 2rem 0 3rem; }
-  .timeline-event__marker { grid-column: 1; width: 2rem; height: 2rem; }
-  .timeline-event:nth-of-type(odd) .timeline-event__card, .timeline-event:nth-of-type(even) .timeline-event__card { grid-column: 2; }
-  .timeline-event__visual { min-height: 11rem; }
+  .career-path { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .career-step:nth-child(odd) { border-left: 0; }
+  .career-step:nth-child(n + 3) { border-top: 1px solid var(--hero-frame-line); }
   .cv-section { padding-top: 6rem; }
   .cv-section__intro { grid-template-columns: 1fr; align-items: start; gap: 2.5rem; }
   .cv-section__summary { max-width: 39rem; }
@@ -102,7 +99,7 @@
   .hero__study--reveal-ready .hero__study-item + .hero__study-item::before { transform: scaleX(0); }
   .hero__study--reveal-ready.is-visible .hero__study-item + .hero__study-item::before { transform: scaleX(1); }
   .hero__study-item p { font-size: 0.56rem; }
-  .hero__study-item h3 { font-size: 1rem; }
+  .hero__study-item h2 { font-size: 1rem; }
   .capabilities { padding-top: 5rem; padding-bottom: 0; }
   .capability-showcase { padding-block: 5rem; }
   .capabilities__intro { margin-bottom: 3.25rem; }
@@ -116,6 +113,12 @@
   .capability-card h3 { font-size: clamp(1.8rem, 8vw, 2.4rem); }
   .capability-card__description { font-size: 0.8rem; }
   .project-grid { grid-template-columns: 1fr; }
+  .career-path { grid-template-columns: 1fr; }
+  .career-step,
+  .career-step:nth-child(odd),
+  .career-step:nth-child(n + 3) { min-height: 0; padding: 2rem 0; border-top: 0; border-left: 0; }
+  .career-step + .career-step { border-top: 1px solid var(--hero-frame-line); }
+  .career-step::before { margin-bottom: 2rem; }
   .hero__intro { margin: 0.8rem 0 1.6rem; }
   .hero__side-rail { top: calc(var(--page-frame-inset) + var(--site-header-height) + 0.35rem); right: 1.1rem; }
   .cv-section { padding-top: 5rem; }
@@ -252,9 +255,6 @@
   .capabilities--reveal-ready .capability-card__visual,
   .project-card--reveal-ready .project-card__visual { filter: none; }
   .project-card--reveal-ready { --project-reveal-delay: 0ms !important; }
-  .timeline--reveal-ready .timeline-event__card,
-  .timeline--reveal-ready .timeline-event:nth-of-type(even) .timeline-event__card { clip-path: inset(0 0 12% 0); transform: translateY(1.2rem); }
-  .timeline--reveal-ready .timeline-event.is-visible .timeline-event__card { clip-path: inset(0); transform: translateY(0); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -287,16 +287,7 @@
   .journey--reveal-ready .journey__intro h2 span,
   .journey--reveal-ready .journey__intro h2 em,
   .journey--reveal-ready .journey__lede,
-  .timeline--reveal-ready .timeline-event__marker,
-  .timeline--reveal-ready .timeline-event__card,
-  .timeline--reveal-ready .timeline-event__visual,
-  .timeline--reveal-ready .timeline-event__visual::before,
-  .timeline--reveal-ready .timeline-event__visual::after,
-  .timeline--reveal-ready .timeline-event__visual > span,
-  .timeline--reveal-ready .timeline-event__visual b,
-  .timeline--reveal-ready .timeline-event__meta,
-  .timeline--reveal-ready .timeline-event__card h3,
-  .timeline--reveal-ready .timeline-event__card > p:last-child,
+  .journey--reveal-ready .career-step,
   .cv--reveal-ready .cv-section__intro .eyebrow,
   .cv--reveal-ready .cv-section__title h2 span,
   .cv--reveal-ready .cv-section__title h2 em,
@@ -315,7 +306,6 @@
     transform: none !important;
   }
   .capabilities--reveal-ready .capabilities__cta::after { transform: scale(1) !important; }
-  .journey--reveal-ready .timeline__track { opacity: 1 !important; transform: translateX(-50%) scaleY(1) !important; }
   .cv--reveal-ready .cv-quickfacts::before,
   .cv--reveal-ready .cv-quickfacts::after,
   .cv--reveal-ready .cv-block::before,
