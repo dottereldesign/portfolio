@@ -318,18 +318,25 @@ test("display headings protect descenders and body copy has readable leading", a
   await heading.scrollIntoViewIfNeeded();
 
   const typography = await page.evaluate(() => {
+    const primaryHeadingLine = document.querySelector("#capabilities-title > span");
     const headingElement = document.querySelector("#capabilities-title em");
     const paragraph = document.querySelector(".capabilities__lede");
     const headingStyle = getComputedStyle(headingElement);
     const paragraphStyle = getComputedStyle(paragraph);
     return {
+      primaryLineRatio: primaryHeadingLine.getBoundingClientRect().height / Number.parseFloat(getComputedStyle(primaryHeadingLine).lineHeight),
+      accentLineRatio: headingElement.getBoundingClientRect().height / Number.parseFloat(headingStyle.lineHeight),
       headingBoxRatio: headingElement.getBoundingClientRect().height / Number.parseFloat(headingStyle.fontSize),
       paragraphLineRatio: Number.parseFloat(paragraphStyle.lineHeight) / Number.parseFloat(paragraphStyle.fontSize),
+      headingWhiteSpace: headingStyle.whiteSpace,
     };
   });
 
+  expect(typography.primaryLineRatio).toBeLessThan(1.2);
+  expect(typography.accentLineRatio).toBeLessThan(1.2);
   expect(typography.headingBoxRatio).toBeGreaterThan(1);
   expect(typography.paragraphLineRatio).toBeGreaterThanOrEqual(1.65);
+  expect(typography.headingWhiteSpace).toBe("nowrap");
 });
 
 test("the South Island location study fills the work-principle panel", async ({ page }) => {
