@@ -412,12 +412,15 @@ test("the toolkit remains tidy without mobile overflow", async ({ page }) => {
 });
 
 test("crawl files are publicly reachable from the local build", async ({ request }) => {
-  const [robots, sitemap, caseStudy, actionPlan, reviewCv] = await Promise.all([
+  const [robots, sitemap, caseStudy, actionPlan, reviewCv, favicon, lightFavicon, darkFavicon] = await Promise.all([
     request.get("/robots.txt"),
     request.get("/sitemap.xml"),
     request.get("/projects/bewriteback/"),
     request.get("/action-plan/"),
     request.get("/assets/Jamie-Wilson-CV-v2.pdf"),
+    request.get("/favicon.ico"),
+    request.get("/assets/favicons/favicon-light.png"),
+    request.get("/assets/favicons/favicon-dark.png"),
   ]);
 
   expect(robots.ok()).toBeTruthy();
@@ -428,6 +431,11 @@ test("crawl files are publicly reachable from the local build", async ({ request
   expect(actionPlan.ok()).toBeTruthy();
   expect(reviewCv.ok()).toBeTruthy();
   expect(reviewCv.headers()["content-type"]).toContain("application/pdf");
+  expect(favicon.ok()).toBeTruthy();
+  expect(lightFavicon.ok()).toBeTruthy();
+  expect(darkFavicon.ok()).toBeTruthy();
+  expect(lightFavicon.headers()["content-type"]).toContain("image/png");
+  expect(darkFavicon.headers()["content-type"]).toContain("image/png");
 });
 
 test("action plan is static, organised and linked from the footer", async ({ page }) => {
@@ -459,6 +467,8 @@ test("action plan remains readable without mobile overflow", async ({ page }) =>
 test("logo 08 is active and the footer links to three responsive 3x3 studies", async ({ page }) => {
   await page.goto("/");
   await expect(page.locator(".site-header .logo img")).toHaveAttribute("src", "assets/logo-options/jw-logo-08.png");
+  await expect(page.locator('link[rel="icon"][media="(prefers-color-scheme: dark)"]')).toHaveAttribute("href", "assets/favicons/favicon-dark.png");
+  await expect(page.locator('link[rel="apple-touch-icon"]')).toHaveAttribute("href", "assets/favicons/apple-touch-icon.png");
   await page.getByRole("link", { name: /logo options/i }).click();
 
   await expect(page).toHaveURL(/\/logo-options\/$/);

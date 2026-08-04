@@ -18,6 +18,27 @@ test("homepage retains its recruiter-focused SEO and project content", async () 
   assert.equal(projectCards.length, 10);
 });
 
+test("every portfolio page uses the rounded Logo 08 favicons", async () => {
+  const [homepage, actionPlan, logoOptions, caseStudy, lightIcon, darkIcon, touchIcon, legacyIcon] = await Promise.all([
+    read("index.html"),
+    read("action-plan/index.html"),
+    read("logo-options/index.html"),
+    read("projects/bewriteback/index.html"),
+    stat(new URL("../../assets/favicons/favicon-light.png", import.meta.url)),
+    stat(new URL("../../assets/favicons/favicon-dark.png", import.meta.url)),
+    stat(new URL("../../assets/favicons/apple-touch-icon.png", import.meta.url)),
+    stat(new URL("../../favicon.ico", import.meta.url)),
+  ]);
+
+  assert.match(homepage, /href="assets\/favicons\/favicon-light\.png"/);
+  assert.match(homepage, /href="assets\/favicons\/favicon-dark\.png" media="\(prefers-color-scheme: dark\)"/);
+  assert.match(actionPlan, /href="\.\.\/assets\/favicons\/favicon-dark\.png"/);
+  assert.match(logoOptions, /href="\.\.\/assets\/favicons\/favicon-dark\.png"/);
+  assert.match(caseStudy, /href="\.\.\/\.\.\/assets\/favicons\/favicon-dark\.png"/);
+  assert.doesNotMatch(`${homepage}${caseStudy}`, /data:image\/svg\+xml/);
+  [lightIcon, darkIcon, touchIcon, legacyIcon].forEach(({ size }) => assert.ok(size > 1_000 && size < 30_000));
+});
+
 test("crawl files and the first-party case study remain present", async () => {
   const [robots, sitemap, caseStudy, actionPlan] = await Promise.all([
     read("robots.txt"),
