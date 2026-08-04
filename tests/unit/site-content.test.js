@@ -58,6 +58,7 @@ test("homepage includes the South Island Christchurch location study", async () 
   assert.equal((html.match(/How I work \/ 0\d/g) || []).length, 1);
   assert.doesNotMatch(html, /01 \/ South Island|Architectural study/);
   assert.equal((html.match(/<strong>Christchurch, NZ<\/strong>/g) || []).length, 1);
+  assert.doesNotMatch(html, /43\.5321|172\.6362/);
   assert.match(html, /assets\/location-studies\/south-island-architecture-cutout\.webp/);
   assert.doesNotMatch(html, /assets\/location-studies\/(?:canterbury-topography|christchurch-globe)\.webp/);
   assert.equal((html.match(/fetchpriority="low"/g) || []).length, 1);

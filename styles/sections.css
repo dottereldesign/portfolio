@@ -141,7 +141,6 @@
 }
 
 .location-study__marker strong { font-size: 0.62rem; font-weight: 600; letter-spacing: 0.12em; }
-.location-study__marker small { color: var(--muted); font-size: 0.48rem; letter-spacing: 0.06em; }
 
 @keyframes location-marker-pulse {
   0% { opacity: 0.9; transform: scale(0.55); }

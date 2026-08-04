@@ -348,6 +348,7 @@ test("the South Island location study fills the work-principle panel", async ({ 
   await expect(studies).toHaveCount(1);
   await expect(studies.locator(".location-study__marker")).toHaveCount(1);
   await expect(studies.getByText("Christchurch, NZ", { exact: true })).toHaveCount(1);
+  await expect(studies.getByText(/43\.5321|172\.6362/)).toHaveCount(0);
   await expect(page.getByText(/How I work \/ 0\d/)).toHaveCount(1);
   await expect(studies.first().locator("figcaption")).toHaveCount(0);
 
