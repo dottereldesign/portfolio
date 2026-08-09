@@ -92,7 +92,7 @@
   .github-activity__scroll { margin-right: -1px; padding-right: 1rem; direction: rtl; }
   .github-calendar { min-width: 27rem; justify-content: start; direction: ltr; }
   .codex-activity__scroll { margin-inline: calc(-1 * clamp(1.5rem, 2.7vw, 2.5rem)); padding-inline: clamp(1.5rem, 2.7vw, 2.5rem); direction: rtl; }
-  .codex-calendar { min-width: 44rem; direction: ltr; }
+  .codex-calendar { min-width: 27rem; justify-content: start; direction: ltr; }
   .capability-card h3 { font-size: clamp(1.8rem, 8vw, 2.4rem); }
   .capability-card__description { font-size: 0.8rem; }
   .project-grid { grid-template-columns: 1fr; }

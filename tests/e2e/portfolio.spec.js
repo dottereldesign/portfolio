@@ -279,6 +279,9 @@ test("Codex activity recreates the supplied six-month card and animates its blue
   await expect(codex).toHaveClass(/is-ready/);
   await expect(codex).toHaveClass(/is-reveal-active/);
   await expect(codex.locator(".codex-calendar__cell")).toHaveCount(176);
+  await expect(codex.locator(".codex-calendar__month")).toHaveCount(7);
+  await expect(codex.locator(".codex-calendar__month")).toHaveText(["Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug"]);
+  await expect(codex.locator(".codex-calendar__day")).toHaveText(["Mon", "Wed", "Fri"]);
   await expect(codex.locator('.codex-calendar__cell[data-level="1"]').first()).toHaveCSS("background-color", "rgb(13, 42, 69)");
   await expect(codex.locator('.codex-calendar__cell[data-level="4"]').first()).toHaveCSS("background-color", "rgb(1, 105, 204)");
   await expect(codex.getByText("Jamie", { exact: true })).toBeVisible();
@@ -297,6 +300,35 @@ test("Codex activity recreates the supplied six-month card and animates its blue
   expect(new Set(revealDelays).size).toBe(revealDelays.length);
   expect(revealDelays.at(-1)).toBe(0);
   expect(revealDelays[0]).toBeGreaterThan(revealDelays.at(-1));
+
+  await expect(page.locator("[data-github-activity]")).toHaveClass(/is-ready/);
+  const calendarLayouts = await page.evaluate(() => {
+    const readLayout = (calendar, cell) => {
+      const calendarStyle = getComputedStyle(calendar);
+      const cellStyle = getComputedStyle(cell);
+      return {
+        borderRadius: cellStyle.borderRadius,
+        cellHeight: cellStyle.height,
+        cellWidth: cellStyle.width,
+        columnGap: calendarStyle.columnGap,
+        columns: calendarStyle.gridTemplateColumns,
+        rowGap: calendarStyle.rowGap,
+        rows: calendarStyle.gridTemplateRows,
+      };
+    };
+
+    return {
+      codex: readLayout(
+        document.querySelector("[data-codex-calendar]"),
+        document.querySelector(".codex-calendar__cell"),
+      ),
+      github: readLayout(
+        document.querySelector("[data-github-calendar]"),
+        document.querySelector(".github-calendar__cell"),
+      ),
+    };
+  });
+  expect(calendarLayouts.codex).toEqual(calendarLayouts.github);
 });
 
 test("contribution cards sit side by side on desktop and stack on tablet and mobile", async ({ page }) => {

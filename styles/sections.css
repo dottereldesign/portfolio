@@ -533,19 +533,16 @@ html[data-theme="dark"] .toolkit-carousel__icon img[src*="wordpress-icon.svg"] {
 }
 
 .codex-calendar {
-  display: grid;
-  width: 100%;
-  grid-template-columns: repeat(26, minmax(0, 1fr));
-  grid-template-rows: repeat(7, auto);
-  gap: clamp(0.18rem, 0.34vw, 0.34rem);
+  --week-count: 26;
 }
 
 .codex-calendar__cell {
   --codex-cell-color: var(--codex-level-0);
   display: block;
-  width: 100%;
-  aspect-ratio: 1;
-  border-radius: 26%;
+  width: var(--calendar-cell, 0.72rem);
+  height: var(--calendar-cell, 0.72rem);
+  border: 1px solid rgba(255, 255, 255, 0.025);
+  border-radius: 2px;
   background-color: var(--codex-cell-color);
 }
 

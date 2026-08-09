@@ -3,6 +3,17 @@ const codexActivity = document.querySelector("[data-codex-activity]");
 if (codexActivity) {
   const calendar = codexActivity.querySelector("[data-codex-calendar]");
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const monthFormatter = new Intl.DateTimeFormat("en-NZ", {
+    month: "short",
+    timeZone: "UTC",
+  });
+  const dateFormatter = new Intl.DateTimeFormat("en-NZ", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+  const calendarStart = new Date(Date.UTC(2026, 1, 15));
   const activityRows = [
     "11101211211122112212112400",
     "1011121111112132212311024.",
@@ -13,12 +24,20 @@ if (codexActivity) {
     "0111221311121301111012421.",
   ];
   const cells = [];
+  const monthStarts = new Map();
 
   for (let column = 0; column < 26; column += 1) {
     for (let row = 0; row < 7; row += 1) {
       const level = activityRows[row][column];
       if (level === ".") continue;
-      cells.push({ column, level: Number(level), row });
+      const date = new Date(calendarStart);
+      date.setUTCDate(calendarStart.getUTCDate() + (column * 7) + row);
+      cells.push({ column, date, level: Number(level), row });
+
+      const monthKey = `${date.getUTCFullYear()}-${date.getUTCMonth()}`;
+      if (!monthStarts.has(monthKey)) {
+        monthStarts.set(monthKey, { label: monthFormatter.format(date), week: column });
+      }
     }
   }
 
@@ -27,15 +46,32 @@ if (codexActivity) {
   const fragment = document.createDocumentFragment();
   let activeCellIndex = 0;
 
-  cells.forEach(({ column, level, row }) => {
+  calendar.style.setProperty("--week-count", "26");
+
+  [
+    ["Mon", 1],
+    ["Wed", 3],
+    ["Fri", 5],
+  ].forEach(([label, day]) => {
+    const element = document.createElement("span");
+    element.className = "github-calendar__day codex-calendar__day";
+    element.textContent = label;
+    element.style.gridColumn = "1";
+    element.style.gridRow = String(day + 2);
+    fragment.appendChild(element);
+  });
+
+  cells.forEach(({ column, date, level, row }) => {
     const cell = document.createElement("i");
     const position = (column * 7) + row;
     cell.className = "codex-calendar__cell";
     cell.dataset.level = String(level);
-    cell.style.gridColumn = String(column + 1);
-    cell.style.gridRow = String(row + 1);
+    cell.style.gridColumn = String(column + 2);
+    cell.style.gridRow = String(row + 2);
     cell.setAttribute("aria-hidden", "true");
-    cell.title = level === 0 ? "No Codex activity" : `Codex activity level ${level} of 4`;
+    cell.title = level === 0
+      ? `No Codex activity on ${dateFormatter.format(date)}`
+      : `Codex activity level ${level} of 4 on ${dateFormatter.format(date)}`;
 
     if (level > 0 && !prefersReducedMotion) {
       const revealOrder = activeCellCount - activeCellIndex - 1;
@@ -49,6 +85,18 @@ if (codexActivity) {
     }
 
     fragment.appendChild(cell);
+  });
+
+  let previousMonthWeek = -3;
+  monthStarts.forEach(({ label, week }) => {
+    if (week - previousMonthWeek < 2) return;
+    const month = document.createElement("span");
+    month.className = "github-calendar__month codex-calendar__month";
+    month.textContent = label;
+    month.style.gridColumn = String(week + 2);
+    month.style.gridRow = "1";
+    fragment.appendChild(month);
+    previousMonthWeek = week;
   });
 
   calendar.appendChild(fragment);
