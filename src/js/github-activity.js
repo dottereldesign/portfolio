@@ -45,7 +45,7 @@ if (githubActivity) {
   };
 
   const renderSkeleton = () => {
-    const weekCount = 53;
+    const weekCount = 26;
     const fragment = document.createDocumentFragment();
     calendar.replaceChildren();
     calendar.style.setProperty("--week-count", String(weekCount));
@@ -65,24 +65,38 @@ if (githubActivity) {
     calendar.appendChild(fragment);
   };
 
-  const renderCalendar = ({ contributions, total }) => {
+  const renderCalendar = ({ contributions }) => {
     if (!Array.isArray(contributions) || contributions.length < 350) {
       throw new Error("The contribution response was incomplete.");
     }
 
-    const entries = contributions
+    const yearEntries = contributions
       .filter(({ date }) => /^\d{4}-\d{2}-\d{2}$/.test(date))
       .map((entry) => ({
         count: Math.max(0, Number(entry.count) || 0),
         date: entry.date,
         level: Math.max(0, Math.min(4, Number(entry.level) || 0)),
         parsedDate: parseCalendarDate(entry.date),
-      }));
+      }))
+      .sort((first, second) => first.parsedDate - second.parsedDate);
+    const latestDate = yearEntries.at(-1)?.parsedDate;
+
+    if (!latestDate) throw new Error("The contribution response did not contain valid dates.");
+
+    const windowStart = new Date(latestDate);
+    windowStart.setUTCDate(latestDate.getUTCDate() - latestDate.getUTCDay() - (25 * 7));
+    const entries = yearEntries.filter(({ parsedDate }) => parsedDate >= windowStart);
+
+    if (entries.length < 176) {
+      throw new Error("The six-month contribution response was incomplete.");
+    }
+
     const firstDayOffset = entries[0].parsedDate.getUTCDay();
     const weekCount = Math.ceil((firstDayOffset + entries.length) / 7);
     const fragment = document.createDocumentFragment();
     const monthStarts = new Map();
     const activeEntryCount = entries.filter(({ level }) => level > 0).length;
+    const revealStep = 2400 / Math.max(activeEntryCount - 1, 1);
     let activeEntryIndex = 0;
 
     calendar.replaceChildren();
@@ -113,7 +127,7 @@ if (githubActivity) {
         const revealOrder = activeEntryCount - activeEntryIndex - 1;
         const scatterSeed = position + entry.level;
         cell.classList.add("is-reveal-ready");
-        cell.style.setProperty("--reveal-delay", `${revealOrder * 9}ms`);
+        cell.style.setProperty("--reveal-delay", `${revealOrder * revealStep}ms`);
         cell.style.setProperty("--reveal-x", `${((scatterSeed * 7) % 5 - 2) * 0.12}rem`);
         cell.style.setProperty("--reveal-y", `${((scatterSeed * 11) % 5 - 2) * 0.08}rem`);
         cell.style.setProperty("--reveal-rotation", `${((scatterSeed * 13) % 7 - 3) * 4}deg`);
@@ -141,13 +155,12 @@ if (githubActivity) {
 
     calendar.appendChild(fragment);
 
-    const calculatedTotal = entries.reduce((sum, entry) => sum + entry.count, 0);
-    const contributionTotal = Number(total?.lastYear) || calculatedTotal;
-    totalLabel.textContent = `${contributionTotal.toLocaleString("en-NZ")} contributions in the last year`;
+    const contributionTotal = entries.reduce((sum, entry) => sum + entry.count, 0);
+    totalLabel.textContent = `${contributionTotal.toLocaleString("en-NZ")} contributions in the last six months`;
     statusLabel.textContent = "Public GitHub activity · synced automatically";
     calendar.setAttribute(
       "aria-label",
-      `${contributionTotal.toLocaleString("en-NZ")} GitHub contributions by Jamie Wilson in the last year`,
+      `${contributionTotal.toLocaleString("en-NZ")} GitHub contributions by Jamie Wilson in the last six months`,
     );
     githubActivity.classList.add("is-ready");
 

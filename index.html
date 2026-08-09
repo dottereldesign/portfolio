@@ -295,41 +295,89 @@
 
       </div>
 
-      <div class="capabilities__github-activity" data-github-activity aria-label="GitHub contribution activity">
-        <div class="github-activity__panel">
-          <div class="github-activity__panel-header">
-            <p class="github-activity__total" data-github-total>Loading contribution activity…</p>
-            <a class="github-activity__profile-link" href="https://github.com/dottereldesign" target="_blank" rel="noreferrer">
-              View GitHub profile <span aria-hidden="true">↗</span>
-            </a>
-          </div>
-
-          <div class="github-activity__scroll" data-github-scroll>
-            <div
-              class="github-calendar"
-              role="img"
-              aria-label="Loading Jamie Wilson’s GitHub contribution calendar"
-              data-github-calendar
-            ></div>
-          </div>
-
-          <div class="github-activity__panel-footer">
-            <p aria-live="polite" data-github-status>Connecting to public GitHub activity…</p>
-            <div class="github-activity__legend" aria-label="Contribution intensity from less to more">
-              <span>Less</span>
-              <i data-level="0" aria-hidden="true"></i>
-              <i data-level="1" aria-hidden="true"></i>
-              <i data-level="2" aria-hidden="true"></i>
-              <i data-level="3" aria-hidden="true"></i>
-              <i data-level="4" aria-hidden="true"></i>
-              <span>More</span>
+      <div class="contribution-activity-grid">
+        <div class="capabilities__github-activity" data-github-activity aria-label="GitHub contribution activity">
+          <div class="github-activity__panel">
+            <div class="github-activity__panel-header">
+              <p class="github-activity__total" data-github-total>Loading contribution activity…</p>
+              <a class="github-activity__profile-link" href="https://github.com/dottereldesign" target="_blank" rel="noreferrer">
+                View GitHub profile <span aria-hidden="true">↗</span>
+              </a>
             </div>
-          </div>
 
-          <noscript>
-            <p class="github-activity__fallback">JavaScript is required for the live calendar. <a href="https://github.com/dottereldesign">View the contribution graph on GitHub.</a></p>
-          </noscript>
+            <div class="github-activity__scroll" data-github-scroll>
+              <div
+                class="github-calendar"
+                role="img"
+                aria-label="Loading Jamie Wilson’s GitHub contribution calendar"
+                data-github-calendar
+              ></div>
+            </div>
+
+            <div class="github-activity__panel-footer">
+              <p aria-live="polite" data-github-status>Connecting to public GitHub activity…</p>
+              <div class="github-activity__legend" aria-label="Contribution intensity from less to more">
+                <span>Less</span>
+                <i data-level="0" aria-hidden="true"></i>
+                <i data-level="1" aria-hidden="true"></i>
+                <i data-level="2" aria-hidden="true"></i>
+                <i data-level="3" aria-hidden="true"></i>
+                <i data-level="4" aria-hidden="true"></i>
+                <span>More</span>
+              </div>
+            </div>
+
+            <noscript>
+              <p class="github-activity__fallback">JavaScript is required for the live calendar. <a href="https://github.com/dottereldesign">View the contribution graph on GitHub.</a></p>
+            </noscript>
+          </div>
         </div>
+
+        <section class="codex-activity" data-codex-activity aria-label="Codex activity over the last six months">
+          <div class="codex-activity__panel">
+            <header class="codex-activity__header">
+              <div class="codex-activity__identity">
+                <strong>Jamie</strong>
+                <span>@dotterel</span>
+              </div>
+              <div class="codex-activity__brand">
+                <svg viewBox="0 0 64 64" aria-hidden="true">
+                  <path d="M32 5.5c5.3 0 9.8 2.8 12.3 7.1 4.8-.8 9.7 1.6 12.2 5.9 2.6 4.5 2.1 9.9-.8 13.8 3.2 3.8 3.8 9.3 1.2 13.8-2.6 4.4-7.5 6.7-12.3 5.8-2.4 4.4-7 7.3-12.3 7.3-5.2 0-9.7-2.8-12.2-7-5 .9-10-1.5-12.6-6-2.6-4.4-2-9.9 1.1-13.8-3.1-3.9-3.6-9.4-1-13.8 2.5-4.4 7.4-6.8 12.3-6C22.3 8.3 26.8 5.5 32 5.5Z" />
+                  <path d="m24.1 24.2 7.4 7.7-7.4 7.8M35.8 40h7.9" />
+                </svg>
+                <strong>Codex</strong>
+              </div>
+            </header>
+
+            <div class="codex-activity__scroll">
+              <div
+                class="codex-calendar"
+                role="img"
+                aria-label="Jamie’s Codex activity for the last six months"
+                data-codex-calendar
+              ></div>
+            </div>
+
+            <dl class="codex-activity__stats">
+              <div>
+                <dt>lifetime tokens</dt>
+                <dd>10.1B</dd>
+              </div>
+              <div>
+                <dt>peak day</dt>
+                <dd>245.9M</dd>
+              </div>
+              <div>
+                <dt>current streak</dt>
+                <dd>6 days</dd>
+              </div>
+              <div>
+                <dt>longest streak</dt>
+                <dd>82 days</dd>
+              </div>
+            </dl>
+          </div>
+        </section>
       </div>
 
     </section>
@@ -481,6 +529,6 @@
       </footer>
     </section>
 
-    <script type="module" src="script.js?v=20260804-7"></script>
+    <script type="module" src="script.js?v=20260809-1"></script>
   </body>
 </html>

@@ -222,7 +222,8 @@ test("GitHub contributions prefetch before the visitor reaches the activity pane
 
   await activity.scrollIntoViewIfNeeded();
   await expect(activity).toHaveClass(/is-ready/);
-  await expect(activity.locator("[data-github-total]")).toHaveText("730 contributions in the last year");
+  await expect(activity.locator("[data-github-total]")).toHaveText("359 contributions in the last six months");
+  await expect(activity.locator("[data-github-calendar]")).toHaveCSS("--week-count", "26");
 });
 
 test("GitHub contribution greens scatter in from newest to oldest", async ({ page }) => {
@@ -244,7 +245,7 @@ test("GitHub contribution greens scatter in from newest to oldest", async ({ pag
   await expect(activity).toHaveClass(/is-reveal-active/);
 
   const activeCells = activity.locator('.github-calendar__cell:not([data-level="0"])');
-  await expect(activeCells).toHaveCount(292);
+  await expect(activeCells).toHaveCount(143);
   const delays = await activeCells.evaluateAll((cells) => cells.map((cell) => (
     Number.parseFloat(cell.style.getPropertyValue("--reveal-delay"))
   )));
@@ -253,16 +254,84 @@ test("GitHub contribution greens scatter in from newest to oldest", async ({ pag
   expect(delays[0]).toBeGreaterThan(delays.at(-1));
 
   const oldestActiveCell = activeCells.first();
-  const levelZeroColour = await activity.locator('.github-activity__legend i[data-level="0"]').evaluate(
-    (cell) => getComputedStyle(cell).backgroundColor,
-  );
-  await expect(oldestActiveCell).toHaveCSS("animation-name", "github-calendar-cell-reveal");
-  await expect(oldestActiveCell).toHaveCSS("background-color", levelZeroColour);
   await expect(oldestActiveCell).not.toHaveClass(/is-reveal-ready/);
-  const levelOneColour = await activity.locator('.github-activity__legend i[data-level="1"]').evaluate(
+  const oldestActiveLevel = await oldestActiveCell.getAttribute("data-level");
+  const finalColour = await activity.locator(`.github-activity__legend i[data-level="${oldestActiveLevel}"]`).evaluate(
     (cell) => getComputedStyle(cell).backgroundColor,
   );
-  await expect(oldestActiveCell).toHaveCSS("background-color", levelOneColour);
+  await expect(oldestActiveCell).toHaveCSS("background-color", finalColour);
+});
+
+test("Codex activity recreates the supplied six-month card and animates its blue grid", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await page.route(
+    /github-contributions-api\.jogruber\.de\/v4\/dottereldesign\?y=last$/,
+    (route) => route.fulfill({
+      body: JSON.stringify({ contributions: makeContributionFixture(), total: { lastYear: 730 } }),
+      contentType: "application/json",
+      status: 200,
+    }),
+  );
+
+  await page.goto("/");
+  const codex = page.locator("[data-codex-activity]");
+  await codex.scrollIntoViewIfNeeded();
+  await expect(codex).toHaveClass(/is-ready/);
+  await expect(codex).toHaveClass(/is-reveal-active/);
+  await expect(codex.locator(".codex-calendar__cell")).toHaveCount(176);
+  await expect(codex.locator('.codex-calendar__cell[data-level="1"]').first()).toHaveCSS("background-color", "rgb(13, 42, 69)");
+  await expect(codex.locator('.codex-calendar__cell[data-level="4"]').first()).toHaveCSS("background-color", "rgb(1, 105, 204)");
+  await expect(codex.getByText("Jamie", { exact: true })).toBeVisible();
+  await expect(codex.getByText("@dotterel", { exact: true })).toBeVisible();
+  await expect(codex.getByText("Codex", { exact: true })).toBeVisible();
+  await expect(codex.getByText("10.1B", { exact: true })).toBeVisible();
+  await expect(codex.getByText("245.9M", { exact: true })).toBeVisible();
+  await expect(codex.getByText("6 days", { exact: true })).toBeVisible();
+  await expect(codex.getByText("82 days", { exact: true })).toBeVisible();
+  await expect(codex.locator("img")).toHaveCount(0);
+
+  const activeCells = codex.locator('.codex-calendar__cell:not([data-level="0"])');
+  const revealDelays = await activeCells.evaluateAll((cells) => cells.map((cell) => (
+    Number.parseFloat(cell.style.getPropertyValue("--reveal-delay"))
+  )));
+  expect(new Set(revealDelays).size).toBe(revealDelays.length);
+  expect(revealDelays.at(-1)).toBe(0);
+  expect(revealDelays[0]).toBeGreaterThan(revealDelays.at(-1));
+});
+
+test("contribution cards sit side by side on desktop and stack on tablet and mobile", async ({ page }) => {
+  await page.route(
+    /github-contributions-api\.jogruber\.de\/v4\/dottereldesign\?y=last$/,
+    (route) => route.fulfill({
+      body: JSON.stringify({ contributions: makeContributionFixture(), total: { lastYear: 730 } }),
+      contentType: "application/json",
+      status: 200,
+    }),
+  );
+
+  const cardPositions = async () => page.locator(".contribution-activity-grid").evaluate((grid) => {
+    const github = grid.querySelector("[data-github-activity]").getBoundingClientRect();
+    const codex = grid.querySelector("[data-codex-activity]").getBoundingClientRect();
+    return {
+      codex: { bottom: codex.bottom, left: codex.left, top: codex.top },
+      github: { bottom: github.bottom, left: github.left, top: github.top },
+    };
+  });
+
+  await page.goto("/");
+  let positions = await cardPositions();
+  expect(Math.abs(positions.github.top - positions.codex.top)).toBeLessThan(2);
+  expect(positions.codex.left).toBeGreaterThan(positions.github.left);
+
+  for (const viewport of [
+    { width: 1024, height: 768 },
+    { width: 390, height: 844 },
+  ]) {
+    await page.setViewportSize(viewport);
+    positions = await cardPositions();
+    expect(positions.codex.top).toBeGreaterThan(positions.github.bottom);
+    expect(Math.abs(positions.github.left - positions.codex.left)).toBeLessThan(2);
+  }
 });
 
 test("the hero uses one front-facing laptop with a covered webcam and compact dock", async ({ page }) => {

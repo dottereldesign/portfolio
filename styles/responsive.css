@@ -21,6 +21,10 @@
   .project-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
+@media (max-width: 1100px) {
+  .contribution-activity-grid { grid-template-columns: minmax(0, 1fr); }
+}
+
 @media (max-width: 800px), (max-width: 1024px) and (max-aspect-ratio: 1/1) {
   :root { --page-frame-inset: 0.75rem; --page-section-left: var(--page-section-inline); }
   .hero { min-height: max(52rem, 100svh); grid-template-columns: minmax(0, 1fr); grid-template-rows: 3.75rem minmax(0, 1fr) auto; padding: var(--hero-frame-inset); }
@@ -86,7 +90,9 @@
   .github-activity__panel-footer { align-items: flex-start; flex-direction: column; }
   .github-activity__panel-footer { gap: 1rem; }
   .github-activity__scroll { margin-right: -1px; padding-right: 1rem; direction: rtl; }
-  .github-calendar { min-width: 51rem; justify-content: start; direction: ltr; }
+  .github-calendar { min-width: 27rem; justify-content: start; direction: ltr; }
+  .codex-activity__scroll { margin-inline: calc(-1 * clamp(1.5rem, 2.7vw, 2.5rem)); padding-inline: clamp(1.5rem, 2.7vw, 2.5rem); direction: rtl; }
+  .codex-calendar { min-width: 44rem; direction: ltr; }
   .capability-card h3 { font-size: clamp(1.8rem, 8vw, 2.4rem); }
   .capability-card__description { font-size: 0.8rem; }
   .project-grid { grid-template-columns: 1fr; }
@@ -239,7 +245,10 @@
   .project-card--reveal-ready .visual-mark,
   .project-card--reveal-ready .project-card__index,
   .project-card--reveal-ready h3,
-  .project-card--reveal-ready .project-card__description {
+  .project-card--reveal-ready .project-card__description,
+  .codex-activity__identity,
+  .codex-activity__brand,
+  .codex-activity__stats > div {
     opacity: 1 !important;
     clip-path: none !important;
     filter: none !important;
