@@ -18,8 +18,7 @@
 }
 .capabilities::after { position: absolute; z-index: 0; top: 0; right: 0; left: 0; height: clamp(8rem, 14vw, 13rem); pointer-events: none; background: linear-gradient(180deg, #0A0A0A 0%, rgba(10, 10, 12, 0.94) 14%, rgba(9, 10, 18, 0.7) 42%, rgba(9, 11, 20, 0.28) 74%, transparent 100%); content: ""; }
 .capabilities__principles { position: relative; z-index: 3; display: grid; margin: 0 0 clamp(4rem, 7vw, 7rem); }
-.capabilities__intro { position: relative; display: grid; min-height: clamp(36rem, 48vw, 48rem); grid-template-columns: minmax(20rem, 0.82fr) minmax(30rem, 1.18fr); align-items: center; gap: clamp(2.5rem, 5vw, 7rem); padding-block: clamp(4rem, 6vw, 6rem); border-top: 1px solid var(--hero-frame-line); text-align: left; }
-.capabilities__intro:last-child { border-bottom: 1px solid var(--hero-frame-line); }
+.capabilities__intro { position: relative; display: grid; min-height: clamp(36rem, 48vw, 48rem); grid-template-columns: minmax(20rem, 0.82fr) minmax(30rem, 1.18fr); align-items: center; gap: clamp(2.5rem, 5vw, 7rem); padding-block: clamp(4rem, 6vw, 6rem); text-align: left; }
 .capabilities__intro-copy { position: relative; z-index: 4; width: 100%; max-width: 41rem; }
 .capabilities__intro .eyebrow { justify-content: flex-start; }
 .capabilities h2,

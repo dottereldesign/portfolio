@@ -452,6 +452,8 @@ test("the South Island location study fills the work-principle panel", async ({ 
   await expect(studies.getByText(/43\.5321|172\.6362/)).toHaveCount(0);
   await expect(page.getByText(/How I work \/ 0\d/)).toHaveCount(1);
   await expect(studies.first().locator("figcaption")).toHaveCount(0);
+  await expect(panels.first()).toHaveCSS("border-top-width", "0px");
+  await expect(panels.first()).toHaveCSS("border-bottom-width", "0px");
 
   const expectedSources = ["south-island-architecture-cutout.webp"];
 
