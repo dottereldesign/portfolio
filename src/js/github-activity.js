@@ -4,7 +4,7 @@ if (githubActivity) {
   const calendar = githubActivity.querySelector("[data-github-calendar]");
   const totalLabel = githubActivity.querySelector("[data-github-total]");
   const statusLabel = githubActivity.querySelector("[data-github-status]");
-  const profileUrl = "https://github.com/dottereldesign";
+  const cacheKey = "jw-github-contributions-v1";
   const contributionsUrl =
     "https://github-contributions-api.jogruber.de/v4/dottereldesign?y=last";
   const monthFormatter = new Intl.DateTimeFormat("en-NZ", {
@@ -65,7 +65,13 @@ if (githubActivity) {
     calendar.appendChild(fragment);
   };
 
-  const renderCalendar = ({ contributions }) => {
+  const renderCalendar = (
+    { contributions },
+    {
+      animate = true,
+      status = "Public GitHub activity · synced automatically",
+    } = {},
+  ) => {
     if (!Array.isArray(contributions) || contributions.length < 350) {
       throw new Error("The contribution response was incomplete.");
     }
@@ -123,7 +129,7 @@ if (githubActivity) {
       cell.setAttribute("aria-hidden", "true");
       cell.title = `${entry.count} ${contributionWord} on ${dateFormatter.format(entry.parsedDate)}`;
 
-      if (entry.level > 0 && !prefersReducedMotion) {
+      if (entry.level > 0 && animate && !prefersReducedMotion) {
         const revealOrder = activeEntryCount - activeEntryIndex - 1;
         const scatterSeed = position + entry.level;
         cell.classList.add("is-reveal-ready");
@@ -157,11 +163,12 @@ if (githubActivity) {
 
     const contributionTotal = entries.reduce((sum, entry) => sum + entry.count, 0);
     totalLabel.textContent = `${contributionTotal.toLocaleString("en-NZ")} contributions in the last six months`;
-    statusLabel.textContent = "Public GitHub activity · synced automatically";
+    statusLabel.textContent = status;
     calendar.setAttribute(
       "aria-label",
       `${contributionTotal.toLocaleString("en-NZ")} GitHub contributions by Jamie Wilson in the last six months`,
     );
+    githubActivity.classList.remove("is-error", "is-stale");
     githubActivity.classList.add("is-ready");
 
   };
@@ -171,22 +178,44 @@ if (githubActivity) {
     event.target.classList.remove("is-reveal-ready");
   });
 
-  const renderFallback = () => {
-    const fallback = document.createElement("p");
-    const link = document.createElement("a");
-    fallback.className = "github-calendar__fallback";
-    fallback.textContent = "The live calendar could not be reached. ";
-    link.href = profileUrl;
-    link.target = "_blank";
-    link.rel = "noreferrer";
-    link.textContent = "View the contribution graph directly on GitHub.";
-    fallback.appendChild(link);
-    calendar.replaceChildren(fallback);
-    calendar.style.setProperty("--week-count", "1");
-    calendar.setAttribute("aria-label", "GitHub contribution calendar unavailable");
+  const readCachedActivity = () => {
+    try {
+      const cached = JSON.parse(window.localStorage.getItem(cacheKey));
+      if (!cached?.data || !Array.isArray(cached.data.contributions)) return null;
+      return cached;
+    } catch {
+      return null;
+    }
+  };
+
+  const writeCachedActivity = (data) => {
+    try {
+      window.localStorage.setItem(cacheKey, JSON.stringify({
+        data,
+        savedAt: Date.now(),
+      }));
+    } catch {
+      // The live calendar still works when storage is disabled or full.
+    }
+  };
+
+  const renderUnavailableCalendar = () => {
+    if (!calendar.querySelector(".github-calendar__cell")) renderSkeleton();
+    calendar.querySelectorAll(".github-calendar__cell").forEach((cell) => {
+      cell.classList.remove("is-loading", "is-reveal-ready");
+      cell.dataset.level = "0";
+    });
+    calendar.setAttribute("aria-label", "GitHub contribution calendar awaiting a live update");
     totalLabel.textContent = "GitHub contribution calendar";
-    statusLabel.textContent = "Live feed unavailable · profile link still works";
-    githubActivity.classList.add("is-error");
+    statusLabel.textContent = "Live update unavailable · calendar retained";
+    githubActivity.classList.remove("is-error");
+    githubActivity.classList.add("is-ready", "is-stale");
+  };
+
+  const markCachedCalendarStale = () => {
+    statusLabel.textContent = "Saved GitHub activity · live update unavailable";
+    githubActivity.classList.remove("is-error");
+    githubActivity.classList.add("is-ready", "is-stale");
   };
 
   let activityHasLoaded = false;
@@ -224,15 +253,58 @@ if (githubActivity) {
     return contributionsPromise;
   };
 
+  const wait = (duration) => new Promise((resolve) => window.setTimeout(resolve, duration));
+
+  const fetchGithubActivityWithRetry = async (attempts = 2) => {
+    let lastError;
+
+    for (let attempt = 0; attempt < attempts; attempt += 1) {
+      try {
+        return await fetchGithubActivity();
+      } catch (error) {
+        lastError = error;
+        if (attempt < attempts - 1) await wait(650 * (attempt + 1));
+      }
+    }
+
+    throw lastError;
+  };
+
   const loadGithubActivity = async () => {
     if (activityHasLoaded) return;
     activityHasLoaded = true;
 
+    const cachedActivity = readCachedActivity();
+    let hasCachedCalendar = false;
+
+    if (cachedActivity) {
+      try {
+        renderCalendar(cachedActivity.data, {
+          animate: true,
+          status: "Saved GitHub activity · checking for updates…",
+        });
+        hasCachedCalendar = true;
+      } catch {
+        try {
+          window.localStorage.removeItem(cacheKey);
+        } catch {
+          // Ignore unavailable storage and continue with the live request.
+        }
+      }
+    }
+
+    if (!hasCachedCalendar && !prefetchedContributions) renderSkeleton();
+
     try {
-      if (!prefetchedContributions) renderSkeleton();
-      renderCalendar(await fetchGithubActivity());
+      const freshActivity = await fetchGithubActivityWithRetry();
+      renderCalendar(freshActivity, { animate: !hasCachedCalendar });
+      writeCachedActivity(freshActivity);
     } catch {
-      renderFallback();
+      if (hasCachedCalendar) {
+        markCachedCalendarStale();
+      } else {
+        renderUnavailableCalendar();
+      }
     }
   };
 

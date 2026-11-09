@@ -225,6 +225,75 @@ test("GitHub contributions prefetch before the visitor reaches the activity pane
   await expect(activity.locator("[data-github-calendar]")).toHaveCSS("--week-count", "26");
 });
 
+test("GitHub activity updates saved data and retains it when the live refresh fails", async ({ page }) => {
+  const originalContributions = makeContributionFixture();
+  const updatedContributions = originalContributions.map((entry) => ({ ...entry }));
+  updatedContributions.at(-1).count = 12;
+  updatedContributions.at(-1).level = 4;
+  let responseMode = "original";
+
+  await page.route(
+    /github-contributions-api\.jogruber\.de\/v4\/dottereldesign\?y=last$/,
+    (route) => {
+      if (responseMode === "failure") return route.abort("failed");
+      const contributions = responseMode === "updated"
+        ? updatedContributions
+        : originalContributions;
+      return route.fulfill({
+        body: JSON.stringify({ contributions, total: { lastYear: 730 } }),
+        contentType: "application/json",
+        status: 200,
+      });
+    },
+  );
+
+  await page.goto("/");
+  let activity = page.locator("[data-github-activity]");
+  await activity.scrollIntoViewIfNeeded();
+  await expect(activity.locator("[data-github-total]")).toHaveText("359 contributions in the last six months");
+  await expect.poll(() => page.evaluate(() => (
+    JSON.parse(localStorage.getItem("jw-github-contributions-v1"))?.data?.contributions?.at(-1)?.count
+  ))).toBe(4);
+
+  responseMode = "updated";
+  await page.reload();
+  activity = page.locator("[data-github-activity]");
+  await activity.scrollIntoViewIfNeeded();
+  await expect(activity.locator("[data-github-total]")).toHaveText("367 contributions in the last six months");
+  await expect.poll(() => page.evaluate(() => (
+    JSON.parse(localStorage.getItem("jw-github-contributions-v1"))?.data?.contributions?.at(-1)?.count
+  ))).toBe(12);
+
+  responseMode = "failure";
+  await page.reload();
+  activity = page.locator("[data-github-activity]");
+  await activity.scrollIntoViewIfNeeded();
+  await expect(activity).toHaveClass(/is-ready/);
+  await expect(activity).toHaveClass(/is-stale/);
+  await expect(activity).not.toHaveClass(/is-error/);
+  await expect(activity.locator("[data-github-total]")).toHaveText("367 contributions in the last six months");
+  await expect(activity.locator("[data-github-status]")).toHaveText("Saved GitHub activity · live update unavailable");
+  await expect(activity.locator(".github-calendar__cell")).toHaveCount(178);
+  await expect(activity.locator(".github-calendar__fallback")).toHaveCount(0);
+});
+
+test("GitHub activity keeps the calendar shell when no saved or live data is available", async ({ page }) => {
+  await page.route(
+    /github-contributions-api\.jogruber\.de\/v4\/dottereldesign\?y=last$/,
+    (route) => route.abort("failed"),
+  );
+
+  await page.goto("/");
+  const activity = page.locator("[data-github-activity]");
+  await activity.scrollIntoViewIfNeeded();
+  await expect(activity).toHaveClass(/is-ready/);
+  await expect(activity).toHaveClass(/is-stale/);
+  await expect(activity.locator("[data-github-status]")).toHaveText("Live update unavailable · calendar retained");
+  await expect(activity.locator(".github-calendar__cell")).toHaveCount(182);
+  await expect(activity.locator(".github-calendar__cell.is-loading")).toHaveCount(0);
+  await expect(activity.locator(".github-calendar__fallback")).toHaveCount(0);
+});
+
 test("GitHub contribution greens scatter in from newest to oldest", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "no-preference" });
   const contributions = makeContributionFixture();
