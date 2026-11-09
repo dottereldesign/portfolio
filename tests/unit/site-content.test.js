@@ -14,8 +14,8 @@ test("homepage retains its recruiter-focused SEO and project content", async () 
   assert.match(html, /<link rel="canonical" href="https:\/\/dottereldesign\.github\.io\/portfolio\/"/);
   assert.match(html, /"@type": "ProfilePage"/);
   assert.match(html, /"@type": "Person"/);
-  assert.match(html, /href="projects\/bewriteback\/"/);
-  assert.equal(projectCards.length, 10);
+  assert.doesNotMatch(html, /href="projects\/bewriteback\/"/);
+  assert.equal(projectCards.length, 9);
 });
 
 test("every portfolio page uses the rounded Logo 08 favicons", async () => {

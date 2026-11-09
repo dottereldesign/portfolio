@@ -18,16 +18,15 @@ test.beforeEach(async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
 });
 
-test("homepage renders the positioning and navigates to the internal case study", async ({ page }) => {
+test("homepage renders its positioning and selected work", async ({ page }) => {
   await page.goto("/");
 
   await expect(page).toHaveTitle("Jamie Wilson | Christchurch Web Developer");
   await expect(page.getByRole("heading", { level: 1, name: "Jamie Wilson" })).toBeVisible();
   await expect(page.locator(".capabilities__lede").first()).toContainText("Christchurch-based web developer");
 
-  await page.getByRole("link", { name: /bewriteback/i }).click();
-  await expect(page).toHaveURL(/\/projects\/bewriteback\/$/);
-  await expect(page.getByRole("heading", { level: 1, name: "BeWriteBack" })).toBeVisible();
+  await expect(page.locator(".project-card")).toHaveCount(9);
+  await expect(page.getByRole("link", { name: /bewriteback/i })).toHaveCount(0);
 });
 
 test("the toolkit carousel reveals in sequence and keeps looping on hover", async ({ page }) => {
@@ -292,6 +291,7 @@ test("Codex activity recreates the supplied six-month card and animates its blue
   await expect(codex.getByText("6 days", { exact: true })).toBeVisible();
   await expect(codex.getByText("82 days", { exact: true })).toBeVisible();
   await expect(codex.locator("img")).toHaveCount(0);
+  await expect(codex.locator(".codex-activity__scroll")).toHaveCSS("overflow-y", "hidden");
 
   const activeCells = codex.locator('.codex-calendar__cell:not([data-level="0"])');
   const revealDelays = await activeCells.evaluateAll((cells) => cells.map((cell) => (
