@@ -13,6 +13,12 @@ carousels.forEach((carousel) => {
   const originalItems = [...track.children];
   if (!originalItems.length) return;
 
+  originalItems.forEach((item) => {
+    item.querySelectorAll("img").forEach((image) => {
+      image.loading = "eager";
+    });
+  });
+
   const canObserve = "IntersectionObserver" in window;
   if (canObserve) carousel.classList.add("toolkit-carousel--offscreen");
   if (!reducedMotion.matches) carousel.classList.add("toolkit-carousel--reveal-ready");

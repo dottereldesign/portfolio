@@ -38,6 +38,11 @@ test("the toolkit carousel reveals in sequence and keeps looping on hover", asyn
   await expect(toolkit).toHaveClass(/toolkit-carousel--revealed/);
   await expect(toolkit.locator(".toolkit-carousel__item:not([aria-hidden='true'])")).toHaveCount(25);
   await expect(toolkit.locator(".toolkit-carousel__item[aria-hidden='true']")).toHaveCount(25);
+  const toolkitImages = toolkit.locator(".toolkit-carousel__item:not([aria-hidden='true']) img");
+  await expect(toolkitImages).toHaveCount(18);
+  await expect.poll(() => toolkitImages.evaluateAll((images) => images.every((image) => (
+    image.complete && image.naturalWidth > 0 && image.currentSrc.startsWith(window.location.origin)
+  )))).toBe(true);
   await expect(toolkit.locator('.toolkit-carousel__item[aria-label="Figma"]:not([aria-hidden])')).toHaveCount(1);
   await expect(toolkit.locator(".toolkit-carousel__item > span:not(.toolkit-carousel__icon)")).toHaveCount(0);
   await expect(toolkit.getByRole("button")).toHaveCount(0);

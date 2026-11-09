@@ -126,6 +126,9 @@ test("homepage places an icon-only theme-aware toolkit carousel directly after e
   assert.doesNotMatch(html, /id="cv"/);
   assert.match(html, /id="toolkit"/);
   assert.match(html, /data-toolkit-track/);
+  assert.doesNotMatch(html, /api\.iconify\.design/);
+  assert.match(html, /assets\/toolkit\/logos\/html-5\.svg/);
+  assert.match(html, /assets\/toolkit\/simple-icons\/gutenberg\.svg/);
   assert.match(html, /Automatically scrolling tools and technologies\. Keeps moving on hover; focus to pause\./);
   assert.doesNotMatch(html, /Toolkit \/ 25 tools/);
   assert.doesNotMatch(html, /Design, development, CMS, delivery and AI\./);
