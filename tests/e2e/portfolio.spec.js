@@ -641,9 +641,9 @@ test("action plan remains readable without mobile overflow", async ({ page }) =>
   await expect(page.getByText("Jade Software", { exact: true })).toBeVisible();
 });
 
-test("logo 08 is active and the footer links to three responsive 3x3 studies", async ({ page }) => {
+test("Jamie Wilson mark is active and the footer links to three responsive 3x3 studies", async ({ page }) => {
   await page.goto("/");
-  await expect(page.locator(".site-header .logo img")).toHaveAttribute("src", "assets/logo-options/jw-logo-08.png");
+  await expect(page.locator(".site-header .logo img")).toHaveAttribute("src", "assets/jamie-wilson-mark.svg");
   await expect(page.locator('link[rel="icon"][media="(prefers-color-scheme: dark)"]')).toHaveAttribute("href", "assets/favicons/favicon-dark.png");
   await expect(page.locator('link[rel="apple-touch-icon"]')).toHaveAttribute("href", "assets/favicons/apple-touch-icon.png");
   await page.getByRole("link", { name: /logo options/i }).click();

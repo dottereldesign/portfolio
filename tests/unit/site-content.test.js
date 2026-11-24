@@ -106,10 +106,10 @@ test("logo options page presents three generated 3x3 navbar concept sheets", asy
   assert.match(html, /width="1254" height="1254"/);
   assert.doesNotMatch(html, /<svg\b/);
 
-  assert.match(homepage, /src="assets\/logo-options\/jw-logo-08\.png"/);
-  assert.match(actionPlan, /src="\.\.\/assets\/logo-options\/jw-logo-08\.png"/);
-  assert.match(caseStudy, /src="\.\.\/\.\.\/assets\/logo-options\/jw-logo-08\.png"/);
-  assert.match(html, /src="\.\.\/assets\/logo-options\/jw-logo-08\.png"/);
+  assert.match(homepage, /src="assets\/jamie-wilson-mark\.svg"/);
+  assert.match(actionPlan, /src="\.\.\/assets\/jamie-wilson-mark\.svg"/);
+  assert.match(caseStudy, /src="\.\.\/\.\.\/assets\/jamie-wilson-mark\.svg"/);
+  assert.match(html, /src="\.\.\/assets\/jamie-wilson-mark\.svg"/);
 });
 
 test("homepage places an icon-only theme-aware toolkit carousel directly after education", async () => {
